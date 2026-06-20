@@ -8,7 +8,7 @@
   "use strict";
 
   const CFG = {
-    repo:       "L4NOR/LanorTrad",   // votre dépôt GitHub
+    repo:       "L4NOR/LanorTrad-Test-Site",   // votre dépôt GitHub
     repoId:     "R_kgDOS_xMqg",                  // ← À REMPLIR (donné par giscus.app)
     category:   "General",             // catégorie de Discussions
     categoryId: "DIC_kwDOS_xMqs4C_i4A",                  // ← À REMPLIR (donné par giscus.app)
