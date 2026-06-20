@@ -1,0 +1,164 @@
+/* =========================================================================
+   LanorTrad — Forum communautaire (Supabase). Styles alignés sur les tokens
+   du site (voir base.css). Préfixe .fo-  ·  modale d'auth incluse.
+   ========================================================================= */
+
+.fo-app { min-height: 320px; }
+.fo-app[aria-busy="true"] { opacity: .55; transition: opacity .2s; }
+
+/* ---------- Barre supérieure (auth + nouveau sujet) ---------- */
+.fo-bar {
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 22px; min-height: 44px;
+}
+.fo-user { display: inline-flex; align-items: center; gap: 9px;
+  padding: 5px 6px 5px 5px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--line-strong); backdrop-filter: blur(12px); }
+.fo-uname { font-weight: 600; font-size: .92rem; }
+.fo-user .icon-btn { width: 32px; height: 32px; }
+
+/* ---------- Avatar ---------- */
+.fo-av { display: inline-grid; place-items: center; flex: none; border-radius: 50%;
+  font-family: var(--font-display); font-weight: 700; color: #fff;
+  object-fit: cover; box-shadow: 0 4px 14px -6px rgba(0,0,0,.7); }
+
+/* ---------- Badges de rôle ---------- */
+.fo-role { font-size: .66rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; padding: 2px 7px; border-radius: 6px; }
+.fo-role.admin { background: rgba(168,85,247,.18); color: #c98bff; border: 1px solid rgba(168,85,247,.4); }
+.fo-role.mod   { background: rgba(16,185,129,.16); color: #34d399; border: 1px solid rgba(16,185,129,.4); }
+
+/* ---------- Fil d'ariane ---------- */
+.fo-crumbs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: .9rem; color: var(--txt-mut); margin-bottom: 18px; }
+.fo-crumbs a { color: var(--txt-soft); }
+.fo-crumbs a:hover { color: var(--violet); }
+.fo-crumbs .sep { color: var(--txt-mut); }
+
+.fo-empty { text-align: center; padding: 30px 18px; border-radius: var(--radius);
+  background: var(--bg-2); border: 1px dashed var(--line-strong); color: var(--txt-soft); }
+
+/* ---------- Catégories (accueil) ---------- */
+.fo-cats { display: flex; flex-direction: column; gap: 14px; }
+.fo-cat {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px;
+  padding: 18px 20px; border-radius: var(--radius);
+  background: var(--glass); border: 1px solid var(--line);
+  backdrop-filter: blur(12px); transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.fo-cat:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--cat) 55%, transparent);
+  box-shadow: 0 18px 44px -22px var(--cat); }
+.fo-cat-ico { width: 52px; height: 52px; flex: none; display: grid; place-items: center;
+  font-size: 1.7rem; border-radius: 14px;
+  background: color-mix(in srgb, var(--cat) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cat) 35%, transparent); }
+.fo-cat-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fo-cat-name { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--txt); }
+.fo-cat-desc { color: var(--txt-soft); font-size: .92rem; }
+.fo-cat-meta { color: var(--txt-mut); font-size: .82rem; margin-top: 4px; }
+.fo-cat-go { font-size: 1.6rem; color: var(--txt-mut); transition: transform .25s, color .25s; }
+.fo-cat:hover .fo-cat-go { transform: translateX(4px); color: var(--cat); }
+
+/* ---------- En-tête de catégorie ---------- */
+.fo-cathead { display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 18px; border-radius: var(--radius);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--cat) 14%, transparent), transparent 70%), var(--glass);
+  border: 1px solid color-mix(in srgb, var(--cat) 30%, var(--line)); }
+.fo-cathead .fo-cat-ico { width: 56px; height: 56px; font-size: 1.9rem; }
+.fo-cathead-txt { flex: 1; min-width: 180px; }
+.fo-cathead-txt h2 { font-size: 1.5rem; margin: 0; }
+.fo-cathead-txt p { color: var(--txt-soft); margin: 2px 0 0; font-size: .92rem; }
+
+/* ---------- Liste de sujets ---------- */
+.fo-topics { display: flex; flex-direction: column; gap: 10px; }
+.fo-topic { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 16px;
+  padding: 14px 18px; border-radius: var(--radius-sm);
+  background: var(--bg-2); border: 1px solid var(--line); transition: transform .2s, border-color .2s, background .2s; }
+.fo-topic:hover { transform: translateY(-2px); border-color: rgba(168,85,247,.45); background: var(--bg-3); }
+.fo-topic-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fo-topic-title { font-weight: 600; color: var(--txt); display: flex; align-items: center; gap: 7px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fo-topic-meta { color: var(--txt-mut); font-size: .82rem; }
+.fo-topic-stat { text-align: center; color: var(--txt-soft); }
+.fo-topic-stat b { display: block; font-size: 1.05rem; color: var(--txt); }
+.fo-topic-stat i { font-style: normal; font-size: .72rem; color: var(--txt-mut); }
+.fo-topic-last { color: var(--txt-mut); font-size: .8rem; white-space: nowrap; }
+
+.fo-tag { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; flex: none; }
+.fo-tag.pin  { background: rgba(168,85,247,.16); color: #c98bff; }
+.fo-tag.lock { background: rgba(245,158,11,.16); color: #fbbf24; }
+
+/* ---------- Sujet : en-tête + modération ---------- */
+.fo-topic-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+  flex-wrap: wrap; margin-bottom: 16px; }
+.fo-topic-head h2 { font-size: 1.6rem; margin: 0; }
+.fo-mod { display: flex; gap: 8px; }
+.fo-mod button { padding: 6px 12px; border-radius: 9px; font-size: .82rem; cursor: pointer;
+  background: var(--bg-3); color: var(--txt-soft); border: 1px solid var(--line-strong); transition: .2s; }
+.fo-mod button:hover { color: var(--txt); border-color: rgba(168,85,247,.5); }
+
+/* ---------- Messages ---------- */
+.fo-posts { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+.fo-post { display: grid; grid-template-columns: 92px 1fr; gap: 0; overflow: hidden;
+  border-radius: var(--radius); background: var(--bg-2); border: 1px solid var(--line); }
+.fo-post.op { border-color: rgba(168,85,247,.4); background: linear-gradient(120deg, rgba(168,85,247,.06), transparent 60%), var(--bg-2); }
+.fo-post-side { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+  padding: 16px 10px; background: rgba(255,255,255,.02); border-right: 1px solid var(--line); }
+.fo-post-name { font-size: .8rem; font-weight: 600; color: var(--txt-soft); word-break: break-word; }
+.fo-post-body { padding: 14px 18px; min-width: 0; }
+.fo-post-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  color: var(--txt-mut); font-size: .8rem; margin-bottom: 10px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.fo-post-actions { margin-left: auto; display: flex; gap: 6px; }
+.fo-post-actions button { background: none; border: none; cursor: pointer; color: var(--txt-mut);
+  font-size: .8rem; padding: 2px 4px; }
+.fo-post-actions button:hover { color: var(--violet); text-decoration: underline; }
+.fo-post-text { color: var(--txt); line-height: 1.65; word-wrap: break-word; overflow-wrap: anywhere; }
+.fo-post-text a { color: var(--violet); text-decoration: underline; }
+
+/* ---------- Composer / formulaires ---------- */
+.fo-composer { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.fo-composer textarea, .fo-composer input, .fo-composer select,
+.fav-field input, .fav-field textarea, .fav-field select {
+  width: 100%; padding: 12px 14px; border-radius: 12px; font: inherit; color: var(--txt);
+  background: var(--bg-1); border: 1px solid var(--line-strong); resize: vertical; transition: border-color .2s, box-shadow .2s; }
+.fo-composer textarea:focus, .fo-composer input:focus, .fo-composer select:focus,
+.fav-field input:focus, .fav-field textarea:focus, .fav-field select:focus {
+  outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(168,85,247,.18); }
+.fo-composer button { align-self: flex-start; }
+.fo-newtopic { gap: 16px; max-width: 720px; }
+
+.fav-field { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.fav-field > span { font-size: .82rem; font-weight: 600; color: var(--txt-soft); }
+
+/* ---------- Modale d'authentification ---------- */
+.fo-overlay { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px;
+  background: rgba(5,5,12,.7); backdrop-filter: blur(8px); animation: fo-fade .25s ease; }
+@keyframes fo-fade { from { opacity: 0; } to { opacity: 1; } }
+.fo-modal { position: relative; width: 100%; max-width: 400px; padding: 30px 28px;
+  border-radius: var(--radius-lg); background: var(--bg-2); border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-card); animation: fo-pop .3s cubic-bezier(.2,.9,.3,1.2); }
+@keyframes fo-pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.fo-x { position: absolute; top: 12px; right: 14px; background: none; border: none; cursor: pointer;
+  font-size: 1.7rem; line-height: 1; color: var(--txt-mut); }
+.fo-x:hover { color: var(--txt); }
+.fo-tabs { display: flex; gap: 6px; margin-bottom: 20px; padding: 4px; border-radius: 12px; background: var(--bg-1); }
+.fo-tabs button { flex: 1; padding: 9px; border: none; border-radius: 9px; cursor: pointer;
+  font-weight: 600; color: var(--txt-mut); background: none; transition: .2s; }
+.fo-tabs button.on { background: var(--grad); color: #fff; }
+.fo-form { display: flex; flex-direction: column; gap: 14px; }
+.fo-msg { font-size: .85rem; color: #fca5a5; margin: -4px 0 0; }
+.fo-msg.ok { color: #6ee7b7; }
+.fo-link { background: none; border: none; cursor: pointer; color: var(--txt-mut);
+  font-size: .85rem; text-decoration: underline; align-self: center; }
+.fo-link:hover { color: var(--violet); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .fo-cat { grid-template-columns: auto 1fr; }
+  .fo-cat-go { display: none; }
+  .fo-topic { grid-template-columns: auto 1fr auto; }
+  .fo-topic-last { display: none; }
+  .fo-post { grid-template-columns: 64px 1fr; }
+  .fo-post-side { padding: 12px 6px; }
+}
