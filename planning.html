@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planning des sorties — LanorTrad</title>
+  <meta name="description" content="Le planning des sorties LanorTrad : retrouvez le jour de parution habituel de chaque série et les derniers chapitres publiés.">
+  <meta name="theme-color" content="#0b0b16">
+  <link rel="icon" href="images/icons/icon-192x192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css">
+  <link rel="stylesheet" href="css/catalogue.css"><link rel="stylesheet" href="css/planning.css">
+</head>
+<body>
+  <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
+  <main>
+    <section class="wrap page-head" data-reveal>
+      <span class="eyebrow">Rythme de parution</span>
+      <h1>Planning des <span class="grad-text">sorties</span></h1>
+      <p>Le jour de parution habituel de chaque série en cours, et les derniers chapitres tout juste publiés.</p>
+    </section>
+
+    <section class="section" style="padding-top:20px">
+      <div class="wrap">
+        <div class="section-head" data-reveal><div><span class="eyebrow">Cette semaine</span><h2>Calendrier hebdomadaire</h2></div></div>
+        <div class="week" id="week" data-reveal data-delay="1"></div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head" data-reveal><div><span class="eyebrow">Tout frais</span><h2>Dernières sorties</h2></div></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+  </main>
+  <script src="js/data/series.js"></script><script src="js/data/chapters.js"></script>
+  <script src="js/store.js"></script><script src="js/palette.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/planning.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/* =========================================================================
+   LanorTrad — Catalogue
+   ========================================================================= */
+.page-head { padding-top: calc(var(--nav-h) + 48px); padding-bottom: 10px; }
+.page-head .eyebrow { display: block; margin-bottom: 12px; }
+.page-head h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); }
+.page-head p { color: var(--txt-soft); margin-top: 10px; max-width: 60ch; }
+
+.filters {
+  position: sticky; top: calc(var(--nav-h) - 6px); z-index: 40;
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  padding: 14px; margin: 26px 0 34px; border-radius: var(--radius);
+  background: var(--glass-2); border: 1px solid var(--line); backdrop-filter: blur(16px);
+}
+.filters .f-search { position: relative; flex: 1 1 240px; }
+.filters .f-search input { width: 100%; padding: 12px 14px 12px 40px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); color: var(--txt); outline: none; transition: border-color .25s; }
+.filters .f-search input:focus { border-color: rgba(168,85,247,.55); }
+.filters .f-search .ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--txt-mut); }
+
+/* .select : composant partagé désormais dans components.css */
+
+.f-count { margin-left: auto; color: var(--txt-mut); font-size: .9rem; font-weight: 600; padding-right: 6px; }
+
+#cat-grid { grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)); padding-bottom: 60px; }
+
+.empty { text-align: center; padding: 80px 20px; color: var(--txt-mut); }
+.empty .big { font-size: 3rem; margin-bottom: 12px; }
+
+@media (max-width: 620px) {
+  .filters { position: static; }
+  .f-count { width: 100%; margin: 4px 0 0; }
+}

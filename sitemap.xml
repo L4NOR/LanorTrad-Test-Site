@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://lanortrad.com/index.html</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://lanortrad.com/catalogue.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lanortrad.com/planning.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lanortrad.com/bibliotheque.html</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lanortrad.com/equipe.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lanortrad.com/forum.html</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/premium.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Tougen%20Anki</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Ao%20No%20Exorcist</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Catenaccio</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Tokyo%20Underworld</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Satsudou</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Countdown</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Gestation%20of%20Kalavinka</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=In%20the%20White</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Sake%20to%20Sakana</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lanortrad.com/manga.html?id=Second%20Coming</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

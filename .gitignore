@@ -1,0 +1,17 @@
+# Images de chapitres (8 Go) — non versionnées sur GitHub.
+# Régénérez le manifeste avec : py tools/build-data.py après les avoir ajoutées.
+Manga/
+
+# OS / éditeurs
+Thumbs.db
+desktop.ini
+.DS_Store
+*.tmp
+
+# Dépendances
+node_modules/
+
+# Outils / cache locaux
+.claude/
+.netlify/
+.tmp_frames/

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bibliothèque — LanorTrad</title>
+  <meta name="description" content="Votre bibliothèque LanorTrad : reprenez vos lectures là où vous vous êtes arrêté.">
+  <meta name="theme-color" content="#0b0b16">
+  <link rel="icon" href="images/icons/icon-192x192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css">
+  <link rel="stylesheet" href="css/catalogue.css"><link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
+  <main>
+    <section class="wrap page-head" data-reveal>
+      <span class="eyebrow">Votre espace</span>
+      <h1>Ma bibliothèque</h1>
+      <p>Reprenez vos lectures en cours. Vos favoris et votre historique complet arriveront à l'étape 2.</p>
+    </section>
+
+    <section class="section" style="padding-top:20px">
+      <div class="wrap">
+        <div class="section-head" data-reveal><div><span class="eyebrow">À reprendre</span><h2>Lectures en cours</h2></div></div>
+        <div class="card-grid resume-grid" id="resume-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="fav-section" style="padding-top:0;display:none">
+      <div class="wrap">
+        <div class="section-head" data-reveal><div><span class="eyebrow">Vos coups de cœur</span><h2>Mes favoris</h2></div></div>
+        <div class="card-grid cards-row" id="fav-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/data/series.js"></script>
+  <script src="js/data/chapters.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/palette.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/tilt.js"></script>
+  <script>
+    function renderLibrary() {
+      const C = window.CHAPTERS || {};
+      // Reprise
+      const grid = document.getElementById("resume-grid");
+      const rows = window.LTstore.history().map(({ s, p }) => {
+        const ch = (C[s.id] || []).find(c => c.num === p.chapter);
+        const pct = ch && ch.pages ? Math.min(100, Math.round(((p.page || 0) / ch.pages) * 100)) : 0;
+        return { s, p, pct };
+      });
+      if (!rows.length) {
+        grid.innerHTML = `<div class="lib-empty" style="grid-column:1/-1"><div class="big">📚</div><p>Aucune lecture en cours pour l'instant.</p><a class="btn btn-primary" href="catalogue.html" style="margin-top:16px">Découvrir une série</a></div>`;
+      } else {
+        grid.innerHTML = rows.map(r => `
+          <a class="resume" href="reader.html?manga=${encodeURIComponent(r.s.id)}&chapter=${r.p.chapter}">
+            <img src="${r.s.cover}" alt="${r.s.title}" data-fade>
+            <div class="info">
+              <h4>${r.s.title}</h4>
+              <span class="ch">Chapitre ${r.p.chapter}</span>
+              <div class="pbar"><i style="width:${r.pct}%"></i></div>
+              <span class="when" style="color:var(--txt-mut);font-size:.78rem;margin-top:6px">${r.pct}% lu</span>
+            </div>
+          </a>`).join("");
+      }
+      // Favoris
+      const favSec = document.getElementById("fav-section");
+      const favGrid = document.getElementById("fav-grid");
+      const favs = window.LTstore.favorites().map(id => window.LT.seriesById(id)).filter(Boolean);
+      if (favs.length) { favSec.style.display = ""; favGrid.innerHTML = favs.map(LTcard).join(""); }
+      else { favSec.style.display = "none"; }
+
+      document.dispatchEvent(new Event("lt:cards"));
+      window.LT._scanReveals && window.LT._scanReveals();
+    }
+    document.addEventListener("lt:ready", renderLibrary);
+    document.addEventListener("lt:store", renderLibrary);
+  </script>
+</body>
+</html>

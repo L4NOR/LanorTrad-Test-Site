@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium — LanorTrad</title>
+  <meta name="description" content="Passez Premium sur LanorTrad : chapitres en avance, sans publicité, badge exclusif et thème Or. Soutenez l'équipe.">
+  <meta name="theme-color" content="#0b0b16">
+  <link rel="icon" href="images/icons/icon-192x192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css"><link rel="stylesheet" href="css/premium.css">
+</head>
+<body>
+  <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
+  <main>
+    <section class="wrap prem-hero" data-reveal>
+      <div class="crown">👑</div>
+      <span class="eyebrow">Soutenez LanorTrad</span>
+      <h1>Passez <span class="gold">Premium</span></h1>
+      <p>Profitez d'une expérience sans pub, débloquez les chapitres en avance et arborez un badge exclusif — tout en soutenant l'équipe qui traduit vos mangas préférés.</p>
+    </section>
+
+    <!-- Avantages -->
+    <section class="section" style="padding-top:40px">
+      <div class="wrap">
+        <div class="perks" data-reveal data-delay="1">
+          <div class="perk"><div class="pi">⏩</div><h3>Chapitres en avance</h3><p>Lisez les nouveaux chapitres avant tout le monde.</p><span class="soon-tag">Nécessite déploiement</span></div>
+          <div class="perk"><div class="pi">🚫</div><h3>Zéro publicité</h3><p>Une lecture 100 % propre, sans aucune publicité.</p></div>
+          <div class="perk"><div class="pi">✦</div><h3>Badge Premium</h3><p>Un badge doré qui vous distingue sur le site.</p></div>
+          <div class="perk"><div class="pi">🎨</div><h3>Thème exclusif « Or »</h3><p>Un thème doré réservé aux membres Premium.</p></div>
+          <div class="perk"><div class="pi">❤️</div><h3>Soutien direct</h3><p>Vous financez le matériel et le temps de l'équipe.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tarifs -->
+    <section class="section" id="buy-box" style="padding-top:10px">
+      <div class="wrap">
+        <div class="section-head" data-reveal style="justify-content:center;text-align:center"><div><span class="eyebrow" style="color:#fbbf24">Tarifs</span><h2>Choisissez votre formule</h2></div></div>
+        <div class="plans" data-reveal data-delay="1">
+          <div class="plan">
+            <h3>Mensuel</h3>
+            <div class="price">3€<small>/mois</small></div>
+            <ul><li>Sans publicité</li><li>Badge Premium</li><li>Thème Or</li><li>Chapitres en avance</li></ul>
+            <!-- ⚙️ Remplacez href par votre lien de paiement (Tipeee / Ko-fi / Patreon) -->
+            <a class="btn btn-premium" href="#" data-pay>Choisir Mensuel</a>
+          </div>
+          <div class="plan best">
+            <h3>Annuel</h3>
+            <div class="price">25€<small>/an</small></div>
+            <ul><li>Tous les avantages Mensuel</li><li>2 mois offerts</li><li>Soutien renforcé</li><li>Accès anticipé prioritaire</li></ul>
+            <!-- ⚙️ Remplacez href par votre lien de paiement -->
+            <a class="btn btn-premium" href="#" data-pay>Choisir Annuel</a>
+          </div>
+        </div>
+
+        <!-- Code membre -->
+        <div class="code-box" data-reveal style="margin-top:40px">
+          <h3>Déjà membre ?</h3>
+          <p>Entrez le code reçu après votre paiement pour activer le Premium sur cet appareil.</p>
+          <form class="code-form" id="code-form">
+            <input type="text" id="code-input" placeholder="VOTRE-CODE" autocomplete="off" aria-label="Code Premium">
+            <button class="btn btn-premium" type="submit">Activer</button>
+          </form>
+          <div class="code-msg" id="code-msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Espace membre (si déjà premium) -->
+    <section class="section" id="member-box" style="display:none">
+      <div class="wrap">
+        <div class="member" data-reveal>
+          <div class="big-badge">✦</div>
+          <h2>Vous êtes <span class="gold">Premium</span></h2>
+          <p>Merci pour votre soutien ! Vos avantages sont actifs : sans pub, badge et thème exclusif.</p>
+          <div class="actions">
+            <button class="btn btn-premium" id="btn-aurum">✦ Activer le thème Or</button>
+            <button class="btn btn-ghost" id="btn-off">Désactiver sur cet appareil</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/data/series.js"></script><script src="js/data/chapters.js"></script>
+  <script src="js/store.js"></script><script src="js/palette.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/premium.js"></script>
+</body>
+</html>

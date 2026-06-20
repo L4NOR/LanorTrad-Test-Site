@@ -1,0 +1,57 @@
+/* =========================================================================
+   LanorTrad — Pages secondaires (placeholders étape 2 + bibliothèque)
+   ========================================================================= */
+.soon { min-height: 80vh; display: grid; place-items: center; text-align: center; padding-top: var(--nav-h); }
+.soon .badge2 { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: var(--grad-soft); border: 1px solid var(--line-strong); color: var(--violet); font-weight: 700; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 22px; }
+.soon h1 { font-size: clamp(2.4rem, 7vw, 5rem); line-height: 1; margin-bottom: 18px; }
+.soon p { color: var(--txt-soft); max-width: 54ch; margin: 0 auto 30px; font-size: 1.1rem; }
+.soon .glyph { font-size: 4rem; margin-bottom: 18px; animation: float 5s ease-in-out infinite; }
+.soon .feat { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+.soon .feat span { padding: 8px 16px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); color: var(--txt-soft); font-size: .9rem; }
+
+/* ---------- Équipe ---------- */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; }
+.tm { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--glass); border: 1px solid var(--line); transition: transform .4s var(--ease), border-color .4s; }
+.tm:hover { transform: translateY(-8px); border-color: color-mix(in srgb, var(--accent, #a855f7) 50%, transparent); }
+.tm .ph { aspect-ratio: 1; overflow: hidden; position: relative; }
+.tm .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+.tm:hover .ph img { transform: scale(1.07); }
+.tm .ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-2) 2%, transparent 45%); }
+.tm .glow { position: absolute; inset: 0; opacity: 0; transition: opacity .4s; background: radial-gradient(120% 70% at 50% 100%, color-mix(in srgb, var(--accent, #a855f7) 55%, transparent), transparent 70%); }
+.tm:hover .glow { opacity: .8; }
+.tm .body { padding: 20px 22px 24px; position: relative; margin-top: -40px; }
+.tm .role { display: inline-block; padding: 5px 13px; border-radius: 999px; font-size: .74rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-family: var(--font-display); background: color-mix(in srgb, var(--accent, #a855f7) 26%, transparent); color: #fff; border: 1px solid color-mix(in srgb, var(--accent, #a855f7) 40%, transparent); }
+.tm h3 { font-size: 1.5rem; margin: 12px 0 8px; }
+.tm p { color: var(--txt-soft); font-size: .94rem; }
+.tm .disc { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; color: var(--txt-mut); font-size: .85rem; font-weight: 600; }
+.tm .disc:hover { color: var(--violet); }
+
+.recruit { margin-top: 36px; }
+
+/* ---------- Forum : carte de configuration ---------- */
+.giscus-mount { min-height: 200px; }
+.setup-card { max-width: 640px; margin: 0 auto; padding: clamp(28px, 5vw, 48px); border-radius: var(--radius-lg); background: var(--glass); border: 1px solid var(--line-strong); text-align: center; }
+.setup-card .setup-ico { font-size: 3rem; margin-bottom: 14px; }
+.setup-card h2 { font-size: 1.8rem; margin-bottom: 12px; }
+.setup-card p { color: var(--txt-soft); }
+.setup-steps { text-align: left; margin: 22px auto; max-width: 520px; display: flex; flex-direction: column; gap: 12px; counter-reset: st; list-style: none; }
+.setup-steps li { position: relative; padding: 12px 14px 12px 50px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); color: var(--txt-soft); font-size: .92rem; }
+.setup-steps li::before { counter-increment: st; content: counter(st); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--grad); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: .85rem; }
+.setup-steps a { color: var(--violet); font-weight: 600; }
+.setup-steps code { background: var(--bg-3); padding: 2px 7px; border-radius: 6px; font-size: .85em; }
+.setup-note { font-size: .88rem; color: var(--txt-mut); margin: 18px 0 24px; }
+
+.lib-empty { text-align: center; padding: 70px 20px; color: var(--txt-mut); }
+.lib-empty .big { font-size: 3rem; margin-bottom: 14px; }
+.resume-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.resume {
+  display: flex; gap: 14px; padding: 14px; border-radius: var(--radius); position: relative; overflow: hidden;
+  background: var(--glass); border: 1px solid var(--line); transition: transform .3s var(--ease), border-color .3s;
+}
+.resume:hover { transform: translateY(-4px); border-color: rgba(168,85,247,.45); }
+.resume img { width: 70px; height: 98px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+.resume .info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.resume .info h4 { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.resume .info .ch { color: var(--violet); font-weight: 700; margin-top: 4px; }
+.resume .pbar { height: 5px; border-radius: 5px; background: var(--bg-3); margin-top: 10px; overflow: hidden; }
+.resume .pbar i { display: block; height: 100%; background: var(--grad); border-radius: 5px; }

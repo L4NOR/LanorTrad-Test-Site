@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lecture — LanorTrad</title>
+  <meta name="description" content="Lecteur de manga LanorTrad : modes webtoon, page et double, préférences personnalisables.">
+  <meta name="theme-color" content="#07070d">
+  <link rel="icon" href="images/icons/icon-192x192.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/extras.css">
+  <link rel="stylesheet" href="css/reader.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+</head>
+<body class="reader-body" data-shell="minimal">
+  <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
+
+  <div id="reader-root"></div>
+
+  <script src="js/data/series.js"></script>
+  <script src="js/data/chapters.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/palette.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/reader.js"></script>
+</body>
+</html>

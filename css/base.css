@@ -1,0 +1,169 @@
+/* =========================================================================
+   LanorTrad — Design system : tokens, reset, fond animé, typographie
+   ========================================================================= */
+
+:root {
+  /* — Palette sombre (identité LanorTrad : indigo → violet) — */
+  --bg-0: #07070d;          /* fond le plus profond            */
+  --bg-1: #0b0b16;          /* fond de page                    */
+  --bg-2: #11111f;          /* surfaces                        */
+  --bg-3: #181830;          /* surfaces élevées                */
+  --line: rgba(255, 255, 255, .08);
+  --line-strong: rgba(255, 255, 255, .14);
+
+  --glass: rgba(20, 20, 38, .55);
+  --glass-2: rgba(28, 28, 52, .65);
+
+  --txt: #ecebff;
+  --txt-soft: #b9b8d6;
+  --txt-mut: #8482a6;
+
+  --indigo: #6366f1;
+  --violet: #a855f7;
+  --magenta: #d946ef;
+  --accent: var(--violet);
+
+  --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 55%, #d946ef 100%);
+  --grad-soft: linear-gradient(135deg, rgba(99,102,241,.18), rgba(217,70,239,.18));
+
+  --glow: 0 0 0 1px rgba(168,85,247,.35), 0 14px 50px -12px rgba(124,58,237,.55);
+  --shadow-card: 0 20px 50px -20px rgba(0, 0, 0, .8);
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 28px;
+
+  --nav-h: 76px;
+  --max: 1240px;
+
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --ease-back: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* — Thème clair optionnel (toggle) — */
+:root[data-theme="light"] {
+  --bg-0: #eef0fb;
+  --bg-1: #f5f6ff;
+  --bg-2: #ffffff;
+  --bg-3: #ffffff;
+  --line: rgba(20, 20, 50, .10);
+  --line-strong: rgba(20, 20, 50, .18);
+  --glass: rgba(255, 255, 255, .7);
+  --glass-2: rgba(255, 255, 255, .85);
+  --txt: #16162a;
+  --txt-soft: #3a3a5c;
+  --txt-mut: #6b6b8a;
+  --shadow-card: 0 20px 50px -24px rgba(60, 40, 120, .35);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-1);
+  color: var(--txt);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* — Fond animé global (aurora + grain + grille) — */
+.bg-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 600px at 12% -8%, rgba(99,102,241,.16), transparent 60%),
+    radial-gradient(1000px 700px at 100% 0%, rgba(217,70,239,.12), transparent 55%),
+    var(--bg-1);
+}
+.bg-fx::before {            /* grille fine */
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 75%);
+}
+.bg-blob {
+  position: absolute;
+  width: 46vw; height: 46vw;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .5;
+  animation: blobFloat 22s var(--ease) infinite alternate;
+  will-change: transform;
+}
+.bg-blob.b1 { background: radial-gradient(circle, #6d28d9, transparent 70%); top: -14vw; left: -6vw; }
+.bg-blob.b2 { background: radial-gradient(circle, #be185d, transparent 70%); bottom: -18vw; right: -8vw; animation-delay: -8s; }
+.bg-blob.b3 { background: radial-gradient(circle, #1d4ed8, transparent 70%); top: 40%; left: 55%; animation-delay: -14s; opacity: .35; }
+
+@keyframes blobFloat {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  100% { transform: translate3d(4vw, 6vh, 0) scale(1.18); }
+}
+
+/* grain */
+.bg-grain {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  opacity: .04; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* — Typo — */
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 800; line-height: 1.08; letter-spacing: -.02em; }
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700; font-size: .78rem; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--violet);
+}
+
+.grad-text {
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select { font: inherit; }
+
+/* — Layout — */
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+.section { padding-block: clamp(56px, 9vw, 110px); position: relative; }
+
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 34px; flex-wrap: wrap; }
+.section-head h2 { font-size: clamp(1.6rem, 3.4vw, 2.6rem); }
+.section-head .link {
+  font-weight: 600; color: var(--txt-soft); font-size: .95rem;
+  display: inline-flex; align-items: center; gap: 8px; transition: color .25s, gap .25s;
+}
+.section-head .link:hover { color: var(--txt); gap: 12px; }
+
+/* — Scrollbar — */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb { background: linear-gradient(var(--indigo), var(--violet)); border-radius: 20px; border: 2px solid var(--bg-0); }
+::selection { background: rgba(168,85,247,.4); color: #fff; }
+
+/* — Accessibilité : réduit les animations si demandé — */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .12s !important; scroll-behavior: auto !important; }
+}
+
+/* utilitaires */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.hide-mobile { }
+@media (max-width: 760px) { .hide-mobile { display: none !important; } }
