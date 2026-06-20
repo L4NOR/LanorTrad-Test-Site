@@ -1,14 +1,14 @@
 /* LanorTrad — Service Worker (v2) : shell hors-ligne + notifications */
-const CACHE = "lanortrad-v2";
+const CACHE = "lanortrad-v3";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "premium.html",
   "css/base.css", "css/components.css", "css/animations.css", "css/extras.css",
   "css/home.css", "css/catalogue.css", "css/manga.css", "css/reader.css", "css/pages.css",
-  "css/planning.css", "css/premium.css",
+  "css/planning.css", "css/premium.css", "css/forum.css",
   "js/core.js", "js/store.js", "js/palette.js", "js/cards.js", "js/tilt.js",
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
-  "js/planning.js", "js/forum.js", "js/premium.js",
+  "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/premium.js",
   "js/data/series.js", "js/data/chapters.js", "js/data/schedule.js", "js/data/gallery.js",
   "manifest.json"
 ];
