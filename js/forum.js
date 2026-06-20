@@ -9,9 +9,9 @@
 
   const CFG = {
     repo:       "L4NOR/LanorTrad",   // votre dépôt GitHub
-    repoId:     "",                  // ← À REMPLIR (donné par giscus.app)
-    category:   "Forum",             // catégorie de Discussions
-    categoryId: "",                  // ← À REMPLIR (donné par giscus.app)
+    repoId:     "R_kgDOS_xMqg",                  // ← À REMPLIR (donné par giscus.app)
+    category:   "General",             // catégorie de Discussions
+    categoryId: "DIC_kwDOS_xMqs4C_i4A",                  // ← À REMPLIR (donné par giscus.app)
     mapping:    "specific",
     term:       "Forum LanorTrad",
     theme:      "dark_dimmed",       // thème giscus (sombre)
