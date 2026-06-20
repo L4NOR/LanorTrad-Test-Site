@@ -7,6 +7,6 @@
        qui protègent réellement les données. Tu peux donc la committer.
    ========================================================================= */
 window.LT_SUPABASE = {
-  url:     "https://VOTRE_PROJET.supabase.co",   // ← Project URL
-  anonKey: "VOTRE_CLE_ANON_PUBLIC"               // ← clé "anon public"
+  url:     "https://orjhwwtyceouhxelcejq.supabase.co",   // ← Project URL
+  anonKey: "sb_publishable_3Uo_f0zb5aQ70NLoZJ04mQ_4bu3bCns"               // ← clé "anon public"
 };
