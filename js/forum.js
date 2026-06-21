@@ -41,7 +41,7 @@
   function richBody(s) {
     return esc(s)
       .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener nofollow">$1</a>')
-      .replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<span class="fo-mention">@$2</span>')
+      .replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<a class="fo-mention" href="#/u/$2">@$2</a>')
       .replace(/\n/g, "<br>");
   }
 
@@ -206,6 +206,7 @@
     const q = new URLSearchParams(qs || "");
     if (parts[0] === "c")   return viewCategory(parts[1]);
     if (parts[0] === "t")   return viewTopic(parts[1]);
+    if (parts[0] === "u")   return viewProfile(decodeURIComponent(parts[1] || ""));
     if (parts[0] === "new") return viewNewTopic(q.get("cat"));
     return viewHome();
   }
@@ -340,7 +341,7 @@
     const a = p.author || {};
     return `
       <article class="fo-post${isOp ? " op" : ""}" data-post="${isOp ? "op" : p.id}" data-reveal>
-        <div class="fo-post-side">${avatar(a, 46)}<span class="fo-post-name">${esc(a.username || "?")}</span>${roleBadge(a.role)}</div>
+        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${roleBadge(a.role)}</div>
         <div class="fo-post-body">
           <div class="fo-post-meta">${isOp ? "Auteur du sujet" : "A répondu"} · ${timeAgo(p.created_at)}
             ${canEdit(p.author_id) ? `<span class="fo-post-actions">
@@ -523,6 +524,79 @@
           viewTopic(id);
         });
       });
+    });
+  }
+
+  /* ---------- Vue : profil public ---------- */
+  async function viewProfile(username) {
+    setBusy(true);
+    const c = client();
+    const { data: pf } = await c.from("profiles").select("*").ilike("username", username).maybeSingle();
+    if (!pf) { app().innerHTML = errBox("Profil introuvable."); setBusy(false); return; }
+    const own = !!(me && me.id === pf.id);
+    const [{ data: topics }, { data: posts }] = await Promise.all([
+      c.from("topics").select("id,title,created_at,reply_count").eq("author_id", pf.id).order("created_at", { ascending: false }).limit(20),
+      c.from("posts").select("id,created_at,topic:topics(id,title)").eq("author_id", pf.id).order("created_at", { ascending: false }).limit(10)
+    ]);
+    app().innerHTML = `
+      ${crumbs([{ label: "Forum", href: "#/" }, { label: pf.username }])}
+      <div class="fo-profile">
+        <div class="fo-prof-head">
+          ${avatar(pf, 84)}
+          <div class="fo-prof-id">
+            <h2>${esc(pf.username)} ${roleBadge(pf.role)}</h2>
+            <div class="fo-prof-since">Membre depuis ${timeAgo(pf.created_at)}</div>
+            ${pf.bio ? `<p class="fo-prof-bio">${esc(pf.bio).replace(/\n/g, "<br>")}</p>`
+              : `<p class="fo-prof-bio muted">${own ? "Ajoute une bio depuis « Modifier mon profil » ✏️" : "Pas encore de bio."}</p>`}
+          </div>
+          ${own ? `<button class="btn btn-ghost btn-sm" id="prof-edit">Modifier mon profil</button>` : ""}
+        </div>
+        <div class="fo-prof-cols">
+          <div class="fo-prof-col">
+            <h3>Sujets (${(topics || []).length})</h3>
+            ${(topics && topics.length) ? topics.map(t => `<a class="fo-prof-item" href="#/t/${t.id}"><span>${esc(t.title)}</span><i>${t.reply_count} rép. · ${timeAgo(t.created_at)}</i></a>`).join("") : `<div class="fo-prof-empty">Aucun sujet.</div>`}
+          </div>
+          <div class="fo-prof-col">
+            <h3>Messages récents</h3>
+            ${(posts && posts.length) ? posts.map(p => `<a class="fo-prof-item" href="#/t/${p.topic ? p.topic.id : ""}"><span>${p.topic ? esc(p.topic.title) : "(supprimé)"}</span><i>${timeAgo(p.created_at)}</i></a>`).join("") : `<div class="fo-prof-empty">Aucun message.</div>`}
+          </div>
+        </div>
+      </div>`;
+    if (own) app().querySelector("#prof-edit").addEventListener("click", () => editProfile(pf));
+    setBusy(false); rescan();
+  }
+
+  function editProfile(pf) {
+    const head = app().querySelector(".fo-prof-head");
+    const form = el(`<form class="fo-prof-edit">
+      <label class="fav-field"><span>Photo de profil</span><input type="file" name="avatar" accept="image/*"></label>
+      <label class="fav-field"><span>Bio</span><textarea name="bio" rows="3" maxlength="300" placeholder="Parle de toi…">${esc(pf.bio || "")}</textarea></label>
+      <p class="fo-msg" hidden></p>
+      <div style="display:flex;gap:8px"><button class="btn btn-primary" type="submit">Enregistrer</button><button class="btn btn-ghost" type="button" data-cancel>Annuler</button></div>
+    </form>`);
+    head.after(form);
+    const msg = form.querySelector(".fo-msg");
+    form.querySelector("[data-cancel]").addEventListener("click", () => viewProfile(pf.username));
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const c = client();
+      const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
+      const patch = { bio: form.bio.value.trim() || null };
+      try {
+        const file = form.avatar.files[0];
+        if (file) {
+          const ext = ((file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "")) || "png";
+          const path = `${me.id}/avatar.${ext}`;
+          const up = await c.storage.from("avatars").upload(path, file, { upsert: true, cacheControl: "3600" });
+          if (up.error) { msg.textContent = "Avatar : " + up.error.message + " (bucket « avatars » créé ?)"; msg.hidden = false; }
+          else { const { data } = c.storage.from("avatars").getPublicUrl(path); patch.avatar_url = data.publicUrl + "?t=" + Date.now(); }
+        }
+        const { error } = await c.from("profiles").update(patch).eq("id", me.id);
+        if (error) { msg.textContent = error.message; msg.hidden = false; btn.disabled = false; return; }
+        await loadProfile(); renderBar();
+        toast("Profil mis à jour ✓");
+        viewProfile(pf.username);
+      } catch (err) { msg.textContent = String(err.message || err); msg.hidden = false; btn.disabled = false; }
     });
   }
 
