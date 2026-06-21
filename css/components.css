@@ -53,6 +53,12 @@
   transition: transform .5s var(--ease-back);
 }
 .brand:hover .mark { transform: rotate(-12deg) scale(1.08); }
+.brand .brand-name { display: inline-flex; } /* "Lanor"+"Trad" collés (pas de gap flex) */
+.brand .brand-logo {
+  width: 44px; height: 44px; border-radius: 11px; object-fit: cover;
+  box-shadow: 0 8px 20px -6px rgba(124,58,237,.8); transition: transform .5s var(--ease-back);
+}
+.brand:hover .brand-logo { transform: rotate(-12deg) scale(1.08); }
 
 .nav-links { display: flex; align-items: center; gap: 6px; margin-left: 10px; }
 .nav-links a {

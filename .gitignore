@@ -1,5 +1,6 @@
 # Images de chapitres (8 Go) — non versionnées sur GitHub.
 # Régénérez le manifeste avec : py tools/build-data.py après les avoir ajoutées.
+tools/
 
 # OS / éditeurs
 Thumbs.db

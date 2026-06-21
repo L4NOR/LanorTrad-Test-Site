@@ -99,7 +99,7 @@ window.SERIES = [
     cover: "images/Cover/Satsudou.jpg",
     url: "manga.html?id=Satsudou",
     demo: false,
-    featured: false
+    featured: true
   },
   // === ONESHOTS ===
   {
