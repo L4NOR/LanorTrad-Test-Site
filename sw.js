@@ -1,5 +1,5 @@
-/* LanorTrad — Service Worker (v2) : shell hors-ligne + notifications */
-const CACHE = "lanortrad-v8";
+/* LanorTrad — Service Worker : shell hors-ligne (PWA) */
+const CACHE = "lanortrad-v9";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "premium.html",
@@ -9,7 +9,6 @@ const SHELL = [
   "js/core.js", "js/store.js", "js/palette.js", "js/cards.js", "js/tilt.js",
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
   "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/premium.js",
-  "js/push.js", "js/push-config.js",
   "js/data/series.js", "js/data/chapters.js", "js/data/schedule.js", "js/data/gallery.js",
   "manifest.json"
 ];
@@ -48,28 +47,4 @@ self.addEventListener("fetch", e => {
     }
     return res;
   }).catch(() => caches.match(req).then(r => r || caches.match("index.html"))));
-});
-
-/* Réception d'une notification push (sortie de chapitre) */
-self.addEventListener("push", e => {
-  let d = {};
-  try { d = e.data ? e.data.json() : {}; } catch {}
-  e.waitUntil(self.registration.showNotification(d.title || "LanorTrad", {
-    body: d.body || "Nouveau chapitre disponible !",
-    icon: "images/icons/icon-192x192.png",
-    badge: "images/icons/icon-96x96.png",
-    data: { url: d.url || "index.html" }
-  }));
-});
-
-/* Notifications (clic) → ouvre la page ciblée */
-self.addEventListener("notificationclick", e => {
-  e.notification.close();
-  const target = (e.notification.data && e.notification.data.url) || "/";
-  e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
-    for (const c of list) {
-      if ("focus" in c) { if ("navigate" in c) { try { c.navigate(target); } catch {} } return c.focus(); }
-    }
-    if (clients.openWindow) return clients.openWindow(target);
-  }));
 });

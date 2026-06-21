@@ -377,21 +377,10 @@
     document.head.appendChild(ad);
   }
 
-  /* ---------- Notifications push (chargé sur toutes les pages) ---------- */
-  function loadPush() {
-    if (minimal || document.getElementById("lt-push-cfg")) return;  // pas sur le lecteur
-    const cfg = document.createElement("script");
-    cfg.id = "lt-push-cfg"; cfg.src = "js/push-config.js";
-    cfg.onload = () => { const p = document.createElement("script"); p.src = "js/push.js"; document.body.appendChild(p); };
-    cfg.onerror = () => {};                                          // pas de config push → pas de bouton
-    document.body.appendChild(cfg);
-  }
-
   /* ---------- Boot ---------- */
   function boot() {
     wireHead();
     buildShell();
-    loadPush();
     applyPremium();
     buildPalette();
     wireFavorites();
