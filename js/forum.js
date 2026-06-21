@@ -440,7 +440,7 @@
     setTimeout(() => document.addEventListener("click", onNotifOutside, true), 0);
 
     const { data, error } = await c.from("notifications")
-      .select("id,type,read,created_at,topic_id,actor:profiles!notifications_actor_id_fkey(username,avatar_url,role),topic:topics(title)")
+      .select("id,type,read,created_at,topic_id,manga_id,chapter_num,actor:profiles!notifications_actor_id_fkey(username,avatar_url,role),topic:topics(title)")
       .eq("user_id", me.id).order("created_at", { ascending: false }).limit(20);
     const listEl = notifBox.querySelector(".fo-notifs-list");
     if (error) { listEl.textContent = error.message; return; }
@@ -448,11 +448,19 @@
       listEl.innerHTML = `<div class="fo-notifs-empty">Aucune notification pour l'instant.</div>`;
     } else {
       listEl.innerHTML = data.map(n => {
-        const a = n.actor || {}, title = (n.topic && n.topic.title) || "un sujet";
-        const verb = n.type === "mention" ? "vous a mentionné dans" : "a répondu à";
-        return `<a class="fo-notif${n.read ? "" : " unread"}" href="#/t/${n.topic_id}" data-close>
+        const a = n.actor || {};
+        let href, label;
+        if (n.manga_id) {                                   // mention dans un commentaire de chapitre
+          href = `reader.html?manga=${encodeURIComponent(n.manga_id)}${n.chapter_num ? "&chapter=" + encodeURIComponent(n.chapter_num) : ""}`;
+          label = `vous a mentionné en commentaire (${esc(n.manga_id)}${n.chapter_num ? " · ch. " + esc(n.chapter_num) : ""})`;
+        } else {
+          const title = (n.topic && n.topic.title) || "un sujet";
+          href = `#/t/${n.topic_id}`;
+          label = `${n.type === "mention" ? "vous a mentionné dans" : "a répondu à"} « ${esc(title)} »`;
+        }
+        return `<a class="fo-notif${n.read ? "" : " unread"}" href="${href}" data-close>
           ${avatar(a, 34)}
-          <span class="fo-notif-txt"><b>${esc(a.username || "Quelqu'un")}</b> ${verb} « ${esc(title)} »
+          <span class="fo-notif-txt"><b>${esc(a.username || "Quelqu'un")}</b> ${label}
             <span class="fo-notif-time">${timeAgo(n.created_at)}</span></span></a>`;
       }).join("");
       listEl.querySelectorAll("[data-close]").forEach(a => a.addEventListener("click", closeNotifs));

@@ -167,6 +167,7 @@ body.reader-body { background: var(--reader-bg, #07070d); }
 .r-com-del { margin-left: auto; background: none; border: none; color: var(--txt-mut); cursor: pointer; font-size: .76rem; }
 .r-com-del:hover { color: #fca5a5; text-decoration: underline; }
 .r-com-txt { color: var(--txt); line-height: 1.6; overflow-wrap: anywhere; }
+.r-com-mention { color: var(--violet); font-weight: 600; background: rgba(168,85,247,.12); padding: 0 4px; border-radius: 5px; }
 .r-com-new { display: flex; gap: 8px; align-items: flex-start; }
 .r-com-new textarea { flex: 1; padding: 10px 12px; border-radius: 10px; background: var(--bg-1); border: 1px solid var(--line-strong); color: var(--txt); font: inherit; resize: vertical; }
 .r-com-new textarea:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(168,85,247,.18); }
