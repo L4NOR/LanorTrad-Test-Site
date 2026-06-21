@@ -1,9 +1,0 @@
-{
-  "name": "lanortrad-site",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Dépendances des fonctions Netlify (notifications push).",
-  "dependencies": {
-    "web-push": "^3.6.7"
-  }
-}
