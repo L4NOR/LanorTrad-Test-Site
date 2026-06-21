@@ -7,5 +7,5 @@
    Voir PUSH-SETUP.md pour le guide complet.
    ========================================================================= */
 window.LT_PUSH = {
-  vapidPublicKey: "BFe_T3oM0JlaBtT-CBMeKFJPJEOsZLMiMrScr1zL5sNOliGSYrzfrlac2chmx91VmH_IHx0HG79GdDqoWtgLDC4"
+  vapidPublicKey: "BIzjC09njKoX_UKyH9XcFFMYuvbhMhIJ-rCgPNVFynp-VixF8AeNqmfjTgaFyquU778sEplc_SxhpfGGg3bcTs0"
 };
