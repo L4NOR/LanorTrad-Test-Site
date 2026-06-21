@@ -460,7 +460,7 @@
     if (typeof JSZip === "undefined") { window.LT.toast("Téléchargement indisponible."); return; }
     window.LT.toast("Préparation du téléchargement…");
     const zip = new JSZip();
-    const base = `Manga/${manga}/Chapitres/${chap.folder}/`;
+    const base = `Manga/${manga}/${chap.folder}/`;
     try {
       await Promise.all((chap.files || []).map(async f => {
         const res = await fetch(encodeURI(base + f));
@@ -546,6 +546,10 @@
   /* ---------------- Commentaires par chapitre (Supabase) ---------------- */
   const esc = s => String(s == null ? "" : s)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  // Rendu d'un commentaire : échappé, mentions @pseudo surlignées, sauts de ligne.
+  const comBody = s => esc(s)
+    .replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<span class="r-com-mention">@$2</span>')
+    .replace(/\n/g, "<br>");
 
   function sbClient() {
     if (_sb) return _sb;
@@ -583,7 +587,7 @@
     const del = (_me && _me.id === m.author_id) ? `<button class="r-com-del" data-id="${m.id}">Supprimer</button>` : "";
     return `<div class="r-com">${comAvatar(a)}<div class="r-com-b">
       <div class="r-com-head"><b>${esc(a.username || "?")}</b>${role} <span class="r-com-t">${window.LT.timeAgo(m.created_at)}</span>${del}</div>
-      <div class="r-com-txt">${esc(m.body).replace(/\n/g, "<br>")}</div></div></div>`;
+      <div class="r-com-txt">${comBody(m.body)}</div></div></div>`;
   }
   function renderComForm() {
     const wrap = document.getElementById("r-com-form");
