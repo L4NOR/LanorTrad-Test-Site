@@ -1,25 +1,60 @@
 /* =========================================================================
-   LanorTrad — Données utilisateur (favoris, progression, historique, récents)
+   LanorTrad — Données utilisateur (suivis, progression, historique, récents)
    Stockage local, sans backend. Émet "lt:store" à chaque changement.
    ========================================================================= */
 (function () {
   "use strict";
-  const FAV = "lt-favorites";
+  const FOLLOW = "lt-follows";
+  const SEEN = "lt-seen";
   const RECENTS = "lt-search-recents";
 
   function read(key, def) { try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } }
   function write(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} emit(); }
   function emit() { document.dispatchEvent(new Event("lt:store")); }
+  function allSeries() { return window.SERIES || []; }
+  function byId(id) { return allSeries().find(s => s.id === id); }
 
-  /* — Favoris — */
-  function favorites() { return read(FAV, []); }
-  function isFav(id) { return favorites().includes(id); }
-  function toggleFav(id) {
-    const f = favorites(); const i = f.indexOf(id);
+  /* — Suivis : séries pour lesquelles on veut repérer les nouvelles sorties — */
+  function follows() { return read(FOLLOW, []); }
+  function isFollowing(id) { return follows().includes(id); }
+  function toggleFollow(id) {
+    const f = follows(); const i = f.indexOf(id);
     if (i >= 0) f.splice(i, 1); else f.unshift(id);
-    write(FAV, f);
-    return i < 0; // true = ajouté
+    write(FOLLOW, f);
+    return i < 0; // true = suivi
   }
+
+  /* — Nouveautés : « nouveau » si la série a été mise à jour depuis qu'on l'a vue.
+       On stocke une photo {id: lastUpdate}. Au tout 1er passage, on prend la
+       photo de l'état actuel → rien n'est marqué « nouveau » d'emblée. — */
+  function seenMap() { return read(SEEN, null); }
+  function ensureSeenBaseline() {
+    if (seenMap() !== null) return;
+    const base = {};
+    allSeries().forEach(s => { if (s.lastUpdate) base[s.id] = s.lastUpdate; });
+    try { localStorage.setItem(SEEN, JSON.stringify(base)); } catch {}  // pas d'emit au boot
+  }
+  function isNew(s) {
+    if (!s || !s.lastUpdate) return false;          // oneshots / sans date → jamais « nouveau »
+    const seen = seenMap();
+    if (!seen) return false;                         // pas de référence
+    const ref = seen[s.id];
+    return ref === undefined ? true : s.lastUpdate > ref;  // série ajoutée après la photo, ou MàJ plus récente
+  }
+  function markSeen(id) {
+    const s = byId(id);
+    if (!s || !s.lastUpdate) return;
+    const seen = seenMap() || {};
+    if (seen[id] === s.lastUpdate) return;
+    seen[id] = s.lastUpdate; write(SEEN, seen);
+  }
+  function markAllSeen() {
+    const seen = seenMap() || {};
+    allSeries().forEach(s => { if (s.lastUpdate) seen[s.id] = s.lastUpdate; });
+    write(SEEN, seen);
+  }
+  function newCount() { return allSeries().filter(isNew).length; }
+  function followedNewCount() { return follows().map(byId).filter(s => s && isNew(s)).length; }
 
   /* — Progression / reprise — */
   function progress(id) { return read("lt-progress-" + id, null); }
@@ -42,5 +77,11 @@
   }
   function clearRecents() { write(RECENTS, []); }
 
-  window.LTstore = { favorites, isFav, toggleFav, progress, setProgress, history, recents, addRecent, clearRecents };
+  ensureSeenBaseline();
+
+  window.LTstore = {
+    follows, isFollowing, toggleFollow,
+    isNew, markSeen, markAllSeen, newCount, followedNewCount,
+    progress, setProgress, history, recents, addRecent, clearRecents
+  };
 })();

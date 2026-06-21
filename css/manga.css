@@ -17,10 +17,6 @@
   aspect-ratio: 2/3; transition: transform .4s var(--ease), box-shadow .5s; transform-style: preserve-3d; will-change: transform;
 }
 .series-backdrop { } /* accentué via JS */
-.fav-toggle .hicon { fill: none; stroke: currentColor; stroke-width: 2; transition: fill .25s, stroke .25s; }
-.fav-toggle.on { color: #f43f5e; border-color: rgba(244,63,94,.5); }
-.fav-toggle.on .hicon { fill: #f43f5e; stroke: #f43f5e; }
-.fav-toggle.pop { animation: favPop .45s var(--ease-back); }
 .series-cover img { width: 100%; height: 100%; object-fit: cover; }
 
 .series-info .eyebrow { display: block; margin-bottom: 10px; }

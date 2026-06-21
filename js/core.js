@@ -56,8 +56,9 @@
     document.body.prepend(fx);
 
     // Navbar
+    const navBadge = n => n.href === "bibliotheque.html" ? `<span class="nav-badge" data-follow-badge hidden></span>` : "";
     const links = NAV.map(n =>
-      `<a href="${n.href}" class="${n.href === page ? "active" : ""}">${n.label}</a>`).join("");
+      `<a href="${n.href}" class="${n.href === page ? "active" : ""}">${n.label}${navBadge(n)}</a>`).join("");
     const nav = el(`
       <nav class="nav" id="nav">
         <div class="wrap">
@@ -79,7 +80,7 @@
 
     // Drawer mobile
     const drawerLinks = NAV.map(n =>
-      `<a href="${n.href}" class="d-link">${n.label}</a>`).join("");
+      `<a href="${n.href}" class="d-link">${n.label}${navBadge(n)}</a>`).join("");
     const overlay = el(`<div class="drawer-overlay" id="drawer-overlay"></div>`);
     const drawer = el(`
       <aside class="drawer" id="drawer">
@@ -119,7 +120,7 @@
             <ul>
               <li>5 séries traduites</li>
               <li>500+ chapitres</li>
-              <li>5 oneshots</li>
+              <li><a href="feed.xml">📡 Flux RSS des sorties</a></li>
               <li><a href="${DISCORD}" target="_blank" rel="noopener">Signaler un problème</a></li>
             </ul>
           </div>
@@ -127,6 +128,24 @@
         <div class="copy">© 2024–${yr} LanorTrad — Fait avec passion. Tous droits réservés.</div>
       </footer>`);
     document.body.append(footer);
+
+    // Barre d'onglets fixe (mobile) — accès au pouce aux pages principales
+    const TABS = [
+      { label: "Accueil",   href: "index.html",        ic: "home" },
+      { label: "Catalogue", href: "catalogue.html",    ic: "grid" },
+      { label: "Planning",  href: "planning.html",     ic: "calendar" },
+      { label: "Biblio",    href: "bibliotheque.html", ic: "library" },
+      { label: "Forum",     href: "forum.html",        ic: "chat" },
+    ];
+    const tabbar = el(`
+      <nav class="tabbar" aria-label="Navigation principale">
+        ${TABS.map(t => `
+          <a href="${t.href}" class="tab-item ${t.href === page ? "active" : ""}" ${t.href === page ? 'aria-current="page"' : ""}>
+            ${icon(t.ic)}<span>${t.label}</span>
+            ${t.href === "bibliotheque.html" ? `<span class="nav-badge tab-badge" data-follow-badge hidden></span>` : ""}
+          </a>`).join("")}
+      </nav>`);
+    document.body.append(tabbar);
 
     wireShell();
     syncThemeIcon();
@@ -180,7 +199,7 @@
   function wirePageTransitions() {
     if (!VT) document.documentElement.classList.add("no-vt");
     document.addEventListener("click", e => {
-      if (e.target.closest(".fav-btn")) return;
+      if (e.target.closest(".follow-btn")) return;
       const a = e.target.closest("a");
       if (!a) return;
       // couverture qui se transforme vers la fiche
@@ -200,19 +219,34 @@
     }
   }
 
-  /* ---------- Favoris (délégué) ---------- */
-  function wireFavorites() {
+  /* ---------- Suivis (délégué) ---------- */
+  function wireFollows() {
     document.addEventListener("click", e => {
-      const btn = e.target.closest(".fav-btn");
+      const btn = e.target.closest(".follow-btn");
       if (!btn) return;
       e.preventDefault(); e.stopImmediatePropagation();
-      const added = window.LTstore.toggleFav(btn.dataset.fav);
-      $$(`.fav-btn[data-fav="${cssAttr(btn.dataset.fav)}"]`).forEach(b => b.classList.toggle("on", added));
+      const id = btn.dataset.follow;
+      const added = window.LTstore.toggleFollow(id);
+      $$(`.follow-btn[data-follow="${cssAttr(id)}"]`).forEach(b => {
+        b.classList.toggle("on", added);
+        b.title = added ? "Suivi" : "Suivre";
+        b.setAttribute("aria-label", added ? "Ne plus suivre" : "Suivre cette série");
+      });
       btn.classList.remove("pop"); void btn.offsetWidth; btn.classList.add("pop");
-      toast(added ? "♥ Ajouté aux favoris" : "Retiré des favoris");
+      toast(added ? "🔔 Série suivie" : "Suivi retiré");
     }, true);
   }
   function cssAttr(v) { return (window.CSS && CSS.escape) ? CSS.escape(v) : v.replace(/"/g, '\\"'); }
+
+  /* ---------- Pastille « nouveautés » sur Bibliothèque ---------- */
+  function updateFollowBadge() {
+    if (!window.LTstore) return;
+    const n = window.LTstore.followedNewCount();
+    $$("[data-follow-badge]").forEach(b => {
+      b.textContent = n > 99 ? "99+" : n;
+      b.hidden = n === 0;
+    });
+  }
 
   /* ---------- Palette de recherche ⌘K ---------- */
   let pal, palInput, palList, palItems = [], palActive = -1;
@@ -343,6 +377,11 @@
       discord:`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.3 5.3A17 17 0 0 0 15 4l-.2.4a12 12 0 0 1 3.6 1.8c-3.6-1.9-8.2-1.9-11.8 0A12 12 0 0 1 10.2 4.4L10 4a17 17 0 0 0-4.3 1.3C2.9 9.4 2.1 13.4 2.5 17.4a17 17 0 0 0 5.2 2.6l.4-1.4c-.7-.3-1.4-.6-2-1l.5-.4c3.8 1.8 8 1.8 11.8 0l.5.4c-.6.4-1.3.7-2 1l.4 1.4a17 17 0 0 0 5.2-2.6c.5-4.7-.8-8.6-3.5-12.1ZM9 14.7c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Zm6 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Z"/></svg>`,
       x:      `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2H21l-6.5 7.5L22 22h-6.8l-4.5-6-5.2 6H2.6l7-8L2 2h6.9l4 5.5L18.2 2Zm-1.2 18h1.6L7.1 3.7H5.4L17 20Z"/></svg>`,
       clock:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+      home:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>`,
+      grid:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
+      calendar:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>`,
+      library:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2V4Z"/><path d="M6 18a2 2 0 0 0-2 2"/><path d="M6 4a2 2 0 0 0-2 2v12"/></svg>`,
+      chat:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-5.4A8 8 0 1 1 21 11.5Z"/></svg>`,
     };
     return I[name] || "";
   }
@@ -358,6 +397,13 @@
     }
     if (!document.querySelector('link[rel="apple-touch-icon"]')) {
       const a = document.createElement("link"); a.rel = "apple-touch-icon"; a.href = "images/icons/icon-180x180.png"; document.head.appendChild(a);
+    }
+    // Flux RSS des sorties (découvrable par les lecteurs de flux)
+    if (!document.querySelector('link[rel="alternate"][type="application/rss+xml"]')) {
+      const r = document.createElement("link");
+      r.rel = "alternate"; r.type = "application/rss+xml";
+      r.title = "LanorTrad — Nouveaux chapitres"; r.href = "feed.xml";
+      document.head.appendChild(r);
     }
     const isProd = /^https?:/.test(location.protocol) && !/^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
     if (!isProd) return; // pas de SW / analytics / pub en local
@@ -383,7 +429,9 @@
     buildShell();
     applyPremium();
     buildPalette();
-    wireFavorites();
+    wireFollows();
+    updateFollowBadge();
+    document.addEventListener("lt:store", updateFollowBadge);
     wirePageTransitions();
     wireReveals();
     hideLoader();

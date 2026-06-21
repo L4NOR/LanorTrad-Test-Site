@@ -18,22 +18,26 @@
     <section class="wrap page-head" data-reveal>
       <span class="eyebrow">Votre espace</span>
       <h1>Ma bibliothèque</h1>
-      <p>Reprenez vos lectures en cours. Vos favoris et votre historique complet arriveront à l'étape 2.</p>
+      <p>Vos séries suivies et vos lectures en cours, réunies au même endroit.</p>
     </section>
 
-    <section class="section" style="padding-top:20px">
+    <section class="section" id="follow-section" style="padding-top:20px">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <div><span class="eyebrow">Vos séries suivies</span><h2>Mes suivis</h2></div>
+          <button class="link" id="mark-seen-btn" hidden>Tout marquer comme vu</button>
+        </div>
+        <div class="card-grid cards-row" id="follow-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
       <div class="wrap">
         <div class="section-head" data-reveal><div><span class="eyebrow">À reprendre</span><h2>Lectures en cours</h2></div></div>
         <div class="card-grid resume-grid" id="resume-grid"></div>
       </div>
     </section>
 
-    <section class="section" id="fav-section" style="padding-top:0;display:none">
-      <div class="wrap">
-        <div class="section-head" data-reveal><div><span class="eyebrow">Vos coups de cœur</span><h2>Mes favoris</h2></div></div>
-        <div class="card-grid cards-row" id="fav-grid"></div>
-      </div>
-    </section>
   </main>
 
   <script src="js/data/series.js"></script>
@@ -46,6 +50,22 @@
   <script>
     function renderLibrary() {
       const C = window.CHAPTERS || {};
+      const store = window.LTstore;
+
+      // Mes suivis : séries suivies, nouveautés en tête
+      const fGrid = document.getElementById("follow-grid");
+      const followed = store.follows().map(id => window.LT.seriesById(id)).filter(Boolean)
+        .sort((a, b) => (store.isNew(b) - store.isNew(a)) || String(b.lastUpdate || "").localeCompare(String(a.lastUpdate || "")));
+      if (followed.length) {
+        fGrid.innerHTML = followed.map(LTcard).join("");
+      } else {
+        fGrid.innerHTML = `<div class="lib-empty" style="grid-column:1/-1"><div class="big">🔔</div><p>Vous ne suivez aucune série pour l'instant.<br>Cliquez sur « Suivre » depuis une fiche pour repérer ici les nouveaux chapitres.</p><a class="btn btn-primary" href="catalogue.html" style="margin-top:16px">Parcourir le catalogue</a></div>`;
+      }
+      const nNew = followed.filter(store.isNew).length;
+      const markBtn = document.getElementById("mark-seen-btn");
+      markBtn.hidden = nNew === 0;
+      markBtn.onclick = () => { store.markAllSeen(); window.LT.toast("Tout est marqué comme vu"); };
+
       // Reprise
       const grid = document.getElementById("resume-grid");
       const rows = window.LTstore.history().map(({ s, p }) => {
@@ -67,13 +87,6 @@
             </div>
           </a>`).join("");
       }
-      // Favoris
-      const favSec = document.getElementById("fav-section");
-      const favGrid = document.getElementById("fav-grid");
-      const favs = window.LTstore.favorites().map(id => window.LT.seriesById(id)).filter(Boolean);
-      if (favs.length) { favSec.style.display = ""; favGrid.innerHTML = favs.map(LTcard).join(""); }
-      else { favSec.style.display = "none"; }
-
       document.dispatchEvent(new Event("lt:cards"));
       window.LT._scanReveals && window.LT._scanReveals();
     }

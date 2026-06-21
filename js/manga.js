@@ -18,6 +18,7 @@
 
     document.title = `${s.title} — LanorTrad`;
     setSeo(s);
+    window.LTstore.markSeen(s.id);   // consulter la fiche « consomme » la nouveauté
     const chapters = (window.CHAPTERS || {})[s.id] || [];
     const progress = window.LTstore.progress(s.id);
     const gallery = (window.GALLERY || {})[s.id] || null;
@@ -155,24 +156,24 @@
       }));
     }
 
-    // Bouton favori
+    // Bouton « Suivre » (repérer les nouveaux chapitres → Bibliothèque)
     actions.insertAdjacentHTML("beforeend",
-      `<button class="btn btn-ghost fav-toggle" id="fav-toggle">
-        <svg class="hicon" viewBox="0 0 24 24" width="18" height="18"><path d="M12 21s-7.5-4.6-10-9.1C.4 8.8 1.6 5.5 4.6 4.7c1.9-.5 3.7.3 4.7 1.8l.7 1 .7-1c1-1.5 2.8-2.3 4.7-1.8 3 .8 4.2 4.1 2.6 7.2C19.5 16.4 12 21 12 21z"/></svg>
-        <span class="fav-lbl"></span></button>`);
-    const favBtn = document.getElementById("fav-toggle");
-    const syncFav = () => {
-      const on = window.LTstore.isFav(s.id);
-      favBtn.classList.toggle("on", on);
-      favBtn.querySelector(".fav-lbl").textContent = on ? "Dans mes favoris" : "Ajouter aux favoris";
+      `<button class="btn btn-ghost follow-toggle" id="follow-toggle">
+        <svg class="bicon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="follow-lbl"></span></button>`);
+    const followBtn = document.getElementById("follow-toggle");
+    const syncFollow = () => {
+      const on = window.LTstore.isFollowing(s.id);
+      followBtn.classList.toggle("on", on);
+      followBtn.querySelector(".follow-lbl").textContent = on ? "Suivi" : "Suivre";
     };
-    favBtn.addEventListener("click", () => {
-      const added = window.LTstore.toggleFav(s.id);
-      syncFav();
-      favBtn.classList.remove("pop"); void favBtn.offsetWidth; favBtn.classList.add("pop");
-      window.LT.toast(added ? "♥ Ajouté aux favoris" : "Retiré des favoris");
+    followBtn.addEventListener("click", () => {
+      const added = window.LTstore.toggleFollow(s.id);
+      syncFollow();
+      followBtn.classList.remove("pop"); void followBtn.offsetWidth; followBtn.classList.add("pop");
+      window.LT.toast(added ? "🔔 Série suivie — retrouvez les nouveautés dans la Bibliothèque" : "Suivi retiré");
     });
-    syncFav();
+    syncFollow();
 
     // Collaboration : équipes partenaires (hors LanorTrad)
     if (s.partners && s.partners.length) {
