@@ -19,6 +19,8 @@
   // état
   let S, manga, chapters, chap, imgs = [], idx = 0, total = 0;
   let lastDir = 1, autoOn = false, autoRAF = null, autoSpeed = 1.4;
+  let webtoonIO = null;            // préchargement glissant (mode webtoon)
+  let _sb = null, _me = null;      // client + session Supabase (commentaires)
 
   function init() {
     const p = new URLSearchParams(location.search);
@@ -54,7 +56,15 @@
         <button class="fab" id="fab-top" title="Haut de page">${arrow("up")}</button>
         <button class="fab" id="fab-dl" title="Télécharger le chapitre">${dlIcon()}</button>
         <button class="fab" id="fab-full" title="Plein écran (F)">${fsIcon()}</button>
-        <button class="fab primary" id="fab-next" title="Chapitre suivant">${arrow("right")}</button>
+      </div>
+      <div class="r-dock" id="r-dock">
+        <button class="r-dock-chap" id="dock-prev" title="Chapitre précédent">${arrow("left")}</button>
+        <div class="r-scrub">
+          <div class="r-scrub-preview" id="scrub-preview" hidden><img id="scrub-preview-img" alt=""><span id="scrub-preview-num"></span></div>
+          <input type="range" id="scrub" min="1" max="1" value="1" step="1" aria-label="Aller à une page">
+          <div class="r-scrub-count" id="scrub-count">1 / 1</div>
+        </div>
+        <button class="r-dock-chap primary" id="dock-next" title="Chapitre suivant">${arrow("right")}</button>
       </div>
       <div class="r-help-overlay" id="r-help-overlay"><div class="r-help">
         <button class="close" id="r-help-close" aria-label="Fermer">&times;</button>
@@ -107,10 +117,16 @@
     const splash = endSplash();
     pagesEl.appendChild(splash);
 
+    // scrubber : borne sur le nombre de pages
+    const scrub = document.getElementById("scrub");
+    scrub.max = total; scrub.value = 1;
+
     applyMode();
     saveProgress();
     scrollTo({ top: 0 });
     if (prefs.mode === "page" || prefs.mode === "double") showPage(0);
+    updateScrub();
+    loadComments();
   }
 
   /* ---------------- Modes ---------------- */
@@ -119,7 +135,60 @@
     stage.className = "r-stage mode-" + prefs.mode + (prefs.dir === "rtl" ? " rtl" : "");
     if (prefs.mode === "page" || prefs.mode === "double") showPage(idx);
     else { imgs.forEach(im => { im.classList.remove("cur"); resetZoom(im); }); document.getElementById("r-stage").classList.remove("reader-zoomed"); document.getElementById("r-end")?.classList.remove("cur"); }
+    setupWebtoonPreload();
     updateProgress();
+    updateScrub();
+  }
+
+  /* ---------- Préchargement glissant (mode webtoon) ---------- */
+  function setupWebtoonPreload() {
+    if (webtoonIO) { webtoonIO.disconnect(); webtoonIO = null; }
+    if (prefs.mode !== "webtoon") return;
+    webtoonIO = new IntersectionObserver(ents => {
+      ents.forEach(en => {
+        if (!en.isIntersecting) return;
+        const i = +en.target.dataset.i;
+        for (let k = i; k <= i + 4; k++) if (imgs[k]) { imgs[k].loading = "eager"; imgs[k].decode && imgs[k].decode().catch(() => {}); }
+      });
+    }, { rootMargin: "1500px 0px 2500px 0px" });
+    imgs.forEach(im => webtoonIO.observe(im));
+  }
+
+  /* ---------- Scrubber (barre de pages avec aperçu) ---------- */
+  function currentWebtoonIndex() {
+    const mid = scrollY + innerHeight / 2;
+    let lastBottom = 0;
+    for (let i = 0; i < imgs.length; i++) {
+      const r = imgs[i].getBoundingClientRect();
+      const top = r.top + scrollY, bottom = top + r.height;
+      if (mid >= top && mid <= bottom) return i;
+      lastBottom = bottom;
+    }
+    if (imgs.length && mid > lastBottom) return imgs.length - 1;  // au-delà de la dernière page (splash)
+    return 0;
+  }
+  function updateScrub() {
+    const scrub = document.getElementById("scrub"), count = document.getElementById("scrub-count");
+    if (!scrub || !total) return;
+    const cur = prefs.mode === "webtoon" ? currentWebtoonIndex() : Math.min(idx, total - 1);
+    if (document.activeElement !== scrub) scrub.value = cur + 1;
+    count.textContent = (cur + 1) + " / " + total;
+  }
+  function scrubPreview(i) {
+    const box = document.getElementById("scrub-preview");
+    const img = document.getElementById("scrub-preview-img");
+    const num = document.getElementById("scrub-preview-num");
+    if (!imgs[i]) return;
+    img.src = imgs[i].src; num.textContent = (i + 1) + " / " + total;
+    box.hidden = false;
+    const scrub = document.getElementById("scrub");
+    const ratio = total > 1 ? i / (total - 1) : 0;
+    box.style.left = (scrub.offsetLeft + ratio * scrub.offsetWidth) + "px";
+  }
+  function scrubJump(i, live) {
+    i = Math.max(0, Math.min(i, total - 1));
+    if (prefs.mode === "webtoon") { imgs[i] && imgs[i].scrollIntoView({ block: "start", behavior: live ? "auto" : "smooth" }); }
+    else showPage(i);
   }
 
   function showPage(i) {
@@ -139,6 +208,7 @@
     preload(idx);
     saveProgress();
     updateProgress();
+    updateScrub();
   }
 
   // précharge la fenêtre autour de la page courante (tournes instantanées)
@@ -250,8 +320,16 @@
   /* ---------------- Contrôles ---------------- */
   function wireControls() {
     document.getElementById("fab-top").addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
-    document.getElementById("fab-next").addEventListener("click", nextChapter);
     document.getElementById("fab-full").addEventListener("click", toggleFull);
+
+    // Dock bas : chapitre précédent / suivant (collant) + scrubber
+    document.getElementById("dock-prev").addEventListener("click", prevChapter);
+    document.getElementById("dock-next").addEventListener("click", nextChapter);
+    const scrub = document.getElementById("scrub");
+    scrub.addEventListener("input", () => { const i = +scrub.value - 1; scrubPreview(i); if (prefs.mode === "webtoon") scrubJump(i, true); });
+    scrub.addEventListener("change", () => { const i = +scrub.value - 1; if (prefs.mode !== "webtoon") scrubJump(i); setTimeout(() => { document.getElementById("scrub-preview").hidden = true; }, 600); });
+    scrub.addEventListener("pointerup", () => setTimeout(() => { document.getElementById("scrub-preview").hidden = true; }, 600));
+    scrub.addEventListener("mouseleave", () => { document.getElementById("scrub-preview").hidden = true; });
     document.getElementById("fab-dl").addEventListener("click", downloadChapter);
     document.getElementById("fab-auto").addEventListener("click", () => toggleAuto());
     document.getElementById("fab-help").addEventListener("click", () => toggleHelp());
@@ -260,12 +338,16 @@
     document.getElementById("z-left").addEventListener("click", () => prefs.dir === "rtl" ? nextPage() : prevPage());
     document.getElementById("z-right").addEventListener("click", () => prefs.dir === "rtl" ? prevPage() : nextPage());
 
-    // masquage de la barre au scroll (webtoon)
+    // masquage de la barre au scroll (webtoon) + MAJ scrubber
     let last = 0;
     addEventListener("scroll", () => {
       updateProgress();
+      updateScrub();
       const bar = document.getElementById("r-bar");
-      if (scrollY > last && scrollY > 160) bar.classList.add("hidden-up"); else bar.classList.remove("hidden-up");
+      const dock = document.getElementById("r-dock");
+      const down = scrollY > last && scrollY > 160;
+      bar.classList.toggle("hidden-up", down);
+      dock.classList.toggle("hidden-down", down);
       last = scrollY;
     }, { passive: true });
 
@@ -356,6 +438,18 @@
     const up = e => { z.pts.delete(e.pointerId); z.drag = null; z.pd = 0; };
     img.addEventListener("pointerup", up);
     img.addEventListener("pointercancel", up);
+
+    // Double-tap tactile (en plus du dblclick souris) → zoom / dézoom
+    let lastTap = 0, tapXY = null;
+    img.addEventListener("pointerdown", e => { if (e.pointerType === "touch" && z.pts.size <= 1) tapXY = { x: e.clientX, y: e.clientY }; });
+    img.addEventListener("pointerup", e => {
+      if (e.pointerType !== "touch" || !tapXY) return;
+      const moved = Math.hypot(e.clientX - tapXY.x, e.clientY - tapXY.y); tapXY = null;
+      if (moved > 12) return;                       // glissement, pas un tap
+      const now = Date.now();
+      if (now - lastTap < 300) { if (z.scale > 1.01) { z.scale = 1; z.x = z.y = 0; } else { z.scale = 2.4; } apply(true); lastTap = 0; }
+      else lastTap = now;
+    });
   }
   function resetZoom(img) {
     if (img && img._zoom) { img._zoom.scale = 1; img._zoom.x = img._zoom.y = 0; img.style.transform = ""; img.classList.remove("zoomed"); }
@@ -393,6 +487,7 @@
           <a class="btn btn-primary" href="https://discord.gg/md37S7nhkZ" target="_blank" rel="noopener">Rejoindre le Discord</a>
           <button class="btn btn-ghost" id="end-next">Suivant ${arrow("right")}</button>
         </div>
+        <div class="r-comments" id="r-comments"></div>
       </div>`);
     setTimeout(() => {
       wrap.querySelector("#end-prev")?.addEventListener("click", prevChapter);
@@ -446,6 +541,75 @@
       <div style="margin-top:18px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <a class="btn btn-ghost" href="${S ? S.url : "catalogue.html"}">Retour à la fiche</a>
         <a class="btn btn-primary" href="index.html">Accueil</a></div></div>`;
+  }
+
+  /* ---------------- Commentaires par chapitre (Supabase) ---------------- */
+  const esc = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+  function sbClient() {
+    if (_sb) return _sb;
+    const C = window.LT_SUPABASE || {};
+    if (!window.supabase || !C.url || !C.anonKey || /VOTRE_|YOUR_/i.test(C.url + C.anonKey)) return null;
+    _sb = window.supabase.createClient(C.url, C.anonKey);
+    return _sb;
+  }
+  function comAvatar(p, size = 34) {
+    const name = (p && p.username) || "?";
+    const initials = name.slice(0, 2).toUpperCase();
+    const hue = [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+    return `<span class="r-com-av" style="width:${size}px;height:${size}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
+  }
+  async function loadComments() {
+    const box = document.getElementById("r-comments");
+    if (!box) return;
+    const c = sbClient();
+    if (!c) { box.innerHTML = ""; return; }               // Supabase non configuré
+    box.innerHTML = `<h3 class="r-com-h">💬 Commentaires du chapitre</h3><div class="r-com-list" id="r-com-list">Chargement…</div><div id="r-com-form"></div>`;
+    const { data: { session } } = await c.auth.getSession();
+    _me = session ? session.user : null;
+    const { data, error } = await c.from("chapter_comments")
+      .select("id,body,created_at,author_id,author:profiles(username,avatar_url,role)")
+      .eq("manga_id", manga).eq("chapter_num", chap.num).order("created_at", { ascending: true });
+    const list = document.getElementById("r-com-list");
+    if (error) { list.innerHTML = `<div class="r-com-empty">Les commentaires seront bientôt disponibles.</div>`; renderComForm(); return; }
+    list.innerHTML = (data && data.length) ? data.map(comRow).join("")
+      : `<div class="r-com-empty">Aucun commentaire. Lance la discussion !</div>`;
+    renderComForm();
+  }
+  function comRow(m) {
+    const a = m.author || {};
+    const role = a.role === "admin" ? ' <span class="r-com-role">Admin</span>' : a.role === "moderator" ? ' <span class="r-com-role">Modo</span>' : "";
+    const del = (_me && _me.id === m.author_id) ? `<button class="r-com-del" data-id="${m.id}">Supprimer</button>` : "";
+    return `<div class="r-com">${comAvatar(a)}<div class="r-com-b">
+      <div class="r-com-head"><b>${esc(a.username || "?")}</b>${role} <span class="r-com-t">${window.LT.timeAgo(m.created_at)}</span>${del}</div>
+      <div class="r-com-txt">${esc(m.body).replace(/\n/g, "<br>")}</div></div></div>`;
+  }
+  function renderComForm() {
+    const wrap = document.getElementById("r-com-form");
+    if (!wrap) return;
+    if (_me) {
+      wrap.innerHTML = `<form class="r-com-new"><textarea maxlength="5000" rows="2" placeholder="Votre commentaire sur ce chapitre…" required></textarea><button class="btn btn-primary" type="submit">Commenter</button></form>`;
+      wrap.querySelector("form").addEventListener("submit", postComment);
+    } else {
+      wrap.innerHTML = `<div class="r-com-login">Pour commenter, <a href="forum.html">connecte-toi sur le forum</a> (même compte).</div>`;
+    }
+    document.querySelectorAll(".r-com-del").forEach(b => b.addEventListener("click", async () => {
+      if (!confirm("Supprimer ce commentaire ?")) return;
+      const { error } = await sbClient().from("chapter_comments").delete().eq("id", b.dataset.id);
+      if (error) return window.LT.toast("Erreur : " + error.message);
+      loadComments();
+    }));
+  }
+  async function postComment(e) {
+    e.preventDefault();
+    const c = sbClient(); if (!c || !_me) return;
+    const ta = e.target.querySelector("textarea");
+    const body = ta.value.trim(); if (!body) return;
+    e.target.querySelector("button").disabled = true;
+    const { error } = await c.from("chapter_comments").insert({ manga_id: manga, chapter_num: chap.num, author_id: _me.id, body });
+    if (error) { window.LT.toast("Erreur : " + error.message); e.target.querySelector("button").disabled = false; return; }
+    ta.value = ""; loadComments();
   }
 
   /* ---------------- Persistance ---------------- */
