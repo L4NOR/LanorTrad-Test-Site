@@ -43,6 +43,11 @@
   const minimal = document.body.dataset.shell === "minimal";
 
   function buildShell() {
+    // Lien d'évitement (accessibilité clavier) : 1er élément focusable
+    const mainEl = document.querySelector("main") || document.getElementById("reader-root");
+    if (mainEl) { if (!mainEl.id) mainEl.id = "main-content"; mainEl.setAttribute("tabindex", "-1"); }
+    document.body.prepend(el(`<a href="#${mainEl ? mainEl.id : "main-content"}" class="skip-link">Aller au contenu</a>`));
+
     // Veil + toast host (toujours présents)
     document.body.append(el(`<div class="page-veil" id="veil"></div>`));
     document.body.append(el(`<div class="toast-host" id="toast-host"></div>`));
@@ -404,6 +409,22 @@
       r.rel = "alternate"; r.type = "application/rss+xml";
       r.title = "LanorTrad — Nouveaux chapitres"; r.href = "feed.xml";
       document.head.appendChild(r);
+    }
+
+    // Données structurées du site (Organization + WebSite + recherche)
+    if (!document.getElementById("ld-site") && /^https?:/.test(location.protocol)) {
+      const site = location.origin + "/";
+      const ld = { "@context": "https://schema.org", "@graph": [
+        { "@type": "Organization", name: "LanorTrad", url: site,
+          logo: location.origin + "/images/icons/icon-512x512.png", sameAs: [DISCORD, TWITTER] },
+        { "@type": "WebSite", name: "LanorTrad", url: site, inLanguage: "fr",
+          potentialAction: { "@type": "SearchAction",
+            target: site + "catalogue.html?q={search_term_string}",
+            "query-input": "required name=search_term_string" } }
+      ] };
+      const e = document.createElement("script");
+      e.type = "application/ld+json"; e.id = "ld-site"; e.textContent = JSON.stringify(ld);
+      document.head.appendChild(e);
     }
     const isProd = /^https?:/.test(location.protocol) && !/^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
     if (!isProd) return; // pas de SW / analytics / pub en local
