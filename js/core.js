@@ -84,7 +84,7 @@
     const drawer = el(`
       <aside class="drawer" id="drawer">
         <div class="drawer-head">
-          <span class="brand"><span class="mark">L</span>Lanor<span class="grad-text">Trad</span></span>
+          <span class="brand"><span class="mark">L</span><span class="brand-name">Lanor<span class="grad-text">Trad</span></span></span>
           <button class="d-close" id="drawer-close" aria-label="Fermer">&times;</button>
         </div>
         <div class="search-box" style="display:block;margin-bottom:18px">
@@ -103,7 +103,7 @@
       <footer class="footer">
         <div class="wrap grid">
           <div>
-            <a href="index.html" class="brand" style="font-size:1.5rem"><span class="mark">L</span>Lanor<span class="grad-text">Trad</span></a>
+            <a href="index.html" class="brand" style="font-size:1.5rem"><img class="brand-logo" src="images/icons/icon-96x96.png" alt="LanorTrad" width="44" height="44"><span class="brand-name">Lanor<span class="grad-text">Trad</span></span></a>
             <p style="margin-top:14px">Une équipe passionnée qui traduit vos mangas préférés avec précision et créativité. Lecture gratuite, en français, partout.</p>
             <div class="socials">
               <a href="${DISCORD}" target="_blank" rel="noopener" class="icon-btn">${icon("discord")}</a>

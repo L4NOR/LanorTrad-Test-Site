@@ -3,6 +3,9 @@
    du site (voir base.css). Préfixe .fo-  ·  modale d'auth incluse.
    ========================================================================= */
 
+/* L'attribut [hidden] doit toujours masquer, même si une classe définit un display. */
+.fo-app [hidden], .fo-bar [hidden], .fo-modal [hidden], .fo-rxpalette[hidden], .fo-bell-badge[hidden], .sup-only[hidden] { display: none !important; }
+
 .fo-app { min-height: 320px; }
 .fo-app[aria-busy="true"] { opacity: .55; transition: opacity .2s; }
 
@@ -152,6 +155,49 @@
 .fo-link { background: none; border: none; cursor: pointer; color: var(--txt-mut);
   font-size: .85rem; text-decoration: underline; align-self: center; }
 .fo-link:hover { color: var(--violet); }
+
+/* ---------- Mentions ---------- */
+.fo-mention { color: var(--violet); font-weight: 600; background: rgba(168,85,247,.12);
+  padding: 0 4px; border-radius: 5px; }
+
+/* ---------- Réactions ---------- */
+.fo-rx { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+.fo-rxchip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; cursor: pointer;
+  border-radius: 999px; font-size: .9rem; background: var(--bg-3); border: 1px solid var(--line-strong);
+  color: var(--txt-soft); transition: .15s; }
+.fo-rxchip span { font-size: .8rem; font-weight: 700; }
+.fo-rxchip:hover { border-color: rgba(168,85,247,.5); }
+.fo-rxchip.on { background: rgba(168,85,247,.18); border-color: var(--violet); color: var(--txt); }
+.fo-rxadd-wrap { position: relative; display: inline-flex; }
+.fo-rxadd { width: 28px; height: 28px; border-radius: 999px; cursor: pointer; line-height: 1;
+  background: var(--bg-3); border: 1px solid var(--line-strong); color: var(--txt-mut); font-size: .95rem; }
+.fo-rxadd:hover { color: var(--txt); border-color: rgba(168,85,247,.5); }
+.fo-rxpalette { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20; display: flex; gap: 2px;
+  padding: 5px; border-radius: 12px; background: var(--bg-3); border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-card); }
+.fo-rxpalette button { width: 34px; height: 34px; border: none; background: none; cursor: pointer;
+  font-size: 1.15rem; border-radius: 8px; }
+.fo-rxpalette button:hover { background: rgba(168,85,247,.18); }
+
+/* ---------- Cloche de notifications ---------- */
+.fo-bell { position: relative; font-size: 1.05rem; }
+.fo-bell-badge { position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px;
+  display: grid; place-items: center; border-radius: 999px; background: #ef4444; color: #fff;
+  font-size: .68rem; font-weight: 700; border: 2px solid var(--bg-1); }
+.fo-notifs { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: min(340px, 92vw);
+  border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-card); overflow: hidden; animation: fo-pop .2s ease; }
+.fo-notifs-head { padding: 12px 16px; font-weight: 700; border-bottom: 1px solid var(--line); }
+.fo-notifs-list { max-height: 60vh; overflow-y: auto; }
+.fo-notifs-empty { padding: 24px 16px; text-align: center; color: var(--txt-mut); font-size: .9rem; }
+.fo-notif { display: flex; gap: 10px; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line);
+  transition: background .15s; }
+.fo-notif:last-child { border-bottom: 0; }
+.fo-notif:hover { background: var(--bg-3); }
+.fo-notif.unread { background: rgba(168,85,247,.07); }
+.fo-notif-txt { font-size: .86rem; color: var(--txt-soft); line-height: 1.4; }
+.fo-notif-txt b { color: var(--txt); }
+.fo-notif-time { display: block; color: var(--txt-mut); font-size: .76rem; margin-top: 2px; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {

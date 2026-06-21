@@ -18,6 +18,9 @@ administrer. Côté code, tout est déjà prêt — il reste 4 étapes (~10 min)
    colle-le, puis clique **Run**.
 3. Tu dois voir « Success ». (Crée les tables, la sécurité RLS, les triggers et
    les 5 catégories de départ.)
+4. **(Réactions + notifications + mentions)** Refais une **New query** et exécute
+   aussi [`supabase/forum-reactions-notifications.sql`](supabase/forum-reactions-notifications.sql).
+   Sans ce script, le forum marche, mais les 👍 / 🔔 / @mentions seront inactifs.
 
 ## 3. Récupérer les 2 clés
 1. Menu de gauche → **Project Settings** (roue crantée) → **API**.

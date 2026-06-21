@@ -1,8 +1,10 @@
 /* =========================================================================
    LanorTrad — Forum communautaire (comptes maison via Supabase).
    Comptes email/mot de passe (sans GitHub), catégories → sujets → réponses,
-   profils, modération. Tout le rendu est échappé (anti-XSS). RLS = sécurité.
-   ⚙️  CONFIG : js/supabase-config.js   ·   BASE : supabase/schema.sql
+   profils, modération, réactions, notifications, mentions @pseudo.
+   Tout le rendu est échappé (anti-XSS). RLS = sécurité.
+   ⚙️  CONFIG : js/supabase-config.js
+   🗄️  BASE   : supabase/schema.sql  +  supabase/forum-reactions-notifications.sql
    ========================================================================= */
 (function () {
   "use strict";
@@ -15,6 +17,10 @@
 
   const CFG = window.LT_SUPABASE || {};
   let sb = null, me = null, profile = null, booted = false;
+
+  const REACTIONS = ["👍", "❤️", "😂", "😮", "🔥"];
+  let RX = {};            // cache réactions du sujet courant : "kind:id" -> [{emoji,user_id}]
+  let notifBox = null;    // dropdown notifications
 
   /* ---------- Client Supabase (null si non configuré) ---------- */
   function client() {
@@ -31,10 +37,11 @@
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
   // Rendu sûr d'un message : échappe tout, conserve les sauts de ligne,
-  // transforme les URLs en liens (sur du texte DÉJÀ échappé).
+  // transforme les URLs en liens et surligne les mentions (sur du texte échappé).
   function richBody(s) {
     return esc(s)
       .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener nofollow">$1</a>')
+      .replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<span class="fo-mention">@$2</span>')
       .replace(/\n/g, "<br>");
   }
 
@@ -65,12 +72,15 @@
     if (me && profile) {
       bar.innerHTML = `
         <a class="btn btn-primary btn-sm" href="#/new">+ Nouveau sujet</a>
+        <button class="fo-bell icon-btn" id="fo-bell" title="Notifications" aria-label="Notifications">🔔<span class="fo-bell-badge" hidden>0</span></button>
         <div class="fo-user">
           ${avatar(profile, 34)}
           <span class="fo-uname">${esc(profile.username)}</span>${roleBadge(profile.role)}
           <button class="icon-btn" id="fo-logout" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
         </div>`;
       bar.querySelector("#fo-logout").addEventListener("click", doLogout);
+      bar.querySelector("#fo-bell").addEventListener("click", toggleNotifs);
+      refreshNotifCount();
     } else {
       bar.innerHTML = `
         <button class="btn btn-ghost btn-sm" data-auth="login">Connexion</button>
@@ -306,8 +316,8 @@
         </div>` : ""}
       </div>`;
 
-    const op = postCard({ id: "op", body: t.body, created_at: t.created_at, author: t.author, author_id: t.author_id }, true);
-    const replies = (posts || []).map(p => postCard(p, false)).join("");
+    const op = postCard({ id: "op", body: t.body, created_at: t.created_at, author: t.author, author_id: t.author_id }, true, { kind: "topic", id: t.id });
+    const replies = (posts || []).map(p => postCard(p, false, { kind: "post", id: p.id })).join("");
 
     const composer = t.locked
       ? `<div class="fo-empty">🔒 Ce sujet est verrouillé, on ne peut plus répondre.</div>`
@@ -321,9 +331,12 @@
     app().innerHTML = head + `<div class="fo-posts">${op}${replies}</div>` + composer;
     wireTopic(t, id);
     setBusy(false); rescan();
+
+    // Réactions (chargées après l'affichage pour ne pas retarder le rendu)
+    loadReactions(t.id, (posts || []).map(p => p.id)).then(renderAllReactions);
   }
 
-  function postCard(p, isOp) {
+  function postCard(p, isOp, rx) {
     const a = p.author || {};
     return `
       <article class="fo-post${isOp ? " op" : ""}" data-post="${isOp ? "op" : p.id}" data-reveal>
@@ -335,10 +348,121 @@
             </span>` : ""}
           </div>
           <div class="fo-post-text" data-raw="${esc(p.body)}">${richBody(p.body)}</div>
+          <div class="fo-rx" data-rxkind="${rx.kind}" data-rxid="${rx.id}"></div>
         </div>
       </article>`;
   }
 
+  /* ---------- Réactions ---------- */
+  async function loadReactions(topicId, postIds) {
+    RX = {};
+    const c = client();
+    const qs = [c.from("reactions").select("emoji,user_id,target_kind,target_id").eq("target_kind", "topic").eq("target_id", topicId)];
+    if (postIds.length) qs.push(c.from("reactions").select("emoji,user_id,target_kind,target_id").eq("target_kind", "post").in("target_id", postIds));
+    const results = await Promise.all(qs);
+    results.forEach(({ data }) => (data || []).forEach(r => {
+      const k = r.target_kind + ":" + r.target_id;
+      (RX[k] = RX[k] || []).push({ emoji: r.emoji, user_id: r.user_id });
+    }));
+  }
+
+  function renderReactionBar(bar) {
+    const kind = bar.dataset.rxkind, id = bar.dataset.rxid;
+    const list = RX[kind + ":" + id] || [];
+    const counts = {}; const mine = new Set();
+    list.forEach(r => { counts[r.emoji] = (counts[r.emoji] || 0) + 1; if (me && r.user_id === me.id) mine.add(r.emoji); });
+    const chips = REACTIONS.filter(e => counts[e]).map(e =>
+      `<button class="fo-rxchip${mine.has(e) ? " on" : ""}" data-emoji="${e}">${e} <span>${counts[e]}</span></button>`).join("");
+    bar.innerHTML = chips +
+      `<span class="fo-rxadd-wrap"><button class="fo-rxadd" title="Réagir" aria-label="Réagir">☺</button>` +
+      `<span class="fo-rxpalette" hidden>${REACTIONS.map(e => `<button data-emoji="${e}">${e}</button>`).join("")}</span></span>`;
+  }
+
+  function renderAllReactions() { app().querySelectorAll(".fo-rx").forEach(renderReactionBar); }
+
+  async function toggleReaction(kind, id, emoji) {
+    if (!requireAuth()) return;
+    const k = kind + ":" + id, list = RX[k] = RX[k] || [];
+    const idx = list.findIndex(r => r.emoji === emoji && r.user_id === me.id);
+    const c = client();
+    if (idx >= 0) {
+      list.splice(idx, 1);
+      await c.from("reactions").delete().eq("target_kind", kind).eq("target_id", id).eq("user_id", me.id).eq("emoji", emoji);
+    } else {
+      list.push({ emoji, user_id: me.id });
+      await c.from("reactions").insert({ target_kind: kind, target_id: Number(id), user_id: me.id, emoji });
+    }
+    const bar = app().querySelector(`.fo-rx[data-rxkind="${kind}"][data-rxid="${id}"]`);
+    if (bar) renderReactionBar(bar);
+  }
+
+  // Délégation des clics réactions (attachée une seule fois sur #forum-app)
+  function onForumClick(e) {
+    const rxBtn = e.target.closest(".fo-rx [data-emoji]");
+    if (rxBtn) {
+      const bar = rxBtn.closest(".fo-rx");
+      const pal = bar.querySelector(".fo-rxpalette");
+      if (pal) pal.hidden = true;
+      toggleReaction(bar.dataset.rxkind, bar.dataset.rxid, rxBtn.dataset.emoji);
+      return;
+    }
+    const add = e.target.closest(".fo-rxadd");
+    if (add) {
+      const pal = add.parentElement.querySelector(".fo-rxpalette");
+      if (pal) pal.hidden = !pal.hidden;
+    }
+  }
+
+  /* ---------- Notifications ---------- */
+  async function refreshNotifCount() {
+    const badge = document.querySelector("#fo-bell .fo-bell-badge");
+    if (!badge || !me) return;
+    const { count } = await client().from("notifications")
+      .select("*", { count: "exact", head: true }).eq("user_id", me.id).eq("read", false);
+    if (count > 0) { badge.textContent = count > 99 ? "99+" : count; badge.hidden = false; }
+    else badge.hidden = true;
+  }
+
+  function closeNotifs() {
+    if (notifBox) { notifBox.remove(); notifBox = null; document.removeEventListener("click", onNotifOutside, true); }
+  }
+  function onNotifOutside(e) {
+    if (notifBox && !notifBox.contains(e.target) && !e.target.closest("#fo-bell")) closeNotifs();
+  }
+
+  async function toggleNotifs() {
+    if (notifBox) { closeNotifs(); return; }
+    const c = client();
+    notifBox = el(`<div class="fo-notifs"><div class="fo-notifs-head">Notifications</div><div class="fo-notifs-list">Chargement…</div></div>`);
+    const bar = document.getElementById("forum-bar");
+    bar.style.position = "relative";
+    bar.appendChild(notifBox);
+    setTimeout(() => document.addEventListener("click", onNotifOutside, true), 0);
+
+    const { data, error } = await c.from("notifications")
+      .select("id,type,read,created_at,topic_id,actor:profiles!notifications_actor_id_fkey(username,avatar_url,role),topic:topics(title)")
+      .eq("user_id", me.id).order("created_at", { ascending: false }).limit(20);
+    const listEl = notifBox.querySelector(".fo-notifs-list");
+    if (error) { listEl.textContent = error.message; return; }
+    if (!data || !data.length) {
+      listEl.innerHTML = `<div class="fo-notifs-empty">Aucune notification pour l'instant.</div>`;
+    } else {
+      listEl.innerHTML = data.map(n => {
+        const a = n.actor || {}, title = (n.topic && n.topic.title) || "un sujet";
+        const verb = n.type === "mention" ? "vous a mentionné dans" : "a répondu à";
+        return `<a class="fo-notif${n.read ? "" : " unread"}" href="#/t/${n.topic_id}" data-close>
+          ${avatar(a, 34)}
+          <span class="fo-notif-txt"><b>${esc(a.username || "Quelqu'un")}</b> ${verb} « ${esc(title)} »
+            <span class="fo-notif-time">${timeAgo(n.created_at)}</span></span></a>`;
+      }).join("");
+      listEl.querySelectorAll("[data-close]").forEach(a => a.addEventListener("click", closeNotifs));
+    }
+    // Tout marquer comme lu
+    await c.from("notifications").update({ read: true }).eq("user_id", me.id).eq("read", false);
+    refreshNotifCount();
+  }
+
+  /* ---------- Câblage d'un sujet (réponse, modération, édition) ---------- */
   function wireTopic(t, id) {
     const c = client();
     app().querySelectorAll("[data-auth]").forEach(b => b.addEventListener("click", () => openAuth(b.dataset.auth)));
@@ -464,6 +588,7 @@
 
     mount.innerHTML = `<div class="fo-bar" id="forum-bar"></div><div id="forum-app" class="fo-app" aria-busy="true"></div>`;
     renderBar();
+    app().addEventListener("click", onForumClick);  // réactions (délégation, 1 seule fois)
 
     client().auth.onAuthStateChange((event, session) => {
       me = session ? session.user : null;
