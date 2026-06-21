@@ -11317,6 +11317,14 @@ window.CHAPTERS = {
  ],
  "Tougen Anki": [
   {
+   "num": "240",
+   "folder": "Chapitres/Chapitre 240",
+   "pages": 1,
+   "files": [
+    "001.jpg"
+   ]
+  },
+  {
    "num": "239",
    "folder": "Chapitres/Chapitre 239",
    "pages": 18,
