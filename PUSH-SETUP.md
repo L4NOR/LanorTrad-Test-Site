@@ -45,8 +45,22 @@ Netlify → Site settings → **Environment variables** → ajoute :
 Ouvre le site en ligne → une **cloche 🔔** apparaît dans la barre → clique → autorise.
 Tu es abonné. (La cloche n'apparaît pas en local : normal.)
 
-## 7. Envoyer une notif quand un chapitre sort
-Appelle la fonction d'envoi avec ton `PUSH_SECRET` :
+## 7. Envoyer la notif quand un chapitre sort
+« Activer la cloche » sur le site ne fait qu'**inscrire** les lecteurs. Cette
+étape, c'est **l'envoi réel** : à refaire **à chaque nouveau chapitre**.
+
+### ✅ Méthode simple (recommandée) — depuis l'outil d'ajout de chapitre
+1. Dans `tools/`, copie `notify-config.example.json` en **`notify-config.json`**
+   et remplis :
+   ```json
+   { "siteUrl": "https://ton-site.netlify.app", "pushSecret": "TON_PUSH_SECRET" }
+   ```
+   (Même `PUSH_SECRET` que dans les variables Netlify. Fichier local, jamais mis en ligne.)
+2. Lance `tools/Ajouter-Chapitre.bat`. Une case **« 🔔 Notifier les abonnés de la
+   sortie »** apparaît. Publie ton chapitre comme d'habitude : la notification
+   part automatiquement. C'est tout.
+
+### Méthode manuelle (alternative) — `curl`
 ```
 curl -X POST https://TON-SITE.netlify.app/.netlify/functions/push-send ^
   -H "Content-Type: application/json" ^
@@ -54,9 +68,6 @@ curl -X POST https://TON-SITE.netlify.app/.netlify/functions/push-send ^
 ```
 Réponse : `{ "ok": true, "total": N, "sent": N, "pruned": 0 }`.
 Tous les abonnés reçoivent la notification, et un clic ouvre le chapitre.
-
-> 💡 Je peux brancher cet envoi **directement dans l'outil d'ajout de chapitre**
-> (une case « Notifier les abonnés » après publication) — demande-le si tu veux.
 
 ## Dépannage
 - **Pas de cloche** : clé VAPID non remplie (étape 2) ou tu es en local.
