@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker (v2) : shell hors-ligne + notifications */
-const CACHE = "lanortrad-v4";
+const CACHE = "lanortrad-v5";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "premium.html",
