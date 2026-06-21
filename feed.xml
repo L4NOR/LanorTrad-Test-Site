@@ -2,42 +2,42 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>LanorTrad — Nouveaux chapitres</title>
-    <link>https://lanortradtest.netlify.app/</link>
-    <atom:link href="https://lanortradtest.netlify.app/feed.xml" rel="self" type="application/rss+xml"/>
+    <link>https://lanortrad.com/</link>
+    <atom:link href="https://lanortrad.com/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Les dernières sorties de l'équipe de scantrad LanorTrad.</description>
     <language>fr</language>
-    <lastBuildDate>Sun, 21 Jun 2026 17:38:37 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 21 Jun 2026 18:56:18 GMT</lastBuildDate>
     <item>
       <title>Tougen Anki — chapitre 241</title>
-      <link>https://lanortradtest.netlify.app/manga.html?id=Tougen%20Anki</link>
+      <link>https://lanortrad.com/manga.html?id=Tougen%20Anki</link>
       <guid isPermaLink="false">Tougen Anki#241</guid>
       <pubDate>Sun, 19 Apr 2026 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Tougen Anki disponible sur LanorTrad.</description>
     </item>
     <item>
       <title>Catenaccio — chapitre 56</title>
-      <link>https://lanortradtest.netlify.app/manga.html?id=Catenaccio</link>
+      <link>https://lanortrad.com/manga.html?id=Catenaccio</link>
       <guid isPermaLink="false">Catenaccio#56</guid>
       <pubDate>Sat, 28 Mar 2026 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Catenaccio disponible sur LanorTrad.</description>
     </item>
     <item>
       <title>Ao No Exorcist — chapitre 171</title>
-      <link>https://lanortradtest.netlify.app/manga.html?id=Ao%20No%20Exorcist</link>
+      <link>https://lanortrad.com/manga.html?id=Ao%20No%20Exorcist</link>
       <guid isPermaLink="false">Ao No Exorcist#171</guid>
       <pubDate>Sun, 23 Feb 2025 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Ao No Exorcist disponible sur LanorTrad.</description>
     </item>
     <item>
       <title>Tokyo Underworld — chapitre 44</title>
-      <link>https://lanortradtest.netlify.app/manga.html?id=Tokyo%20Underworld</link>
+      <link>https://lanortrad.com/manga.html?id=Tokyo%20Underworld</link>
       <guid isPermaLink="false">Tokyo Underworld#44</guid>
       <pubDate>Sun, 23 Feb 2025 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Tokyo Underworld disponible sur LanorTrad.</description>
     </item>
     <item>
       <title>Satsudou — chapitre 18</title>
-      <link>https://lanortradtest.netlify.app/manga.html?id=Satsudou</link>
+      <link>https://lanortrad.com/manga.html?id=Satsudou</link>
       <guid isPermaLink="false">Satsudou#18</guid>
       <pubDate>Sun, 23 Feb 2025 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Satsudou disponible sur LanorTrad.</description>

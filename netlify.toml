@@ -1,12 +1,17 @@
 # LanorTrad — configuration Netlify
 [build]
   publish = "."
-  # Régénère feed.xml (flux RSS des sorties) à partir de js/data/series.js
-  command = "node scripts/build-feed.js"
+  # Régénère feed.xml + sitemap.xml + og-meta.json à partir des données du site
+  command = "node scripts/build-seo.js"
 
 # Fonctions serverless (validation des codes Premium)
 [functions]
   directory = "netlify/functions"
+
+# Edge function : injecte les balises OpenGraph par série sur la fiche manga
+[[edge_functions]]
+  path = "/manga.html"
+  function = "og"
 
 # Sécurité de base
 [[headers]]
@@ -39,3 +44,10 @@
   [headers.values]
     Content-Type = "application/rss+xml; charset=utf-8"
     Cache-Control = "public, max-age=600"
+
+# Sitemap : cache court
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"

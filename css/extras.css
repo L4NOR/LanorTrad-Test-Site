@@ -208,3 +208,44 @@ img[data-fade].loaded { opacity: 1; }
 
 /* fallback (navigateurs sans View Transitions) */
 .no-vt body.fade-enter main, .no-vt body.fade-enter .page-body { animation: pageIn .55s var(--ease) both; }
+
+/* mouvement réduit : pas d'animation de transition de page */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* ---------- Lien d'évitement (skip to content) ---------- */
+.skip-link {
+  position: fixed; top: 10px; left: 10px; z-index: 9999;
+  padding: 10px 16px; border-radius: 10px; background: var(--grad); color: #fff;
+  font-weight: 700; font-family: var(--font-display); box-shadow: var(--shadow-card);
+  transform: translateY(-160%); transition: transform .2s var(--ease);
+}
+.skip-link:focus-visible, .skip-link:focus { transform: none; outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ---------- Skeletons (placeholders animés) ---------- */
+.skeleton { position: relative; overflow: hidden; background: var(--bg-2); }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 18%, color-mix(in srgb, var(--bg-3) 88%, #fff) 50%, transparent 82%);
+  background-size: 200% 100%; animation: shimmer 1.3s linear infinite;
+}
+.sk-line { height: .85em; border-radius: 6px; background: var(--bg-3); }
+.sk-line + .sk-line { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after, .cover.skeleton::after { animation: none; }
+}
+
+/* ---------- Micro-interactions ---------- */
+.btn { transition: transform .18s var(--ease-back), box-shadow .25s, background .25s, border-color .25s, color .25s; }
+.btn:active:not([disabled]):not(.is-disabled) { transform: scale(.97); }
+.icon-btn:active { transform: scale(.9); }
+.r-fab .fab:active, .r-dock-chap:active, .tab-item:active svg { transform: scale(.9); }
+.follow-btn:active { transform: scale(.92); }
+.chip, .tag, .range-chip { transition: transform .18s var(--ease-back), background .2s, color .2s, border-color .2s; }
+.tag:hover, .range-chip:hover { transform: translateY(-1px); }
+.m-card .follow-btn:hover svg { transform: scale(1.08); }
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .icon-btn:active, .r-fab .fab:active, .r-dock-chap:active,
+  .follow-btn:active, .tag:hover, .range-chip:hover { transform: none; }
+}

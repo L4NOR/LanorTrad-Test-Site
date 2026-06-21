@@ -32,7 +32,7 @@
         <div class="wrap">
           <div class="series-top">
             <div class="series-cover m-card" data-reveal="left">
-              <div class="inner" style="view-transition-name:cover-active"><img src="${s.cover}" alt="${s.title}"></div>
+              <div class="inner skeleton" style="view-transition-name:cover-active"><img src="${s.cover}" alt="${s.title}" data-fade></div>
             </div>
             <div class="series-info" data-reveal="right">
               <span class="eyebrow">${s.type === "oneshot" ? "Oneshot" : "Série"} · ${s.status}</span>
@@ -263,19 +263,42 @@
   }
 
   function setSeo(s) {
+    const title = `${s.title} — LanorTrad`;
+    const img = new URL(s.cover, location.href).href;
+    const genres = s.genres.filter(g => g !== "LanorTrad" && g !== "Collaboration");
     setMeta("description", `Lisez ${s.title} en français sur LanorTrad. ${s.description}`);
-    setProp("og:title", `${s.title} — LanorTrad`);
-    setProp("og:description", s.description);
-    setProp("og:image", new URL(s.cover, location.href).href);
+    // OpenGraph
     setProp("og:type", "book");
-    const ld = {
-      "@context": "https://schema.org", "@type": "ComicSeries",
-      name: s.title, genre: s.genres.filter(g => g !== "LanorTrad"),
+    setProp("og:site_name", "LanorTrad");
+    setProp("og:title", title);
+    setProp("og:description", s.description);
+    setProp("og:image", img);
+    setProp("og:url", location.href);
+    // Twitter Card
+    setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:title", title);
+    setMeta("twitter:description", s.description);
+    setMeta("twitter:image", img);
+
+    // Données structurées : Book (oneshot) ou ComicSeries (série) + fil d'Ariane
+    const work = {
+      "@type": s.type === "oneshot" ? "Book" : "ComicSeries",
+      name: s.title, genre: genres,
       author: { "@type": "Person", name: s.author }, inLanguage: "fr",
-      numberOfEpisodes: s.chapters, image: new URL(s.cover, location.href).href,
-      description: s.description, url: location.href,
+      image: img, description: s.description, url: location.href,
       aggregateRating: { "@type": "AggregateRating", ratingValue: s.rating, bestRating: 5, ratingCount: 120 }
     };
+    if (s.type === "oneshot") work.bookFormat = "https://schema.org/GraphicNovel";
+    else work.numberOfEpisodes = s.chapters;
+    const crumbs = {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Accueil", item: new URL("index.html", location.href).href },
+        { "@type": "ListItem", position: 2, name: "Catalogue", item: new URL("catalogue.html", location.href).href },
+        { "@type": "ListItem", position: 3, name: s.title, item: location.href }
+      ]
+    };
+    const ld = { "@context": "https://schema.org", "@graph": [work, crumbs] };
     let e = document.getElementById("ld-json");
     if (!e) { e = document.createElement("script"); e.type = "application/ld+json"; e.id = "ld-json"; document.head.appendChild(e); }
     e.textContent = JSON.stringify(ld);
