@@ -1,6 +1,6 @@
 /* =========================================================================
    LanorTrad — Fabrique de cartes manga (accueil + catalogue)
-   Halo couleur auto, bouton favori, fondu d'image, transition partagée.
+   Halo couleur auto, bouton suivre, fondu d'image, transition partagée.
    ========================================================================= */
 (function () {
   "use strict";
@@ -8,14 +8,18 @@
   window.LTcard = function (s, opts = {}) {
     const statusOn = (s.status || "").toLowerCase().includes("cours");
     const chips = s.genres.slice(0, 1).map(g => `<span class="chip">${g}</span>`).join("");
-    const fav = window.LTstore && window.LTstore.isFav(s.id);
+    const following = window.LTstore && window.LTstore.isFollowing(s.id);
+    const isNew = window.LTstore && window.LTstore.isNew(s);
     return `
       <a class="m-card" href="${s.url}" data-colorize data-cover="${s.cover}" data-id="${s.id}" style="--accent:${s.accent}">
         <div class="inner">
           <span class="shine"></span>
           <span class="card-glow"></span>
-          <button class="fav-btn ${fav ? "on" : ""}" data-fav="${s.id}" aria-label="Ajouter aux favoris" title="Favori">${heart()}</button>
-          <span class="badge ${statusOn ? "on" : ""}">${s.status}</span>
+          <button class="follow-btn ${following ? "on" : ""}" data-follow="${s.id}" aria-label="${following ? "Ne plus suivre" : "Suivre cette série"}" title="${following ? "Suivi" : "Suivre"}">${bell()}</button>
+          <div class="card-flags">
+            ${isNew ? `<span class="badge new">Nouveau</span>` : ""}
+            <span class="badge ${statusOn ? "on" : ""}">${s.status}</span>
+          </div>
           <div class="cover skeleton" data-morph>
             <img src="${s.cover}" alt="${s.title}" loading="lazy" data-fade>
           </div>
@@ -35,8 +39,8 @@
   function cssId(id) { return id.replace(/[^a-z0-9]/gi, "-"); }
   window.LTcssId = cssId;
 
-  function heart() {
-    return `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 21s-7.5-4.6-10-9.1C.4 8.8 1.6 5.5 4.6 4.7c1.9-.5 3.7.3 4.7 1.8l.7 1 .7-1c1-1.5 2.8-2.3 4.7-1.8 3 .8 4.2 4.1 2.6 7.2C19.5 16.4 12 21 12 21z"/></svg>`;
+  function bell() {
+    return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
   }
 
   // fondu des images quand chargées + retrait du skeleton

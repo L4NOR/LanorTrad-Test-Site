@@ -31,7 +31,9 @@ body.reader-body { background: var(--reader-bg, #07070d); }
 
 /* Mode webtoon (continu) */
 .r-stage.mode-webtoon .r-pages { max-width: var(--reader-w, 860px); gap: var(--reader-gap, 0px); padding: 0 8px 40px; }
-.r-stage.mode-webtoon .r-pages img { width: 100%; height: auto; }
+.r-stage.mode-webtoon .r-pages img { width: 100%; height: auto; opacity: 0; transition: opacity .45s var(--ease); }
+.r-stage.mode-webtoon .r-pages img.loaded { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .r-stage.mode-webtoon .r-pages img { transition: none; opacity: 1; } }
 
 /* Mode page (une à la fois) */
 .r-stage.mode-page .r-pages { min-height: calc(100vh - 60px); justify-content: center; padding: 14px; }

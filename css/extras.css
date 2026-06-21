@@ -34,19 +34,90 @@ html.premium .adsbygoogle, html.premium .ad-slot, html.premium [data-ad] { displ
 .m-card .badge.on { background: color-mix(in srgb, var(--accent, #22c55e) 85%, #fff); }
 .m-card .meta .chip { background: color-mix(in srgb, var(--accent, #a855f7) 26%, transparent); color: #fff; }
 
-/* ---------- Bouton favori ---------- */
-.fav-btn {
+/* ---------- Bouton « Suivre » (coin de carte) ---------- */
+.follow-btn {
   position: absolute; top: 10px; right: 10px; z-index: 6;
-  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
   background: rgba(7,7,13,.55); border: 1px solid var(--line-strong); backdrop-filter: blur(8px);
-  color: #fff; transition: transform .3s var(--ease-back), background .25s, color .25s;
+  color: #fff; transition: transform .3s var(--ease-back), background .25s, color .25s, border-color .25s;
 }
-.fav-btn svg { fill: none; stroke: #fff; stroke-width: 2; transition: fill .25s, stroke .25s; }
-.fav-btn:hover { transform: scale(1.15); }
-.fav-btn.on { background: rgba(225,29,72,.16); border-color: rgba(244,63,94,.6); }
-.fav-btn.on svg { fill: #f43f5e; stroke: #f43f5e; }
-.fav-btn.pop { animation: favPop .45s var(--ease-back); }
+.follow-btn svg { transition: transform .25s; }
+.follow-btn:hover { transform: scale(1.15); }
+.follow-btn.on { background: color-mix(in srgb, var(--accent, #a855f7) 24%, transparent); border-color: color-mix(in srgb, var(--accent, #a855f7) 60%, transparent); color: color-mix(in srgb, var(--accent, #a855f7) 92%, #fff); }
+.follow-btn.on svg { fill: currentColor; }
+.follow-btn.pop { animation: favPop .45s var(--ease-back); }
 @keyframes favPop { 30% { transform: scale(1.4); } 60% { transform: scale(.85); } 100% { transform: scale(1); } }
+
+/* ---------- Drapeaux de carte (statut + « Nouveau ») ---------- */
+.m-card .card-flags { position: absolute; top: 10px; left: 10px; z-index: 4; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.m-card .card-flags .badge { position: static; top: auto; left: auto; }
+.m-card .badge.new {
+  background: var(--grad); color: #fff; border: none;
+  box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--accent, #a855f7) 80%, transparent);
+}
+.m-card .badge.new::before { content: "✦ "; }
+@media (prefers-reduced-motion: no-preference) {
+  .m-card .badge.new { animation: newGlow 2.6s ease-in-out infinite; }
+}
+@keyframes newGlow { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.2); } }
+
+/* ---------- Bouton « Suivre » (fiche série) ---------- */
+.follow-toggle .bicon { transition: fill .25s, stroke .25s, transform .25s; }
+.follow-toggle.on { color: var(--accent, #a855f7); border-color: color-mix(in srgb, var(--accent, #a855f7) 50%, transparent); }
+.follow-toggle.on .bicon { fill: currentColor; }
+.follow-toggle.pop { animation: favPop .45s var(--ease-back); }
+
+/* ---------- Pastille « nouveautés » dans la navigation ---------- */
+.nav-badge {
+  display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px;
+  margin-left: 6px; border-radius: 999px; background: var(--grad); color: #fff;
+  font-size: .66rem; font-weight: 800; font-family: var(--font-display); line-height: 1; vertical-align: middle;
+}
+.nav-badge[hidden] { display: none; }
+.d-link .nav-badge { margin-left: 8px; }
+
+/* Bouton « lien » (ex. « Tout marquer comme vu ») rendu comme un <a class="link"> */
+button.link { background: none; border: none; cursor: pointer; font: inherit; }
+button.link[hidden] { display: none; }
+
+/* ---------- Barre d'onglets fixe (mobile) ---------- */
+.tabbar { display: none; }
+@media (max-width: 760px) {
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
+    display: flex; justify-content: space-around; align-items: stretch;
+    background: color-mix(in srgb, var(--bg-1) 90%, transparent);
+    backdrop-filter: blur(18px) saturate(160%);
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tab-item {
+    position: relative; flex: 1 1 0; min-width: 0; min-height: 54px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    padding: 8px 4px 6px; color: var(--txt-mut);
+    font-size: .64rem; font-weight: 600; font-family: var(--font-display); letter-spacing: .01em;
+    transition: color .2s;
+  }
+  .tab-item svg { width: 22px; height: 22px; transition: stroke .2s, transform .2s; }
+  .tab-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .tab-item.active { color: var(--txt); }
+  .tab-item.active svg { stroke: var(--violet); transform: translateY(-1px); }
+  .tab-item:active svg { transform: scale(.9); }
+  .tab-item .tab-badge { position: absolute; top: 5px; left: 50%; margin-left: 3px; }
+  /* Laisse la place à la barre : footer et contenu ne passent pas dessous */
+  body { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)); }
+  /* Le dégradé de fond fixe reste plein écran */
+  .bg-fx, .bg-grain { bottom: 0; }
+}
+
+/* ---------- Zones de tap confortables (écrans tactiles) ---------- */
+@media (pointer: coarse) {
+  .icon-btn { min-width: 44px; min-height: 44px; }
+  .follow-btn { width: 44px; height: 44px; }
+  .r-fab .fab, .r-dock-chap { min-width: 44px; min-height: 44px; }
+  .seg button, .range-chip, .chap-item { min-height: 44px; }
+  .d-link { min-height: 44px; display: flex; align-items: center; }
+}
 
 /* ---------- Skeleton + fondu d'image ---------- */
 .cover.skeleton { position: relative; }

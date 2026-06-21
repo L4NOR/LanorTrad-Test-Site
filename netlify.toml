@@ -1,6 +1,8 @@
 # LanorTrad — configuration Netlify
 [build]
   publish = "."
+  # Régénère feed.xml (flux RSS des sorties) à partir de js/data/series.js
+  command = "node scripts/build-feed.js"
 
 # Fonctions serverless (validation des codes Premium)
 [functions]
@@ -30,3 +32,10 @@
   for = "/sw.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Flux RSS : cache court pour refléter vite les nouvelles sorties
+[[headers]]
+  for = "/feed.xml"
+  [headers.values]
+    Content-Type = "application/rss+xml; charset=utf-8"
+    Cache-Control = "public, max-age=600"

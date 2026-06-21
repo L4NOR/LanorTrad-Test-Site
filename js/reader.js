@@ -20,6 +20,7 @@
   let S, manga, chapters, chap, imgs = [], idx = 0, total = 0;
   let lastDir = 1, autoOn = false, autoRAF = null, autoSpeed = 1.4;
   let webtoonIO = null;            // préchargement glissant (mode webtoon)
+  let prefetchedNext = null;       // n° du chapitre suivant déjà préchargé
   let _sb = null, _me = null;      // client + session Supabase (commentaires)
 
   function init() {
@@ -33,6 +34,7 @@
 
     if (!S) { root.innerHTML = unavailable("Série introuvable."); window.LT._scanReveals?.(); return; }
     document.title = `${S.title} — Lecture — LanorTrad`;
+    window.LTstore && window.LTstore.markSeen(manga);   // lire « consomme » la nouveauté
 
     let wantNum = p.get("chapter");
     if (!wantNum && chapters.length) wantNum = chapters[chapters.length - 1].num; // 1er dispo
@@ -95,7 +97,7 @@
 
   /* ---------------- Chargement d'un chapitre ---------------- */
   function loadChapter() {
-    idx = 0; total = chap.pages;
+    idx = 0; total = chap.pages; prefetchedNext = null;
     document.getElementById("r-chap-label").textContent = `Chapitre ${chap.num} · ${chap.pages} pages`;
     document.getElementById("r-chap-select").value = chap.num;
     history.replaceState(null, "", `reader.html?manga=${encodeURIComponent(manga)}&chapter=${chap.num}`);
@@ -111,7 +113,13 @@
       return im;
     });
     pagesEl.innerHTML = "";
-    imgs.forEach(im => pagesEl.appendChild(im));
+    imgs.forEach(im => {
+      pagesEl.appendChild(im);
+      // fondu d'apparition quand l'image est chargée (mode webtoon)
+      const done = () => im.classList.add("loaded");
+      if (im.complete && im.naturalWidth) done();
+      else { im.addEventListener("load", done, { once: true }); im.addEventListener("error", done, { once: true }); }
+    });
 
     // splash de fin
     const splash = endSplash();
@@ -209,6 +217,7 @@
     saveProgress();
     updateProgress();
     updateScrub();
+    maybePrefetchNext();
   }
 
   // précharge la fenêtre autour de la page courante (tournes instantanées)
@@ -244,6 +253,33 @@
     const i = chapters.indexOf(chap);
     if (i < chapters.length - 1) { goChapter(chapters[i + 1].num); }
     else window.LT.toast("C'est le premier chapitre.");
+  }
+
+  /* ---------- Préchargement du chapitre suivant (silencieux) ----------
+     Quand on approche de la fin, on précharge les pages du chapitre suivant
+     (priorité basse, via <link rel=prefetch>) → il s'ouvre instantanément.
+     Le service worker met aussi ces images en cache au passage. */
+  function prefetchNextChapter() {
+    const i = chapters.indexOf(chap);
+    const next = i > 0 ? chapters[i - 1] : null;       // liste triée desc → suivant = index-1
+    if (!next || prefetchedNext === next.num) return;
+    prefetchedNext = next.num;
+    const base = `Manga/${manga}/${next.folder}/`;
+    (next.files || []).forEach(f => {
+      const l = document.createElement("link");
+      l.rel = "prefetch"; l.as = "image"; l.href = encodeURI(base + f);
+      document.head.appendChild(l);
+    });
+  }
+  function maybePrefetchNext() {
+    let nearEnd;
+    if (prefs.mode === "webtoon") {
+      const h = document.documentElement.scrollHeight - innerHeight;
+      nearEnd = h > 0 && scrollY / h > 0.6;
+    } else {
+      nearEnd = total > 0 && idx >= total - 3;
+    }
+    if (nearEnd) prefetchNextChapter();
   }
 
   /* ---------------- Progression ---------------- */
@@ -343,6 +379,7 @@
     addEventListener("scroll", () => {
       updateProgress();
       updateScrub();
+      maybePrefetchNext();
       const bar = document.getElementById("r-bar");
       const dock = document.getElementById("r-dock");
       const down = scrollY > last && scrollY > 160;
