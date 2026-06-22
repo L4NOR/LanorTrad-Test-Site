@@ -67,7 +67,7 @@
     const nav = el(`
       <nav class="nav" id="nav">
         <div class="wrap">
-          <a href="index.html" class="brand"><span class="mark">L</span><span>Lanor<span class="grad-text">Trad</span></span></a>
+          <a href="index.html" class="brand"><img class="brand-logo brand-logo-sm" src="images/icons/icon-96x96.png" alt="LanorTrad" width="38" height="38"><span>Lanor<span class="grad-text">Trad</span></span></a>
           <div class="nav-links">${links}</div>
           <div class="nav-right">
             <div class="search-box">
@@ -90,7 +90,7 @@
     const drawer = el(`
       <aside class="drawer" id="drawer">
         <div class="drawer-head">
-          <span class="brand"><span class="mark">L</span><span class="brand-name">Lanor<span class="grad-text">Trad</span></span></span>
+          <span class="brand"><img class="brand-logo brand-logo-sm" src="images/icons/icon-96x96.png" alt="LanorTrad" width="38" height="38"><span class="brand-name">Lanor<span class="grad-text">Trad</span></span></span>
           <button class="d-close" id="drawer-close" aria-label="Fermer">&times;</button>
         </div>
         <div class="search-box" style="display:block;margin-bottom:18px">
