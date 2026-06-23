@@ -30,22 +30,7 @@
 
 .premium-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-family: var(--font-display); font-weight: 800; font-size: .68rem; letter-spacing: .04em; background: linear-gradient(135deg, #f59e0b, #fcd34d); color: #2a1a02; box-shadow: 0 4px 12px -4px rgba(245,158,11,.7); }
 
-/* ---------- Navbar ---------- */
-.nav {
-  position: fixed; inset: 0 0 auto 0; height: var(--nav-h); z-index: 100;
-  display: flex; align-items: center;
-  transition: background .4s, box-shadow .4s, transform .4s var(--ease), border-color .4s;
-  border-bottom: 1px solid transparent;
-}
-.nav.scrolled {
-  background: color-mix(in srgb, var(--bg-1) 72%, transparent);
-  backdrop-filter: blur(18px) saturate(160%);
-  border-bottom-color: var(--line);
-  box-shadow: 0 10px 40px -24px rgba(0,0,0,.9);
-}
-.nav.hidden-up { transform: translateY(-120%); }
-.nav .wrap { display: flex; align-items: center; gap: 22px; width: 100%; }
-
+/* ---------- Marque (footer) ---------- */
 .brand { display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; }
 .brand .mark {
   width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
@@ -60,30 +45,6 @@
 }
 .brand .brand-logo-sm { width: 38px; height: 38px; }
 .brand:hover .brand-logo { transform: rotate(-12deg) scale(1.08); }
-
-.nav-links { display: flex; align-items: center; gap: 6px; margin-left: 10px; }
-.nav-links a {
-  padding: 9px 14px; border-radius: 10px; color: var(--txt-soft); font-weight: 500; font-size: .95rem;
-  position: relative; transition: color .25s, background .25s;
-}
-.nav-links a::after {
-  content: ""; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 2px; border-radius: 2px;
-  background: var(--grad); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease);
-}
-.nav-links a:hover, .nav-links a.active { color: var(--txt); }
-.nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
-
-.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-
-.search-box { position: relative; }
-.search-box input {
-  width: 170px; padding: 10px 14px 10px 38px; border-radius: 12px;
-  background: var(--glass); border: 1px solid var(--line); color: var(--txt);
-  transition: border-color .25s, width .35s var(--ease), background .25s; outline: none;
-}
-.search-box input::placeholder { color: var(--txt-mut); }
-.search-box input:focus { border-color: rgba(168,85,247,.6); width: 210px; background: var(--glass-2); }
-.search-box .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt-mut); pointer-events: none; }
 
 .icon-btn {
   width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
@@ -111,22 +72,6 @@
 .select:hover::after { border-color: var(--violet); }
 .select select option { background: var(--bg-2); color: var(--txt); font-weight: 500; }
 
-.burger { display: none; }
-
-/* ---------- Drawer mobile ---------- */
-.drawer-overlay { position: fixed; inset: 0; background: rgba(4,4,12,.6); backdrop-filter: blur(4px); opacity: 0; visibility: hidden; transition: .3s; z-index: 110; }
-.drawer-overlay.open { opacity: 1; visibility: visible; }
-.drawer {
-  position: fixed; top: 0; right: 0; height: 100%; width: min(82vw, 340px); z-index: 120;
-  background: var(--bg-2); border-left: 1px solid var(--line);
-  transform: translateX(100%); transition: transform .45s var(--ease);
-  display: flex; flex-direction: column; padding: 24px;
-}
-.drawer.open { transform: translateX(0); }
-.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
-.drawer a.d-link { padding: 15px 14px; border-radius: 12px; font-size: 1.1rem; font-weight: 600; color: var(--txt-soft); display: flex; align-items: center; gap: 14px; transition: .25s; }
-.drawer a.d-link:hover { background: var(--grad-soft); color: var(--txt); }
-.drawer .d-close { font-size: 1.8rem; color: var(--txt-mut); }
 
 /* ---------- Cartes manga (tilt 3D + glow) ---------- */
 .card-grid { display: grid; gap: clamp(16px, 2.4vw, 28px); }
@@ -210,9 +155,3 @@ body.fade-enter main, body.fade-enter .page-body { animation: pageIn .6s var(--e
 .loader .l-bar { width: 200px; height: 4px; border-radius: 4px; background: var(--bg-3); margin-top: 18px; overflow: hidden; }
 .loader .l-bar i { display: block; height: 100%; width: 40%; background: var(--grad); border-radius: 4px; animation: lbar 1.1s var(--ease) infinite; }
 @keyframes lbar { 0% { transform: translateX(-120%); } 100% { transform: translateX(360%); } }
-
-/* ---------- Responsive nav ---------- */
-@media (max-width: 980px) {
-  .nav-links, .search-box { display: none; }
-  .burger { display: grid; }
-}

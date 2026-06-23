@@ -33,7 +33,7 @@
   --radius-sm: 12px;
   --radius-lg: 28px;
 
-  --nav-h: 76px;
+  --nav-h: calc(14px + env(safe-area-inset-top, 0px));   /* plus de barre en haut : simple marge + encoche */
   --max: 1240px;
 
   --font-display: "Sora", system-ui, sans-serif;

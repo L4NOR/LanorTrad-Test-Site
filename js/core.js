@@ -60,48 +60,43 @@
     document.body.prepend(grain);
     document.body.prepend(fx);
 
-    // Navbar
-    const navBadge = n => n.href === "bibliotheque.html" ? `<span class="nav-badge" data-follow-badge hidden></span>` : "";
-    const links = NAV.map(n =>
-      `<a href="${n.href}" class="${n.href === page ? "active" : ""}">${n.label}${navBadge(n)}</a>`).join("");
-    const nav = el(`
-      <nav class="nav" id="nav">
-        <div class="wrap">
-          <a href="index.html" class="brand"><img class="brand-logo brand-logo-sm" src="images/icons/icon-96x96.png" alt="LanorTrad" width="38" height="38"><span>Lanor<span class="grad-text">Trad</span></span></a>
-          <div class="nav-links">${links}</div>
-          <div class="nav-right">
-            <div class="search-box">
-              <span class="ico">${icon("search")}</span>
-              <input type="search" id="nav-search" placeholder="Rechercher…" autocomplete="off" aria-label="Rechercher un manga">
-            </div>
-            <button class="icon-btn" id="theme-btn" title="Changer de thème" aria-label="Changer de thème"><span class="theme-ico">☀</span></button>
-            <a href="premium.html" class="btn btn-premium btn-sm hide-mobile" id="premium-btn">✦ Premium</a>
-            <a href="${DISCORD}" target="_blank" rel="noopener" class="icon-btn hide-mobile" title="Discord" aria-label="Discord">${icon("discord")}</a>
-            <button class="icon-btn burger" id="burger" aria-label="Menu">${icon("menu")}</button>
-          </div>
-        </div>
+    // Navigation radiale : un bouton rond en bas-centre, les pages jaillissent en bulles
+    const RN = [
+      { label: "Accueil",      href: "index.html",        ic: "home" },
+      { label: "Catalogue",    href: "catalogue.html",    ic: "grid" },
+      { label: "Planning",     href: "planning.html",     ic: "calendar" },
+      { label: "Bibliothèque", href: "bibliotheque.html", ic: "library" },
+      { label: "Forum",        href: "forum.html",        ic: "chat" },
+      { label: "Équipe",       href: "equipe.html",       ic: "users" },
+      { label: "Premium",      href: "premium.html",      ic: "sparkle", premium: true },
+      { type: "search", label: "Recherche", ic: "search" },
+      { type: "theme",  label: "Thème",     ic: "theme" },
+      { label: "Discord", href: DISCORD, ic: "discord", external: true },
+    ];
+    // Bulles : icône seule (le nom s'affiche dans la légende au survol/appui).
+    const rnItem = (it, i) => {
+      const attr = `style="--i:${i}" data-name="${it.label}" aria-label="${it.label}"`;
+      if (it.type === "search")
+        return `<button type="button" class="rn-item rn-action" data-action="search" ${attr}><span class="rn-ic">${icon("search")}</span></button>`;
+      if (it.type === "theme")
+        return `<button type="button" class="rn-item rn-action" data-action="theme" ${attr}><span class="rn-ic"><span class="theme-ico">☾</span></span></button>`;
+      if (it.external)
+        return `<a class="rn-item" href="${it.href}" target="_blank" rel="noopener" data-external ${attr}><span class="rn-ic">${icon(it.ic)}</span></a>`;
+      const cls = `rn-item ${it.premium ? "rn-premium" : ""} ${it.href === page ? "current" : ""}`;
+      const badge = it.href === "bibliotheque.html" ? `<span class="nav-badge rn-badge" data-follow-badge hidden></span>` : "";
+      return `<a class="${cls}" href="${it.href}" ${attr}><span class="rn-ic">${icon(it.ic)}</span>${badge}</a>`;
+    };
+    const radial = el(`
+      <nav class="radial-nav" id="radial-nav" aria-label="Navigation principale">
+        <div class="rn-scrim" id="rn-scrim"></div>
+        <div class="rn-caption" id="rn-caption" aria-live="polite"></div>
+        <div class="rn-items" id="rn-items" style="--n:${RN.length}">${RN.map(rnItem).join("")}</div>
+        <button type="button" class="rn-toggle" id="rn-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-haspopup="menu">
+          <span class="rn-ico rn-ico-open">${icon("apps")}</span>
+          <span class="rn-ico rn-ico-close">${icon("close")}</span>
+        </button>
       </nav>`);
-    document.body.prepend(nav);
-
-    // Drawer mobile
-    const drawerLinks = NAV.map(n =>
-      `<a href="${n.href}" class="d-link">${n.label}${navBadge(n)}</a>`).join("");
-    const overlay = el(`<div class="drawer-overlay" id="drawer-overlay"></div>`);
-    const drawer = el(`
-      <aside class="drawer" id="drawer">
-        <div class="drawer-head">
-          <span class="brand"><img class="brand-logo brand-logo-sm" src="images/icons/icon-96x96.png" alt="LanorTrad" width="38" height="38"><span class="brand-name">Lanor<span class="grad-text">Trad</span></span></span>
-          <button class="d-close" id="drawer-close" aria-label="Fermer">&times;</button>
-        </div>
-        <div class="search-box" style="display:block;margin-bottom:18px">
-          <span class="ico">${icon("search")}</span>
-          <input type="search" id="drawer-search" placeholder="Rechercher…" style="width:100%">
-        </div>
-        ${drawerLinks}
-        <a href="premium.html" class="btn btn-premium" style="margin-top:auto;justify-content:center">✦ Passer Premium</a>
-        <a href="${DISCORD}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:12px;justify-content:center">Rejoindre le Discord</a>
-      </aside>`);
-    document.body.append(overlay, drawer);
+    document.body.append(radial);
 
     // Footer
     const yr = new Date().getFullYear();
@@ -134,59 +129,67 @@
       </footer>`);
     document.body.append(footer);
 
-    // Barre d'onglets fixe (mobile) — accès au pouce aux pages principales
-    const TABS = [
-      { label: "Accueil",   href: "index.html",        ic: "home" },
-      { label: "Catalogue", href: "catalogue.html",    ic: "grid" },
-      { label: "Planning",  href: "planning.html",     ic: "calendar" },
-      { label: "Biblio",    href: "bibliotheque.html", ic: "library" },
-      { label: "Forum",     href: "forum.html",        ic: "chat" },
-    ];
-    const tabbar = el(`
-      <nav class="tabbar" aria-label="Navigation principale">
-        ${TABS.map(t => `
-          <a href="${t.href}" class="tab-item ${t.href === page ? "active" : ""}" ${t.href === page ? 'aria-current="page"' : ""}>
-            ${icon(t.ic)}<span>${t.label}</span>
-            ${t.href === "bibliotheque.html" ? `<span class="nav-badge tab-badge" data-follow-badge hidden></span>` : ""}
-          </a>`).join("")}
-      </nav>`);
-    document.body.append(tabbar);
-
     wireShell();
     syncThemeIcon();
   }
 
   function wireShell() {
-    const nav = $("#nav");
-    if (!nav) return;
-    $("#theme-btn").addEventListener("click", cycleTheme);
+    const rn = $("#radial-nav");
+    if (!rn) return;
+    const toggle = $("#rn-toggle"), scrim = $("#rn-scrim");
+    const items = $$(".rn-item", rn);
 
-    // Burger / drawer
-    const drawer = $("#drawer"), overlay = $("#drawer-overlay");
-    const open = () => { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; };
-    const close = () => { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; };
-    $("#burger").addEventListener("click", open);
-    $("#drawer-close").addEventListener("click", close);
-    overlay.addEventListener("click", close);
-    document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+    // Arc unique régulier au-dessus du bouton : bulles identiques, sans libellé.
+    const RAD = Math.PI / 180;
+    const layout = () => {
+      const n = items.length, w = innerWidth, narrow = w < 560;
+      const spread = narrow ? 166 : 150, start = 90 + spread / 2, step = spread / (n - 1);
+      const bubbleR = narrow ? 22 : 28, margin = 12;
+      const maxX = w / 2 - margin - bubbleR;
+      const R = Math.max(124, Math.min(narrow ? 200 : 300, maxX / Math.sin((spread / 2) * RAD)));
+      items.forEach((it, i) => {
+        const a = (start - i * step) * RAD;
+        it.style.setProperty("--x", (Math.cos(a) * R).toFixed(1) + "px");
+        it.style.setProperty("--y", (-Math.sin(a) * R).toFixed(1) + "px");
+      });
+    };
+    layout();
+    addEventListener("resize", layout, { passive: true });
 
-    // Scroll : classe scrolled + masquage descendant
-    let last = 0;
-    addEventListener("scroll", () => {
-      const y = scrollY;
-      nav.classList.toggle("scrolled", y > 24);
-      if (y > last && y > 260) nav.classList.add("hidden-up");
-      else nav.classList.remove("hidden-up");
-      last = y;
-    }, { passive: true });
-
-    // Recherche → ouvre la palette ⌘K
-    [$("#nav-search"), $("#drawer-search")].forEach(inp => {
-      if (!inp) return;
-      inp.setAttribute("readonly", "");
-      inp.addEventListener("focus", () => { inp.blur(); openPalette(); });
-      inp.addEventListener("click", openPalette);
+    // Légende : nom de la page survolée / appuyée (par défaut, la page courante).
+    const caption = $("#rn-caption");
+    const resetCaption = () => {
+      const cur = items.find(it => it.classList.contains("current"));
+      caption.textContent = cur ? cur.dataset.name : "Naviguer";
+    };
+    items.forEach(it => {
+      const show = () => caption.textContent = it.dataset.name;
+      it.addEventListener("pointerenter", show);
+      it.addEventListener("focus", show);
+      it.addEventListener("pointerleave", resetCaption);
+      it.addEventListener("blur", resetCaption);
     });
+
+    let open = false;
+    const setOpen = v => {
+      open = v;
+      rn.classList.toggle("open", v);
+      document.body.classList.toggle("rn-open", v);
+      toggle.setAttribute("aria-expanded", String(v));
+      toggle.setAttribute("aria-label", v ? "Fermer le menu" : "Ouvrir le menu");
+      if (v) resetCaption();
+    };
+    toggle.addEventListener("click", () => setOpen(!open));
+    scrim.addEventListener("click", () => setOpen(false));
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && open) setOpen(false); });
+
+    items.forEach(it => it.addEventListener("click", e => {
+      const act = it.dataset.action;
+      if (act === "theme")  { e.preventDefault(); cycleTheme(); return; }      // garde le menu ouvert
+      if (act === "search") { e.preventDefault(); setOpen(false); openPalette(); return; }
+      if (it.classList.contains("current")) e.preventDefault();                // déjà sur cette page
+      setOpen(false);                                                          // page → transition + ferme
+    }));
   }
 
   /* ---------- Transitions de page (View Transitions + fallback) ---------- */
@@ -387,6 +390,12 @@
       calendar:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>`,
       library:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2V4Z"/><path d="M6 18a2 2 0 0 0-2 2"/><path d="M6 4a2 2 0 0 0-2 2v12"/></svg>`,
       chat:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-5.4A8 8 0 1 1 21 11.5Z"/></svg>`,
+      users:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.4 19a5.6 5.6 0 0 1 11.2 0"/><path d="M16.2 5.3a3.2 3.2 0 0 1 0 5.4"/><path d="M17.8 13.4a5.6 5.6 0 0 1 2.8 4.9"/></svg>`,
+      more:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`,
+      chevron:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>`,
+      apps:   `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>`,
+      close:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+      sparkle:`<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l1.9 5.1 5.1 1.9-5.1 1.9L12 16.2l-1.9-5.1L5 9.2l5.1-1.9z"/><path d="M18.5 14l.85 2.3 2.3.85-2.3.85L18.5 20.3l-.85-2.3-2.3-.85 2.3-.85z"/></svg>`,
     };
     return I[name] || "";
   }
