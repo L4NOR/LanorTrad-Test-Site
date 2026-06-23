@@ -37,7 +37,7 @@
     }
 
     const cards = [...deck.children];
-    let active = 0, timer = null;
+    let active = 0, timer = null, visible = true;
 
     function setActive(idx, manual) {
       active = (idx + items.length) % items.length;
@@ -70,7 +70,24 @@
     }
 
     function next() { setActive(active + 1); }
-    function restart() { clearInterval(timer); timer = setInterval(next, 5200); }
+    function restart() { clearInterval(timer); if (visible) timer = setInterval(next, 5200); }
+
+    // Le carrousel ne tourne (et ne consomme CPU/batterie) que lorsque le héros est visible.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(entries => {
+        visible = entries[0].isIntersecting;
+        if (visible) restart(); else clearInterval(timer);
+      }, { threshold: 0.15 }).observe(stage);
+    }
+
+    // Écriture du transform coalescée en rAF : plusieurs événements
+    // (pointermove ~60/s, deviceorientation ~60/s) = une seule écriture par frame.
+    let tiltRAF = 0, pendingTilt = "";
+    function tilt(t) {
+      pendingTilt = t;
+      if (tiltRAF) return;
+      tiltRAF = requestAnimationFrame(() => { tiltRAF = 0; deck.style.transform = pendingTilt; });
+    }
 
     // Parallaxe souris sur la scène
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -78,9 +95,9 @@
         const r = stage.getBoundingClientRect();
         const px = (e.clientX - r.left) / r.width - .5;
         const py = (e.clientY - r.top) / r.height - .5;
-        deck.style.transform = `rotateY(${px * 18}deg) rotateX(${py * -14}deg)`;
+        tilt(`rotateY(${px * 18}deg) rotateX(${py * -14}deg)`);
       });
-      stage.addEventListener("pointerleave", () => { deck.style.transform = ""; });
+      stage.addEventListener("pointerleave", () => { tilt(""); });
 
       // Gyroscope (mobile) : la pile réagit à l'inclinaison
       if (window.DeviceOrientationEvent) {
@@ -88,7 +105,7 @@
           if (e.gamma == null) return;
           const x = Math.max(-1, Math.min(1, e.gamma / 35));
           const y = Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 35));
-          deck.style.transform = `rotateY(${x * 16}deg) rotateX(${y * -12}deg)`;
+          tilt(`rotateY(${x * 16}deg) rotateX(${y * -12}deg)`);
         };
         if (typeof DeviceOrientationEvent.requestPermission === "function") {
           addEventListener("touchend", function ask() {

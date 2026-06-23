@@ -80,34 +80,78 @@ html.premium .adsbygoogle, html.premium .ad-slot, html.premium [data-ad] { displ
 button.link { background: none; border: none; cursor: pointer; font: inherit; }
 button.link[hidden] { display: none; }
 
-/* ---------- Barre d'onglets fixe (mobile) ---------- */
-.tabbar { display: none; }
-@media (max-width: 760px) {
-  .tabbar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
-    display: flex; justify-content: space-around; align-items: stretch;
-    background: color-mix(in srgb, var(--bg-1) 90%, transparent);
-    backdrop-filter: blur(18px) saturate(160%);
-    border-top: 1px solid var(--line);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  .tab-item {
-    position: relative; flex: 1 1 0; min-width: 0; min-height: 54px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-    padding: 8px 4px 6px; color: var(--txt-mut);
-    font-size: .64rem; font-weight: 600; font-family: var(--font-display); letter-spacing: .01em;
-    transition: color .2s;
-  }
-  .tab-item svg { width: 22px; height: 22px; transition: stroke .2s, transform .2s; }
-  .tab-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  .tab-item.active { color: var(--txt); }
-  .tab-item.active svg { stroke: var(--violet); transform: translateY(-1px); }
-  .tab-item:active svg { transform: scale(.9); }
-  .tab-item .tab-badge { position: absolute; top: 5px; left: 50%; margin-left: 3px; }
-  /* Laisse la place à la barre : footer et contenu ne passent pas dessous */
-  body { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)); }
-  /* Le dégradé de fond fixe reste plein écran */
-  .bg-fx, .bg-grain { bottom: 0; }
+/* ---------- Navigation radiale : bouton rond + bulles en éventail ---------- */
+/* De la place en bas pour le bouton flottant (sauf lecteur), fond fixe plein écran. */
+body:not([data-shell="minimal"]) { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+.bg-fx, .bg-grain { bottom: 0; }
+
+.radial-nav {
+  position: fixed; left: 50%; margin-left: -32px; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 64px; height: 64px; z-index: 200;   /* pas de transform : le voile fixed couvrirait sinon seulement le bouton */
+}
+/* Voile plein écran derrière les bulles */
+.rn-scrim {
+  position: fixed; inset: 0; z-index: 1;
+  background: rgba(5,5,12,.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s;
+}
+.radial-nav.open .rn-scrim { opacity: 1; visibility: visible; }
+
+/* Bouton rond central */
+.rn-toggle {
+  position: absolute; inset: 0; z-index: 3; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; cursor: pointer;
+  background: var(--grad); border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 14px 34px -8px rgba(124,58,237,.7), 0 4px 12px rgba(0,0,0,.4);
+  transition: transform .3s var(--ease), box-shadow .3s;
+}
+.rn-toggle:hover { transform: scale(1.06); }
+.rn-toggle:active { transform: scale(.94); }
+.rn-ico { position: absolute; display: grid; place-items: center; transition: opacity .25s var(--ease), transform .35s var(--ease); }
+.rn-ico-close { opacity: 0; transform: rotate(-90deg) scale(.5); }
+.radial-nav.open .rn-ico-open { opacity: 0; transform: rotate(90deg) scale(.5); }
+.radial-nav.open .rn-ico-close { opacity: 1; transform: none; }
+
+/* Bulles (positionnées sur un arc via --x / --y calculés en JS) */
+.rn-items { position: absolute; inset: 0; z-index: 2; --rn-size: clamp(46px, 12.2vw, 56px); }
+.rn-item {
+  position: absolute; left: 50%; top: 50%; width: var(--rn-size); height: var(--rn-size); margin: calc(var(--rn-size) / -2);
+  border-radius: 50%; display: grid; place-items: center; color: var(--txt-soft);
+  background: color-mix(in srgb, var(--bg-2) 90%, transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid var(--line-strong); box-shadow: 0 10px 24px -10px rgba(0,0,0,.7);
+  opacity: 0; pointer-events: none; transform: translate(0, 0) scale(.3);
+  transition: transform .42s cubic-bezier(.34,1.5,.5,1), opacity .24s ease, color .2s, border-color .2s, background .2s;
+  transition-delay: calc((var(--n) - var(--i)) * 13ms);   /* fermeture : de l'extérieur vers le centre */
+}
+.radial-nav.open .rn-item {
+  opacity: 1; pointer-events: auto;
+  transform: translate(var(--x, 0), var(--y, 0)) scale(1);
+  transition-delay: calc(var(--i) * 30ms);                /* ouverture : du centre vers l'extérieur */
+}
+.rn-item:hover, .rn-item:focus-visible { color: var(--txt); border-color: var(--violet); background: var(--bg-2); outline: none; }
+.rn-item:active { transform: translate(var(--x, 0), var(--y, 0)) scale(.9); }
+.rn-item svg { width: 22px; height: 22px; }
+.rn-item .theme-ico { font-size: 1.2rem; line-height: 1; }
+/* Seuls la page active (violet) et Premium (doré) ressortent. */
+.rn-item.current { color: #fff; background: var(--grad); border-color: transparent; box-shadow: 0 10px 26px -8px rgba(124,58,237,.7); }
+.rn-premium { color: #f5c842; border-color: rgba(245,200,66,.45); }
+.rn-premium:hover, .rn-premium:focus-visible { color: #f5c842; border-color: #f5c842; }
+.rn-badge { position: absolute; top: 3px; right: 5px; }
+
+/* Légende du nom (en haut), affichée au survol/appui d'une bulle */
+.rn-caption {
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 30px); left: 50%; z-index: 2;
+  padding: 9px 22px; border-radius: 999px; white-space: nowrap; pointer-events: none;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--txt);
+  background: color-mix(in srgb, var(--bg-2) 86%, transparent); border: 1px solid var(--line-strong);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  opacity: 0; transform: translate(-50%, -10px); transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.radial-nav.open .rn-caption { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rn-item, .radial-nav.open .rn-item { transition: opacity .2s, transform .2s; transition-delay: 0s !important; }
 }
 
 /* ---------- Zones de tap confortables (écrans tactiles) ---------- */
@@ -116,7 +160,6 @@ button.link[hidden] { display: none; }
   .follow-btn { width: 44px; height: 44px; }
   .r-fab .fab, .r-dock-chap { min-width: 44px; min-height: 44px; }
   .seg button, .range-chip, .chap-item { min-height: 44px; }
-  .d-link { min-height: 44px; display: flex; align-items: center; }
 }
 
 /* ---------- Skeleton + fondu d'image ---------- */
