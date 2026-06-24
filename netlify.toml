@@ -4,6 +4,14 @@
   # Régénère feed.xml + sitemap.xml + og-meta.json à partir des données du site
   command = "node scripts/build-seo.js"
 
+# Scan de secrets : SUPABASE_URL et la clé "publishable" sont PUBLIQUES par
+# conception (utilisées dans le navigateur, protégées par les règles RLS), donc
+# présentes volontairement dans js/supabase-config.js. On les exclut du scan
+# pour éviter un faux positif, sans désactiver la détection des vrais secrets
+# (service_role, VAPID privé, etc.).
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
+
 # Fonctions serverless (validation des codes Premium)
 [functions]
   directory = "netlify/functions"
