@@ -46,11 +46,14 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Flux RSS : cache court pour refléter vite les nouvelles sorties
+# Flux RSS : cache court pour refléter vite les nouvelles sorties.
+# Servi en text/xml (et non application/rss+xml) pour que les navigateurs
+# appliquent la feuille de style feed.xsl (sinon Chrome affiche le XML brut).
+# Les agrégateurs (Feedly, Inoreader…) acceptent text/xml sans problème.
 [[headers]]
   for = "/feed.xml"
   [headers.values]
-    Content-Type = "application/rss+xml; charset=utf-8"
+    Content-Type = "text/xml; charset=utf-8"
     Cache-Control = "public, max-age=600"
 
 # Feuille de style du flux (affichage lisible du RSS dans un navigateur)
