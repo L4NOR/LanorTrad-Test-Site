@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v9";
+const CACHE = "lanortrad-v10";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "premium.html",
@@ -30,7 +30,7 @@ self.addEventListener("fetch", e => {
   if (url.origin !== location.origin) return;
 
   // Images de chapitres : cache d'abord (lecture hors-ligne des chapitres déjà lus)
-  if (/\/Manga\/.+\.(jpe?g|png|webp|avif)$/i.test(url.pathname)) {
+  if (/\/Manga\/.+\.(jpe?g|png)$/i.test(url.pathname)) {
     e.respondWith(caches.open(CACHE).then(async c => {
       const hit = await c.match(req);
       if (hit) return hit;

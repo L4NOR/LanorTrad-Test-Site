@@ -435,8 +435,19 @@
       e.type = "application/ld+json"; e.id = "ld-site"; e.textContent = JSON.stringify(ld);
       document.head.appendChild(e);
     }
-    const isProd = /^https?:/.test(location.protocol) && !/^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
-    if (!isProd) return; // pas de SW / analytics / pub en local
+    // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
+    // téléphone via http://192.168.x.x:port). En local on désactive le service
+    // worker, sinon il sert un cache obsolète pendant le développement.
+    const host = location.hostname;
+    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[?::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host) || /\.local$/.test(host);
+    const isProd = /^https?:/.test(location.protocol) && !isLocal;
+    if (!isProd) {
+      // Nettoyage : retire un éventuel service worker + caches résiduels d'une
+      // visite précédente (sinon l'ancien CSS/JS reste servi depuis le cache).
+      if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
+      if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
+      return; // pas de SW / analytics / pub en local
+    }
 
     // Service worker (PWA + hors-ligne)
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
