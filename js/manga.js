@@ -247,7 +247,10 @@
     document.body.appendChild(lb);
     document.body.style.overflow = "hidden";
     const img = lb.querySelector(".lb-img"), count = lb.querySelector(".lb-count");
-    const show = () => { img.src = encodeURI(srcs[i]); count.textContent = `${i + 1} / ${srcs.length}`; };
+    const show = () => {
+      img.src = encodeURI(srcs[i]);
+      count.textContent = `${i + 1} / ${srcs.length}`;
+    };
     const close = () => { lb.classList.remove("open"); setTimeout(() => lb.remove(), 250); document.body.style.overflow = ""; document.removeEventListener("keydown", key); };
     const prev = () => { i = (i - 1 + srcs.length) % srcs.length; show(); };
     const next = () => { i = (i + 1) % srcs.length; show(); };

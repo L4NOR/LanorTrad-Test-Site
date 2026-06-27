@@ -17,7 +17,7 @@ GAL_DIR = os.path.join(ROOT, "images", "Galerie")
 OUT = os.path.join(ROOT, "js", "data", "chapters.js")
 OUT_GAL = os.path.join(ROOT, "js", "data", "gallery.js")
 
-IMG_EXT = (".jpg", ".jpeg", ".png", ".webp", ".avif")
+IMG_EXT = (".jpg", ".jpeg", ".png")
 NUM_RE = re.compile(r"(\d+(?:\.\d+)?)")
 
 

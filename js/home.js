@@ -27,7 +27,8 @@
         const s = feat[cur];
         spot.style.setProperty("--accent", s.accent);
         g("sl-bg").style.backgroundImage = `url('${s.cover}')`;
-        g("sl-img").src = s.cover; g("sl-img").alt = s.title;
+        const slImg = g("sl-img");
+        slImg.src = s.cover; slImg.alt = s.title;
         g("sl-cover").href = s.url; g("sl-more").href = s.url;
         g("sl-genres").innerHTML = s.genres.slice(0, 3).map(x => `<span>${x}</span>`).join("");
         g("sl-title").textContent = s.title;
