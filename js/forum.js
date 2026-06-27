@@ -19,8 +19,21 @@
   let sb = null, me = null, profile = null, booted = false;
 
   const REACTIONS = ["👍", "❤️", "😂", "😮", "🔥"];
+
+  // Champs de profil (« rôles » des membres) : choix proposés à l'édition.
+  const GENDERS    = ["Homme", "Femme", "Autre"];
+  const READ_TYPES = ["Mangas", "Oneshots", "Manhwa", "Manhua", "Webtoons", "Light novels"];
+  const GENRES     = ["Action", "Aventure", "Comédie", "Drame", "Fantasy", "Horreur",
+                      "Mystère", "Romance", "Sports", "Arts martiaux", "Psychologie",
+                      "Surnaturel", "Tragédie", "Vie scolaire", "Tranche de vie", "Isekai",
+                      "Seinen", "Shōnen", "Shōjo"];
+
+  // Engrenage « Modifier mon profil » (barre du forum).
+  const gearIcon = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+
   let RX = {};            // cache réactions du sujet courant : "kind:id" -> [{emoji,user_id}]
   let notifBox = null;    // dropdown notifications
+  let editAfterLoad = false; // ouvre l'édition du profil dès le rendu (engrenage)
 
   /* ---------- Client Supabase (null si non configuré) ---------- */
   function client() {
@@ -57,6 +70,16 @@
     r === "admin"     ? '<span class="fo-role admin">Admin</span>' :
     r === "moderator" ? '<span class="fo-role mod">Modo</span>'    : "";
 
+  // Badges de profil : sexe, âge, types lus, genres préférés (« rôles »).
+  function profileTags(pf) {
+    const t = [];
+    if (pf.gender) t.push(`<span class="fo-ptag gender">${esc(pf.gender)}</span>`);
+    if (pf.age)    t.push(`<span class="fo-ptag age">${esc(String(pf.age))} ans</span>`);
+    (pf.reads || []).forEach(r => t.push(`<span class="fo-ptag read">${esc(r)}</span>`));
+    (pf.fav_genres || []).forEach(g => t.push(`<span class="fo-ptag genre">${esc(g)}</span>`));
+    return t.length ? `<div class="fo-prof-tags">${t.join("")}</div>` : "";
+  }
+
   const isStaff = () => profile && (profile.role === "admin" || profile.role === "moderator");
   const canEdit = authorId => !!(me && (me.id === authorId || isStaff()));
 
@@ -76,8 +99,10 @@
         <div class="fo-user">
           ${avatar(profile, 34)}
           <span class="fo-uname">${esc(profile.username)}</span>${roleBadge(profile.role)}
+          <button class="icon-btn" id="fo-settings" title="Modifier mon profil" aria-label="Modifier mon profil">${gearIcon}</button>
           <button class="icon-btn" id="fo-logout" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
         </div>`;
+      bar.querySelector("#fo-settings").addEventListener("click", openProfileEdit);
       bar.querySelector("#fo-logout").addEventListener("click", doLogout);
       bar.querySelector("#fo-bell").addEventListener("click", toggleNotifs);
       refreshNotifCount();
@@ -548,6 +573,7 @@
             <div class="fo-prof-since">Membre depuis ${timeAgo(pf.created_at)}</div>
             ${pf.bio ? `<p class="fo-prof-bio">${esc(pf.bio).replace(/\n/g, "<br>")}</p>`
               : `<p class="fo-prof-bio muted">${own ? "Ajoute une bio depuis « Modifier mon profil » ✏️" : "Pas encore de bio."}</p>`}
+            ${profileTags(pf)}
           </div>
           ${own ? `<button class="btn btn-ghost btn-sm" id="prof-edit">Modifier mon profil</button>` : ""}
         </div>
@@ -563,25 +589,72 @@
         </div>
       </div>`;
     if (own) app().querySelector("#prof-edit").addEventListener("click", () => editProfile(pf));
+    // Engrenage de la barre : ouvre directement l'édition au chargement du profil.
+    if (editAfterLoad) { editAfterLoad = false; if (own) editProfile(pf); }
     setBusy(false); rescan();
+  }
+
+  // Va sur SON profil et ouvre l'édition (déclenché par l'engrenage de la barre).
+  function openProfileEdit() {
+    if (!profile) return;
+    editAfterLoad = true;
+    const target = "#/u/" + encodeURIComponent(profile.username);
+    if (location.hash === target) router();   // déjà sur la page → re-render + édition
+    else location.hash = target;
   }
 
   function editProfile(pf) {
     const head = app().querySelector(".fo-prof-head");
+    // Construit un groupe de chips (sélection simple ou multiple selon `single`).
+    const chips = (field, opts, sel, single) =>
+      `<div class="fo-chipset" data-field="${field}"${single ? ' data-single="1"' : ""}>` +
+      opts.map(o => {
+        const on = single ? sel === o : (sel || []).includes(o);
+        return `<button type="button" class="fo-chip${on ? " on" : ""}" data-val="${esc(o)}">${esc(o)}</button>`;
+      }).join("") + `</div>`;
+
     const form = el(`<form class="fo-prof-edit">
       <label class="fav-field"><span>Photo de profil</span><input type="file" name="avatar" accept="image/*"></label>
       <label class="fav-field"><span>Bio</span><textarea name="bio" rows="3" maxlength="300" placeholder="Parle de toi…">${esc(pf.bio || "")}</textarea></label>
+      <div class="fav-field"><span>Sexe</span>${chips("gender", GENDERS, pf.gender, true)}</div>
+      <label class="fav-field"><span>Âge</span><input name="age" type="number" min="5" max="120" inputmode="numeric" placeholder="Optionnel" value="${pf.age != null ? esc(String(pf.age)) : ""}" style="max-width:140px"></label>
+      <div class="fav-field"><span>Je lis surtout</span>${chips("reads", READ_TYPES, pf.reads, false)}</div>
+      <div class="fav-field"><span>Genres préférés</span>${chips("genres", GENRES, pf.fav_genres, false)}</div>
       <p class="fo-msg" hidden></p>
       <div style="display:flex;gap:8px"><button class="btn btn-primary" type="submit">Enregistrer</button><button class="btn btn-ghost" type="button" data-cancel>Annuler</button></div>
     </form>`);
     head.after(form);
     const msg = form.querySelector(".fo-msg");
     form.querySelector("[data-cancel]").addEventListener("click", () => viewProfile(pf.username));
+
+    // Sélection des chips : un seul actif si data-single, plusieurs sinon.
+    form.querySelectorAll(".fo-chipset").forEach(set => {
+      set.addEventListener("click", e => {
+        const chip = e.target.closest(".fo-chip");
+        if (!chip) return;
+        if (set.dataset.single) {
+          const wasOn = chip.classList.contains("on");
+          set.querySelectorAll(".fo-chip").forEach(ch => ch.classList.remove("on"));
+          chip.classList.toggle("on", !wasOn);   // re-cliquer désélectionne
+        } else {
+          chip.classList.toggle("on");
+        }
+      });
+    });
+    const chipVals = field =>
+      [...form.querySelectorAll(`.fo-chipset[data-field="${field}"] .fo-chip.on`)].map(c => c.dataset.val);
     form.addEventListener("submit", async e => {
       e.preventDefault();
       const c = client();
       const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
-      const patch = { bio: form.bio.value.trim() || null };
+      const ageNum = parseInt(form.age.value, 10);
+      const patch = {
+        bio:        form.bio.value.trim() || null,
+        gender:     chipVals("gender")[0] || null,
+        age:        Number.isFinite(ageNum) && ageNum >= 5 && ageNum <= 120 ? ageNum : null,
+        reads:      chipVals("reads"),
+        fav_genres: chipVals("genres")
+      };
       try {
         const file = form.avatar.files[0];
         if (file) {

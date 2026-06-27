@@ -53,6 +53,13 @@
     Content-Type = "application/rss+xml; charset=utf-8"
     Cache-Control = "public, max-age=600"
 
+# Feuille de style du flux (affichage lisible du RSS dans un navigateur)
+[[headers]]
+  for = "/feed.xsl"
+  [headers.values]
+    Content-Type = "text/xsl; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
 # Sitemap : cache court
 [[headers]]
   for = "/sitemap.xml"

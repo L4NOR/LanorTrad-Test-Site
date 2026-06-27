@@ -81,8 +81,9 @@ button.link { background: none; border: none; cursor: pointer; font: inherit; }
 button.link[hidden] { display: none; }
 
 /* ---------- Navigation radiale : bouton rond + bulles en éventail ---------- */
-/* De la place en bas pour le bouton flottant (sauf lecteur), fond fixe plein écran. */
-body:not([data-shell="minimal"]) { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+/* La place pour le bouton flottant est intégrée AU FOOTER (voir components.css)
+   afin que son fond remplisse la zone, sans laisser de bande vide sous le footer.
+   Les pages sans footer (lecteur = minimal) n'en ont pas besoin. */
 .bg-fx, .bg-grain { bottom: 0; }
 
 .radial-nav {

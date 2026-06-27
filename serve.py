@@ -19,6 +19,10 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8779
 
 
 class NoCacheHandler(SimpleHTTPRequestHandler):
+    # Python ne mappe pas .xsl par défaut : sans ça, le navigateur refuse la
+    # feuille de style du flux RSS (feed.xsl) et affiche le XML brut en local.
+    extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".xsl": "text/xsl"}
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-store, max-age=0")
         self.send_header("Pragma", "no-cache")
