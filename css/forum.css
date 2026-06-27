@@ -183,10 +183,27 @@
 .fo-prof-item span { color: var(--txt); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fo-prof-item i { color: var(--txt-mut); font-size: .76rem; font-style: normal; white-space: nowrap; flex: none; }
 .fo-prof-empty { color: var(--txt-mut); font-size: .88rem; padding: 6px 2px; }
-.fo-prof-edit { display: flex; flex-direction: column; gap: 14px; max-width: 460px;
+.fo-prof-edit { display: flex; flex-direction: column; gap: 16px; max-width: 540px;
   padding: 18px; border-radius: var(--radius); background: var(--bg-2); border: 1px solid var(--line-strong); margin-bottom: 18px; }
 .fo-prof-edit input[type=file] { color: var(--txt-soft); font-size: .88rem; }
 @media (max-width: 600px) { .fo-prof-cols { grid-template-columns: 1fr; } }
+
+/* ---------- Badges de profil (« rôles » : sexe, âge, lectures, genres) ---------- */
+.fo-prof-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.fo-ptag { font-size: .76rem; font-weight: 600; padding: 4px 11px; border-radius: 999px;
+  background: var(--bg-3); border: 1px solid var(--line-strong); color: var(--txt-soft); }
+.fo-ptag.gender { background: rgba(99,102,241,.16);  border-color: rgba(99,102,241,.42); color: #a5b4fc; }
+.fo-ptag.age    { background: rgba(16,185,129,.14);  border-color: rgba(16,185,129,.4);  color: #5eead4; }
+.fo-ptag.read   { background: rgba(168,85,247,.15);  border-color: rgba(168,85,247,.42); color: #c98bff; }
+.fo-ptag.genre  { background: rgba(245,158,11,.13);  border-color: rgba(245,158,11,.36); color: #fcd34d; }
+
+/* ---------- Sélecteur en chips (formulaire de profil) ---------- */
+.fo-chipset { display: flex; flex-wrap: wrap; gap: 8px; }
+.fo-chip { padding: 7px 13px; border-radius: 999px; cursor: pointer; font: inherit; font-size: .85rem;
+  font-weight: 500; color: var(--txt-soft); background: var(--bg-1); border: 1px solid var(--line-strong);
+  transition: border-color .15s, background .15s, color .15s; }
+.fo-chip:hover { border-color: rgba(168,85,247,.5); color: var(--txt); }
+.fo-chip.on { background: var(--grad); border-color: transparent; color: #fff; }
 
 /* ---------- Réactions ---------- */
 .fo-rx { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }

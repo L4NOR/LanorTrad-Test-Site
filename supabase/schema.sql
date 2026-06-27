@@ -16,9 +16,28 @@ create table if not exists public.profiles (
   username   text unique not null,
   avatar_url text,
   bio        text,
-  role       text not null default 'member',   -- 'member' | 'moderator' | 'admin'
+  gender     text,                              -- 'Homme' | 'Femme' | 'Autre'
+  age        int,
+  reads      text[] not null default '{}',      -- types lus : Mangas, Oneshots…
+  fav_genres text[] not null default '{}',      -- genres préférés
+  role       text not null default 'member',    -- 'member' | 'moderator' | 'admin'
   created_at timestamptz not null default now()
 );
+
+-- Champs de profil (« rôles ») : ajout idempotent pour les bases déjà créées
+-- avant cette version. Voir aussi supabase/forum-profile-fields.sql.
+alter table public.profiles add column if not exists gender     text;
+alter table public.profiles add column if not exists age        int;
+alter table public.profiles add column if not exists reads      text[] not null default '{}';
+alter table public.profiles add column if not exists fav_genres text[] not null default '{}';
+do $$ begin
+  alter table public.profiles add constraint profiles_age_chk
+    check (age is null or age between 5 and 120);
+exception when duplicate_object then null; end $$;
+do $$ begin
+  alter table public.profiles add constraint profiles_gender_chk
+    check (gender is null or gender in ('Homme','Femme','Autre'));
+exception when duplicate_object then null; end $$;
 
 create table if not exists public.categories (
   id          bigint generated always as identity primary key,

@@ -121,7 +121,10 @@
 .footer ul a, .footer ul li { color: var(--txt-mut); transition: color .25s; font-size: .94rem; }
 .footer ul a:hover { color: var(--txt); }
 .footer .socials { display: flex; gap: 10px; margin-top: 18px; }
-.footer .copy { text-align: center; color: var(--txt-mut); font-size: .85rem; padding: 24px 0 36px; border-top: 1px solid var(--line); }
+/* Le bas du footer réserve la place du bouton de navigation flottant
+   (.radial-nav, fixé en bas-centre). En intégrant cette réserve au footer plutôt
+   qu'au body, le fond du footer couvre la zone : plus de bande vide sous le footer. */
+.footer .copy { text-align: center; color: var(--txt-mut); font-size: .85rem; padding: 24px 0 calc(104px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
 @media (max-width: 760px) { .footer .grid { grid-template-columns: 1fr; gap: 28px; } }
 
 /* ---------- Transition de page ---------- */

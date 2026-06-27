@@ -21,6 +21,15 @@ administrer. Côté code, tout est déjà prêt — il reste 4 étapes (~10 min)
 4. **(Réactions + notifications + mentions)** Refais une **New query** et exécute
    aussi [`supabase/forum-reactions-notifications.sql`](supabase/forum-reactions-notifications.sql).
    Sans ce script, le forum marche, mais les 👍 / 🔔 / @mentions seront inactifs.
+5. **(Profils enrichis : sexe, âge, lectures, genres préférés)** Si ta base a été
+   créée avant cette fonctionnalité, lance une **New query** avec
+   [`supabase/forum-profile-fields.sql`](supabase/forum-profile-fields.sql).
+   Sans ce script, l'enregistrement du profil échouera (colonnes manquantes).
+   *(Une installation neuve via `schema.sql` les inclut déjà : rien à faire.)*
+6. **(Photos de profil)** Pour autoriser l'upload d'avatars, lance une **New query**
+   avec [`supabase/storage-avatars.sql`](supabase/storage-avatars.sql). Il crée le
+   bucket public `avatars` et ses règles. Sans lui, le champ « Photo de profil »
+   affichera une erreur « bucket avatars créé ? » à l'enregistrement.
 
 ## 3. Récupérer les 2 clés
 1. Menu de gauche → **Project Settings** (roue crantée) → **API**.
