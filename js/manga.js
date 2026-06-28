@@ -23,6 +23,8 @@
     const progress = window.LTstore.progress(s.id);
     const gallery = (window.GALLERY || {})[s.id] || null;
     const hasGallery = !!(gallery && ((gallery.tomes && gallery.tomes.length) || (gallery.colors && gallery.colors.length)));
+    const anime = (window.ANIME || {})[s.id] || null;
+    const hasAnime = !!(anime && anime.seasons && anime.seasons.length);
     let activeBlock = null;
 
     // En-tête
@@ -56,6 +58,7 @@
         <div class="wrap">
           <div class="tabs" id="series-tabs">
             <button class="tab on" data-tab="chapitres">Chapitres</button>
+            ${hasAnime ? `<button class="tab" data-tab="anime">Anime</button>` : ""}
             ${hasGallery ? `<button class="tab" data-tab="galerie">Galerie</button>` : ""}
           </div>
 
@@ -72,6 +75,7 @@
             <div class="chap-list" id="chap-list"></div>
           </div>
 
+          <div class="tab-panel" id="panel-anime" hidden></div>
           <div class="tab-panel" id="panel-galerie" hidden></div>
         </div>
       </section>
@@ -146,13 +150,19 @@
     order.addEventListener("change", render);
     render();
 
-    // Onglets Chapitres / Galerie
-    if (hasGallery) {
-      renderGallery(gallery, s.id);
-      document.querySelectorAll("#series-tabs .tab").forEach(t => t.addEventListener("click", () => {
-        document.querySelectorAll("#series-tabs .tab").forEach(x => x.classList.toggle("on", x === t));
-        document.getElementById("panel-chapitres").hidden = t.dataset.tab !== "chapitres";
-        document.getElementById("panel-galerie").hidden = t.dataset.tab !== "galerie";
+    // Onglets Chapitres / Anime / Galerie
+    if (hasGallery) renderGallery(gallery, s.id);
+    if (hasAnime) renderAnime(anime, s);
+    const tabs = [...document.querySelectorAll("#series-tabs .tab")];
+    if (tabs.length > 1) {
+      const panels = { chapitres: "panel-chapitres", anime: "panel-anime", galerie: "panel-galerie" };
+      tabs.forEach(t => t.addEventListener("click", () => {
+        tabs.forEach(x => x.classList.toggle("on", x === t));
+        for (const tab in panels) {
+          const el = document.getElementById(panels[tab]);
+          if (el) el.hidden = t.dataset.tab !== tab;
+        }
+        window.LT._scanReveals && window.LT._scanReveals();
       }));
     }
 
@@ -212,6 +222,141 @@
 
   function enc(x) { return encodeURIComponent(x); }
   function handshake() { return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m11 17 2 2a1 1 0 0 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 0 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0l-1.6 1.6a2 2 0 0 1-2.8 0l-2-2a1 1 0 0 1 0-1.4l3.4-3.4a4 4 0 0 1 5.6 0l5.6 5.6"/><path d="m2 13 2.5 2.5a1 1 0 0 0 3-3L4 8"/></svg>`; }
+
+  /* ---------- Anime (saisons + épisodes) ---------- */
+  function renderAnime(a, s) {
+    const panel = document.getElementById("panel-anime");
+    if (!panel) return;
+    panel.style.setProperty("--accent", s.accent);
+    const seasons = a.seasons || [];
+    const movies = a.movies || [];
+    const totalEp = seasons.reduce((n, se) => n + (se.episodes || 0), 0);
+
+    const stat = (val, lbl, wide) =>
+      `<div class="anime-stat${wide ? " wide" : ""}"><b>${val}</b><span>${lbl}</span></div>`;
+    const overview = `<div class="anime-overview">
+      ${stat(seasons.length, "Saison" + (seasons.length > 1 ? "s" : ""))}
+      ${stat(totalEp, "Épisodes")}
+      ${movies.length ? stat(movies.length, "Film" + (movies.length > 1 ? "s" : "")) : ""}
+      ${a.studio ? stat(a.studio, "Studio", true) : ""}
+    </div>`;
+
+    const chips = `<div class="anime-seasons">${seasons.map((se, i) => {
+      const sub = se.upcoming
+        ? `À venir${se.year ? " · " + se.year : ""}`
+        : `${se.year || ""} · ${se.episodes || 0} ép.`;
+      return `<button class="season-chip ${i === 0 ? "on" : ""}${se.upcoming ? " upcoming" : ""}" data-i="${i}">
+        <span class="sc-n">S${se.n || i + 1}</span>
+        <span class="sc-meta"><b>${se.title || "Saison " + (i + 1)}</b><i>${sub}</i></span>
+      </button>`;
+    }).join("")}</div>`;
+
+    const syncBlock = a.mangaSync ? `<div class="anime-sync">
+      <span class="sync-ico">📖</span>
+      <span class="sync-txt">L'anime adapte le manga jusqu'au <b>chapitre ${a.mangaSync.chapter}</b>${a.mangaSync.label ? ` (${a.mangaSync.label})` : ""}. Lisez la suite sur LanorTrad.</span>
+      <button class="sync-go" id="anime-sync-go">Lire la suite →</button>
+    </div>` : "";
+
+    const movieBlock = movies.length ? `<div class="anime-movies">
+      <h4>🎬 Films</h4>
+      <div class="movie-row">${movies.map(m =>
+        `<div class="movie-card"><span class="movie-ico">🎬</span>
+          <span class="movie-info"><b>${m.title}</b><span>${[m.year, m.studio].filter(Boolean).join(" · ")}</span></span></div>`).join("")}</div>
+    </div>` : "";
+
+    panel.innerHTML = overview + syncBlock + chips +
+      `<div class="anime-detail" id="anime-detail"></div>` + movieBlock +
+      (a.note ? `<p class="anime-note">${a.note}</p>` : "");
+
+    const syncGo = panel.querySelector("#anime-sync-go");
+    if (syncGo) syncGo.addEventListener("click", () => {
+      const tab = document.querySelector('#series-tabs .tab[data-tab="chapitres"]');
+      if (tab) tab.click();
+      const chapPanel = document.getElementById("panel-chapitres");
+      if (chapPanel) chapPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    const detail = panel.querySelector("#anime-detail");
+    const LANG_LBL = { vostfr: "VOSTFR", vf: "VF" };
+    const watchUrl = (se, lang) =>
+      `https://anime-sama.to/catalogue/${a.asSlug}/saison${se.asSeason || se.n}/${lang}/`;
+    let lang = "vostfr"; // préférence mémorisée d'une saison à l'autre
+
+    function renderSeason(i) {
+      const se = seasons[i];
+      detail.style.setProperty("--accent", se.accent || s.accent);
+
+      if (se.upcoming) {
+        detail.innerHTML = `
+          <div class="season-card upcoming">
+            <div class="season-head">
+              <div class="season-id">
+                <span class="season-eyebrow">Saison ${se.n || i + 1}${se.year ? " · " + se.year : ""}</span>
+                <h3>${se.title || "Saison " + (i + 1)}</h3>
+                ${se.studio ? `<div class="season-meta"><span>${se.studio}</span></div>` : ""}
+              </div>
+              <span class="soon-badge">🗓️ À venir</span>
+            </div>
+            <p class="season-syn">${se.releaseNote || "Date de diffusion à préciser."}</p>
+            <div class="soon-strip">${Array.from({ length: 8 }, () => `<span class="ep-tile ghost"></span>`).join("")}</div>
+            <p class="soon-hint">Suivez la série pour être prévenu·e dès la sortie des épisodes.</p>
+          </div>`;
+        window.LT._scanReveals && window.LT._scanReveals();
+        return;
+      }
+
+      const eps = Array.from({ length: se.episodes || 0 }, (_, k) => k + 1);
+      const langs = (a.asSlug && se.langs && se.langs.length) ? se.langs : [];
+      const cur = langs.includes(lang) ? lang : (langs[0] || null);
+      const url = cur ? watchUrl(se, cur) : null;
+
+      const langToggle = langs.length > 1 ? `<div class="lang-toggle" role="group" aria-label="Langue">
+        ${langs.map(l => `<button class="lang-btn ${l === cur ? "on" : ""}" data-lang="${l}">${LANG_LBL[l] || l.toUpperCase()}</button>`).join("")}
+      </div>` : (langs.length === 1 ? `<span class="lang-solo">${LANG_LBL[cur] || cur.toUpperCase()}</span>` : "");
+
+      const playSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+      const watchBtn = url ? `<a class="btn btn-primary as-watch" href="${url}" target="_blank" rel="noopener nofollow">
+        ${playSvg} Regarder en ${LANG_LBL[cur]} <span class="ext">↗</span></a>` : "";
+
+      const epHtml = eps.map(n => {
+        const inner = `<i class="ep-play">▶</i><b>${n}</b>`;
+        return url
+          ? `<a class="ep-tile" href="${url}" target="_blank" rel="noopener nofollow" title="Épisode ${n} · ${LANG_LBL[cur]} — sélectionnez l'épisode sur anime-sama">${inner}</a>`
+          : `<span class="ep-tile" title="Épisode ${n}">${inner}</span>`;
+      }).join("");
+
+      detail.innerHTML = `
+        <div class="season-card">
+          <div class="season-head">
+            <div class="season-id">
+              <span class="season-eyebrow">Saison ${se.n || i + 1}${se.year ? " · " + se.year : ""}${se.status ? " · " + se.status : ""}</span>
+              <h3>${se.title || "Saison " + (i + 1)}</h3>
+              <div class="season-meta">
+                <span><b>${se.episodes || 0}</b> épisodes</span>
+                ${se.studio ? `<span class="dot"></span><span>${se.studio}</span>` : ""}
+              </div>
+            </div>
+            ${se.platforms && se.platforms.length ?
+          `<div class="season-platforms"><span class="plat-lbl">Disponible sur</span>${se.platforms.map(p =>
+            `<span class="plat-badge">${p}</span>`).join("")}</div>` : ""}
+          </div>
+          ${se.synopsis ? `<p class="season-syn">${se.synopsis}</p>` : ""}
+          ${langs.length ? `<div class="season-watch">${watchBtn}${langToggle}<span class="as-credit">via anime-sama</span></div>` : ""}
+          <div class="ep-grid">${epHtml}</div>
+        </div>`;
+
+      detail.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => {
+        lang = b.dataset.lang;
+        renderSeason(i);
+      }));
+      window.LT._scanReveals && window.LT._scanReveals();
+    }
+    renderSeason(0);
+    panel.querySelectorAll(".season-chip").forEach(ch => ch.addEventListener("click", () => {
+      panel.querySelectorAll(".season-chip").forEach(x => x.classList.toggle("on", x === ch));
+      renderSeason(+ch.dataset.i);
+    }));
+  }
 
   /* ---------- Galerie (tomes + colors) ---------- */
   function renderGallery(g, sid) {

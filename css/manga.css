@@ -89,6 +89,111 @@
 .range-chip:hover { color: var(--txt); border-color: var(--line-strong); transform: translateY(-2px); }
 .range-chip.on { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 8px 20px -8px rgba(124,58,237,.8); }
 
+/* ---------- Anime (saisons + épisodes) ---------- */
+.anime-overview { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.anime-stat { padding: 14px 22px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); min-width: 96px; }
+.anime-stat b { display: block; font-family: var(--font-display); font-size: 1.6rem; line-height: 1; color: var(--txt); }
+.anime-stat span { font-size: .78rem; color: var(--txt-mut); text-transform: uppercase; letter-spacing: .04em; }
+.anime-stat.wide b { font-size: 1.05rem; }
+
+/* Correspondance anime ↔ manga */
+.anime-sync { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-radius: 14px; margin-bottom: 22px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--glass)); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); }
+.anime-sync .sync-ico { font-size: 1.15rem; line-height: 1; }
+.anime-sync .sync-txt { color: var(--txt-soft); font-size: .92rem; flex: 1 1 240px; }
+.anime-sync .sync-txt b { color: var(--txt); }
+.anime-sync .sync-go { margin-left: auto; padding: 8px 16px; border-radius: 10px; font-family: var(--font-display); font-weight: 700; font-size: .85rem; color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 80%, #000), var(--accent)); box-shadow: 0 8px 20px -10px var(--accent); transition: transform .2s; white-space: nowrap; }
+.anime-sync .sync-go:hover { transform: translateY(-2px); }
+
+.anime-seasons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.season-chip {
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 10px 16px 10px 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line);
+  transition: transform .25s var(--ease), border-color .25s, background .25s; cursor: pointer;
+}
+.season-chip:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+.season-chip .sc-n {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; flex: none;
+  font-family: var(--font-display); font-weight: 800; font-size: .95rem; color: var(--txt-soft);
+  background: var(--bg-2); border: 1px solid var(--line); transition: .25s;
+}
+.season-chip .sc-meta { display: flex; flex-direction: column; line-height: 1.3; }
+.season-chip .sc-meta b { font-size: .96rem; color: var(--txt); }
+.season-chip .sc-meta i { font-style: normal; font-size: .76rem; color: var(--txt-mut); }
+.season-chip.on { background: var(--glass-2); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 10px 26px -14px var(--accent); }
+.season-chip.on .sc-n { color: #fff; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 85%, #000), var(--accent)); border-color: transparent; box-shadow: 0 6px 16px -6px var(--accent); }
+
+.anime-detail { --accent: #a855f7; }
+.season-card {
+  position: relative; overflow: hidden; padding: 24px; border-radius: var(--radius);
+  background: var(--glass); border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+.season-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(var(--accent), color-mix(in srgb, var(--accent) 40%, transparent)); }
+.season-card::after { content: ""; position: absolute; right: -120px; top: -120px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); pointer-events: none; }
+.season-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; }
+.season-eyebrow { display: block; font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 70%, var(--txt-soft)); margin-bottom: 6px; }
+.season-id h3 { font-size: 1.7rem; line-height: 1.05; }
+.season-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 10px; color: var(--txt-soft); font-size: .92rem; }
+.season-meta b { color: var(--txt); }
+.season-meta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--txt-mut); }
+.season-platforms { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.season-platforms .plat-lbl { font-size: .76rem; color: var(--txt-mut); margin-right: 2px; }
+.plat-badge { padding: 5px 12px; border-radius: 999px; font-size: .78rem; font-weight: 600; color: var(--txt); background: var(--bg-2); border: 1px solid var(--line-strong); }
+.season-syn { color: var(--txt-soft); max-width: 70ch; margin-bottom: 22px; font-size: .98rem; line-height: 1.6; }
+
+/* Barre de lecture : bouton « Regarder » + sélecteur de langue */
+.season-watch { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+.as-watch { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 80%, #000), var(--accent)); border: none; box-shadow: 0 12px 28px -12px var(--accent); }
+.as-watch:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -12px var(--accent); }
+.as-watch .ext { opacity: .8; font-size: .9em; }
+.lang-toggle { display: inline-flex; padding: 3px; border-radius: 11px; background: var(--bg-2); border: 1px solid var(--line); }
+.lang-btn { padding: 7px 14px; border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: .82rem; color: var(--txt-mut); transition: color .2s, background .2s; }
+.lang-btn:hover { color: var(--txt-soft); }
+.lang-btn.on { color: #fff; background: color-mix(in srgb, var(--accent) 80%, transparent); box-shadow: 0 4px 12px -4px var(--accent); }
+.lang-solo { padding: 7px 12px; border-radius: 9px; background: var(--bg-2); border: 1px solid var(--line); font-family: var(--font-display); font-weight: 700; font-size: .82rem; color: var(--txt-soft); }
+.as-credit { font-size: .76rem; color: var(--txt-mut); }
+
+.ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 10px; }
+.ep-tile {
+  position: relative; aspect-ratio: 1; display: grid; place-items: center; border-radius: 12px;
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--txt-soft); text-decoration: none;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.05rem;
+  transition: transform .25s var(--ease), border-color .25s, color .25s, box-shadow .25s; cursor: pointer;
+}
+a.ep-tile { cursor: pointer; }
+.ep-tile:not(a) { cursor: default; }
+
+/* Saison à venir */
+.season-chip.upcoming { border-style: dashed; }
+.season-chip.upcoming .sc-n { background: transparent; border-style: dashed; color: var(--txt-mut); }
+.season-card.upcoming { border-style: dashed; border-color: var(--line-strong); }
+.season-card.upcoming::before { background: repeating-linear-gradient(var(--accent) 0 6px, transparent 6px 12px); opacity: .6; }
+.soon-badge { align-self: flex-start; padding: 6px 14px; border-radius: 999px; font-family: var(--font-display); font-weight: 700; font-size: .8rem;
+  color: var(--txt-soft); background: var(--bg-2); border: 1px solid var(--line-strong); white-space: nowrap; }
+.soon-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.ep-tile.ghost { aspect-ratio: 1; border-radius: 12px; border: 1px dashed var(--line);
+  background: repeating-linear-gradient(45deg, var(--bg-2), var(--bg-2) 6px, transparent 6px, transparent 12px); opacity: .5; }
+.soon-hint { font-size: .82rem; color: var(--txt-mut); margin: 0; }
+.ep-tile b { transition: opacity .2s; }
+.ep-tile .ep-play { position: absolute; inset: 0; display: grid; place-items: center; font-size: .9rem; color: var(--accent); opacity: 0; transition: opacity .2s; }
+.ep-tile:hover { transform: translateY(-3px); color: var(--txt); border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 10px 22px -12px var(--accent); }
+.ep-tile:hover b { opacity: 0; }
+.ep-tile:hover .ep-play { opacity: 1; }
+
+.anime-movies { margin-top: 30px; }
+.anime-movies h4 { font-size: 1.1rem; margin-bottom: 14px; }
+.movie-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.movie-card { display: flex; align-items: center; gap: 12px; padding: 12px 18px 12px 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); transition: transform .25s var(--ease), border-color .25s; }
+.movie-card:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+.movie-ico { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); font-size: 1.2rem; }
+.movie-info { display: flex; flex-direction: column; line-height: 1.3; }
+.movie-info b { font-size: .98rem; }
+.movie-info span { font-size: .78rem; color: var(--txt-mut); }
+.anime-note { margin-top: 22px; font-size: .82rem; color: var(--txt-mut); font-style: italic; }
+
+@media (max-width: 600px) { .ep-grid { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); } }
+
 /* ---------- Galerie ---------- */
 .gal-block { margin-bottom: 38px; }
 .gal-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
