@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css">
   <link rel="stylesheet" href="css/catalogue.css"><link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/reader-card.css">
 </head>
 <body>
   <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
@@ -21,7 +22,11 @@
       <p>Vos séries suivies et vos lectures en cours, réunies au même endroit.</p>
     </section>
 
-    <section class="section" id="follow-section" style="padding-top:20px">
+    <section class="wrap" style="padding-top:6px">
+      <div id="reader-card-mount"></div>
+    </section>
+
+    <section class="section" id="follow-section" style="padding-top:30px">
       <div class="wrap">
         <div class="section-head" data-reveal>
           <div><span class="eyebrow">Vos séries suivies</span><h2>Mes suivis</h2></div>
@@ -47,10 +52,37 @@
   <script src="js/core.js"></script>
   <script src="js/cards.js"></script>
   <script src="js/tilt.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/reader-card.js"></script>
   <script>
+    function renderReaderCard() {
+      const m = document.getElementById("reader-card-mount");
+      window.LTreaderCard && m && window.LTreaderCard.render(m, { identity: window.__ltCardIdentity || null });
+    }
+
+    // Identité Supabase (si connecté au forum, même compte) → enrichit la carte
+    async function loadCardIdentity() {
+      try {
+        const C = window.LT_SUPABASE;
+        if (!window.supabase || !C || !C.url || !C.anonKey) return;
+        const sb = window.supabase.createClient(C.url, C.anonKey);
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+        const { data } = await sb.from("profiles").select("username,avatar_url").eq("id", session.user.id).maybeSingle();
+        if (data && data.username) {
+          window.__ltCardIdentity = { username: data.username, avatarUrl: data.avatar_url };
+          renderReaderCard();
+        }
+      } catch (e) {}
+    }
+
     function renderLibrary() {
       const C = window.CHAPTERS || {};
       const store = window.LTstore;
+
+      // Carte de lecteur (héros de la page) — données locales + identité Supabase
+      renderReaderCard();
 
       // Mes suivis : séries suivies, nouveautés en tête
       const fGrid = document.getElementById("follow-grid");
@@ -90,7 +122,7 @@
       document.dispatchEvent(new Event("lt:cards"));
       window.LT._scanReveals && window.LT._scanReveals();
     }
-    document.addEventListener("lt:ready", renderLibrary);
+    document.addEventListener("lt:ready", () => { renderLibrary(); loadCardIdentity(); });
     document.addEventListener("lt:store", renderLibrary);
   </script>
 </body>

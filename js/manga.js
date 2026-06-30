@@ -18,6 +18,7 @@
 
     document.title = `${s.title} — LanorTrad`;
     setSeo(s);
+    window.LTambiance && window.LTambiance.set(s.accent);   // le site adopte l'univers de la série
     window.LTstore.markSeen(s.id);   // consulter la fiche « consomme » la nouveauté
     const chapters = (window.CHAPTERS || {})[s.id] || [];
     const progress = window.LTstore.progress(s.id);
@@ -206,7 +207,8 @@
         </div>`;
     }
 
-    // Accent extrait de la couverture
+    // Accent extrait de la couverture (teinte le halo de la couverture, sans
+    // toucher à l'ambiance globale qui reste calée sur la couleur d'univers).
     window.LTpalette.get(s.cover).then(hex => { if (hex) document.querySelector(".series-hero").style.setProperty("--accent", hex); });
 
     // Séries similaires (≥ 1 genre commun)

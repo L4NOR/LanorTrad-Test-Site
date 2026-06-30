@@ -1,0 +1,112 @@
+/* =========================================================================
+   LanorTrad — Carte de lecteur collectionnable (holographique).
+   Objet d'identité bâti sur les données locales (LTstore) + profil Supabase si
+   connecté. Se teinte dans la couleur de l'univers le plus lu (--rc).
+   API : window.LTreaderCard.render(mount, { identity }).
+   ========================================================================= */
+.rc-wrap { perspective: 1100px; max-width: 360px; margin: 0 auto; }
+
+.rc-card {
+  position: relative; width: 100%; min-height: calc(360px * 7 / 5); border-radius: 22px; overflow: hidden;
+  transform-style: preserve-3d; transition: transform .2s ease-out;
+  background: linear-gradient(158deg, color-mix(in srgb, var(--rc) 42%, #190f2c) 0%, #0a0711 72%);
+  box-shadow: 0 26px 64px -18px color-mix(in srgb, var(--rc) 60%, #000),
+              0 0 0 1px color-mix(in srgb, var(--rc) 42%, transparent);
+  cursor: grab; --rc: #a855f7;
+}
+.rc-card:active { cursor: grabbing; }
+
+.rc-holo {
+  position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: .45;
+  background: linear-gradient(115deg, rgba(255,94,158,.28), rgba(255,209,102,.24),
+              rgba(123,223,242,.28), rgba(179,136,255,.28), rgba(255,94,158,.28));
+  background-size: 220% 220%; animation: rc-shimmer 7s linear infinite;
+}
+.rc-card[data-grade="B"] .rc-holo { opacity: .55; }
+.rc-card[data-grade="A"] .rc-holo { opacity: .68; }
+.rc-card[data-grade="S"] .rc-holo { opacity: .82; }
+.rc-glare { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; }
+@keyframes rc-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 220% 50%; } }
+
+.rc-content {
+  position: relative; z-index: 1; height: 100%; min-height: inherit; padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.rc-top { display: flex; align-items: center; justify-content: space-between; }
+.rc-brand { font-family: var(--font-display); font-weight: 800; font-size: .92rem; color: #fff; }
+.rc-brand span { color: color-mix(in srgb, var(--rc) 65%, #ff8fb0); }
+.rc-grade {
+  font-family: var(--font-display); font-weight: 800; font-size: .7rem; letter-spacing: .04em;
+  color: #0a0711; background: color-mix(in srgb, var(--rc) 60%, #ffd9a0); padding: 4px 11px; border-radius: 999px;
+}
+
+.rc-id { text-align: center; }
+.rc-emblem {
+  width: 84px; height: 84px; margin: 2px auto 12px; border-radius: 50%; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--rc) 60%, transparent);
+  box-shadow: 0 0 36px color-mix(in srgb, var(--rc) 58%, transparent);
+}
+.rc-emblem img { width: 100%; height: 100%; object-fit: cover; }
+.rc-rank { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: #fff; line-height: 1.1; }
+.rc-name {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+  font-size: .82rem; color: color-mix(in srgb, var(--rc) 35%, #d9cff0);
+  background: none; border: none; cursor: pointer;
+}
+.rc-name.locked { cursor: default; }
+.rc-name:not(.locked):hover { color: #fff; }
+.rc-name .rc-edit { opacity: .5; font-size: .9em; }
+.rc-name-av { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
+
+/* Progression vers le rang suivant */
+.rc-prog { margin-top: 2px; }
+.rc-prog-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.12); overflow: hidden; }
+.rc-prog-bar i {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 70%, #fff), var(--rc));
+}
+.rc-prog-cap { margin-top: 6px; font-size: .72rem; color: #b9a9d6; text-align: center; }
+
+.rc-stats { width: 100%; }
+.rc-stat {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  font-size: .8rem; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.12);
+}
+.rc-stat .rc-k { color: #b9a9d6; }
+.rc-stat .rc-v { color: #fff; font-weight: 700; font-family: var(--font-display); }
+.rc-stat .rc-v.accent { color: color-mix(in srgb, var(--rc) 55%, #ffe1a0); }
+
+/* Badges / hauts faits */
+.rc-badges { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.rc-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px;
+  font-size: .68rem; color: #efe7ff; background: rgba(255,255,255,.07);
+  border: 1px solid color-mix(in srgb, var(--rc) 30%, rgba(255,255,255,.12));
+}
+.rc-badge .bi { font-size: .82rem; line-height: 1; }
+.rc-badges-empty { font-size: .72rem; color: #9a8fb8; text-align: center; }
+
+.rc-serial {
+  margin-top: auto; padding-top: 8px; text-align: center;
+  font-family: var(--font-display); font-weight: 700; font-size: .66rem; letter-spacing: .12em;
+  color: color-mix(in srgb, var(--rc) 40%, #8a7fae);
+}
+
+.rc-actions { display: flex; justify-content: center; margin-top: 16px; }
+.rc-share {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 999px;
+  font-weight: 700; font-size: .85rem; color: #fff;
+  background: color-mix(in srgb, var(--rc) 78%, #000); border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent);
+  box-shadow: 0 10px 26px -12px color-mix(in srgb, var(--rc) 70%, transparent); transition: transform .2s;
+}
+.rc-share:hover { transform: translateY(-2px); }
+.rc-share:disabled { opacity: .6; cursor: default; transform: none; }
+
+/* Capture (export image) : on neutralise tilt + couches non rendues par html2canvas */
+.rc-card.rc-capturing { transform: none !important; }
+.rc-card.rc-capturing .rc-holo, .rc-card.rc-capturing .rc-glare { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-card { transition: none; }
+  .rc-holo { animation: none; }
+}
