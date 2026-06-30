@@ -1,0 +1,57 @@
+/* =========================================================================
+   LanorTrad — Ambiance immersive par univers.
+   Quand le body porte .lt-amb, le fond global adopte la couleur --amb de la
+   série (aurora reteintée + blobs) et des braises montent à l'écran.
+   Réutilisable sur toute page possédant le shell (.bg-fx) — fiche, accueil…
+   ========================================================================= */
+:root { --amb: var(--violet); }
+
+/* Aurora reteintée dans la couleur de l'univers */
+body.lt-amb .bg-fx {
+  background:
+    radial-gradient(1200px 600px at 12% -8%, color-mix(in srgb, var(--amb) 30%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 100% 0%, color-mix(in srgb, var(--amb) 20%, transparent), transparent 55%),
+    var(--bg-1);
+}
+body.lt-amb .bg-blob.b1 { background: radial-gradient(circle, var(--amb), transparent 70%); }
+body.lt-amb .bg-blob.b2 { background: radial-gradient(circle, color-mix(in srgb, var(--amb) 65%, #1a0030), transparent 70%); }
+body.lt-amb .bg-blob.b3 { background: radial-gradient(circle, color-mix(in srgb, var(--amb) 55%, #08204a), transparent 70%); opacity: .32; }
+
+/* Halo d'accent au sommet de la fiche série */
+body.lt-amb .series-hero::after {
+  content: ""; position: absolute; left: 50%; top: 0; width: 130%; height: 360px;
+  transform: translateX(-50%); z-index: -1; pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 0%, color-mix(in srgb, var(--amb) 22%, transparent), transparent 72%);
+}
+
+/* Lecteur : le shell est minimal (pas de .bg-fx). Lueur d'accent discrète dans
+   les marges + braises atténuées, visibles surtout dans les gouttières (desktop).
+   Activée seulement sur fond sombre (géré par reader.js). */
+body.reader-body.lt-amb::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(120% 55% at 50% -8%, color-mix(in srgb, var(--amb) 16%, transparent), transparent 60%),
+    radial-gradient(55% 80% at -4% 50%, color-mix(in srgb, var(--amb) 10%, transparent), transparent 72%),
+    radial-gradient(55% 80% at 104% 50%, color-mix(in srgb, var(--amb) 10%, transparent), transparent 72%);
+}
+body.reader-body .lt-embers { opacity: .5; }
+
+/* Braises : particules qui montent doucement, teintées par --amb */
+.lt-embers { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.lt-ember {
+  position: absolute; bottom: -24px; border-radius: 50%;
+  background: var(--amb);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--amb) 70%, transparent);
+  opacity: 0; will-change: transform, opacity;
+  animation-name: lt-rise; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+@keyframes lt-rise {
+  0%   { transform: translate3d(0, 0, 0) scale(.55); opacity: 0; }
+  10%  { opacity: var(--o, .6); }
+  85%  { opacity: var(--o, .6); }
+  100% { transform: translate3d(var(--dx, 0px), -112vh, 0) scale(.15); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-embers { display: none; }
+}

@@ -628,6 +628,23 @@
     if (A.S && A.S.accent) r.setProperty("--rd-accent", A.S.accent);
     document.body.style.background = prefs.bg;
     const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.content = prefs.bg;
+    applyReaderAmbiance();
+  }
+
+  // Ambiance immersive du lecteur : seulement sur fond sombre, sinon coupée
+  // (préserve le confort des fonds clairs/sépia choisis par le lecteur).
+  function isDarkBg(hex) {
+    if (!hex) return true;
+    let h = String(hex).replace("#", "");
+    if (h.length === 3) h = h.split("").map(c => c + c).join("");
+    const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    if ([r, g, b].some(isNaN)) return true;
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
+  }
+  function applyReaderAmbiance() {
+    if (!window.LTambiance) return;
+    if (A.S && A.S.accent && isDarkBg(prefs.bg)) window.LTambiance.set(A.S.accent);
+    else window.LTambiance.clear();
   }
 
   function openSheet() { $("rd-veil").classList.add("open"); $("rd-sheet").classList.add("open"); }
