@@ -17,7 +17,7 @@ GAL_DIR = os.path.join(ROOT, "images", "Galerie")
 OUT = os.path.join(ROOT, "js", "data", "chapters.js")
 OUT_GAL = os.path.join(ROOT, "js", "data", "gallery.js")
 
-IMG_EXT = (".jpg", ".jpeg", ".png")
+IMG_EXT = (".webp", ".jpg", ".jpeg", ".png")
 NUM_RE = re.compile(r"(\d+(?:\.\d+)?)")
 
 
@@ -33,7 +33,17 @@ def fmt_num(n):
 
 
 def images_in(dirpath):
-    return sorted(f for f in os.listdir(dirpath) if f.lower().endswith(IMG_EXT))
+    """Liste triee des pages. Si un .webp existe pour une page, on l'utilise et
+    on ignore le .jpg/.jpeg/.png de meme nom : evite les doublons pendant la
+    periode ou JPG et WebP coexistent (avant suppression des JPG)."""
+    chosen = {}
+    for f in os.listdir(dirpath):
+        if not f.lower().endswith(IMG_EXT):
+            continue
+        base = os.path.splitext(f)[0]
+        if base not in chosen or f.lower().endswith(".webp"):
+            chosen[base] = f
+    return sorted(chosen.values())
 
 
 def scan_series(series_path):
