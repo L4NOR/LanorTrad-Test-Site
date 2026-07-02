@@ -363,17 +363,54 @@
   }
   function seriesById(id) { return (window.SERIES || []).find(s => s.id === id); }
 
-  /* ---------- Premium (statut local : badge + sans pub + thème) ---------- */
-  function premiumActive() { try { return localStorage.getItem("lt-premium") === "1"; } catch { return false; } }
+  /* ---------- Client Supabase partagé (ou null si non chargé / non configuré) ----
+     Recréé tant qu'il n'existe pas : sur certaines pages core.js s'exécute avant
+     le <script> supabase-js, donc on ne met PAS en cache l'échec. */
+  let _sb = null;
+  function sbClient() {
+    if (_sb) return _sb;
+    try {
+      const C = window.LT_SUPABASE || {};
+      if (window.supabase && C.url && C.anonKey && !/VOTRE_|YOUR_/i.test(C.url + C.anonKey))
+        _sb = window.supabase.createClient(C.url, C.anonKey);
+    } catch { _sb = null; }
+    return _sb;
+  }
+  window.LTsb = sbClient;
+
+  /* ---------- Premium : statut RÉEL côté Supabase (badge + sans pub + thème) ----
+     Le contenu (chapitres en avance) est protégé côté serveur par la RLS Storage ;
+     ici on ne pilote que le COSMÉTIQUE. Cache localStorage pour un affichage
+     instantané sur les pages sans Supabase ; refreshPremium() re-valide dès que
+     le client est disponible (reader / manga / premium / forum). */
+  let _premOn = false, _premUntil = null;
+  try { _premOn = localStorage.getItem("lt-premium") === "1"; } catch {}
+  function premiumActive() { return _premOn; }
   function applyPremium() {
-    const on = premiumActive();
-    document.documentElement.classList.toggle("premium", on);
+    document.documentElement.classList.toggle("premium", _premOn);
     const btn = $("#premium-btn");
-    if (btn) { btn.innerHTML = on ? "✦ Membre" : "✦ Premium"; btn.classList.toggle("is-on", on); }
+    if (btn) { btn.innerHTML = _premOn ? "✦ Membre" : "✦ Premium"; btn.classList.toggle("is-on", _premOn); }
+  }
+  async function refreshPremium() {
+    const c = sbClient();
+    if (!c) { applyPremium(); return; }          // page sans Supabase → on garde le cache
+    let on = false, until = null;
+    try {
+      const { data: { session } } = await c.auth.getSession();
+      if (session) {
+        const { data } = await c.from("profiles").select("premium_until").eq("id", session.user.id).maybeSingle();
+        if (data && data.premium_until && new Date(data.premium_until) > new Date()) { on = true; until = data.premium_until; }
+      }
+    } catch { return; }                          // erreur réseau → ne pas casser le cache
+    _premOn = on; _premUntil = until;
+    try { localStorage.setItem("lt-premium", on ? "1" : "0"); } catch {}
+    applyPremium();
+    document.dispatchEvent(new Event("lt:premium"));
   }
   window.LTpremium = {
     isActive: premiumActive,
-    set(v) { try { localStorage.setItem("lt-premium", v ? "1" : "0"); } catch {} applyPremium(); document.dispatchEvent(new Event("lt:premium")); }
+    status: () => ({ active: _premOn, until: _premUntil }),
+    refresh: refreshPremium
   };
 
   /* ---------- mini utils ---------- */
@@ -469,6 +506,7 @@
     wireHead();
     buildShell();
     applyPremium();
+    refreshPremium();
     buildPalette();
     wireFollows();
     updateFollowBadge();

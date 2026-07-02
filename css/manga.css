@@ -54,6 +54,11 @@
 .chap-item .n { font-family: var(--font-display); font-weight: 700; }
 .chap-item .pages { font-size: .76rem; color: var(--txt-mut); }
 .chap-item.locked { opacity: .5; pointer-events: none; }
+/* Chapitre en avance (premium) */
+.chap-item.prem-locked { border-color: rgba(245,158,11,.45); background: linear-gradient(180deg, rgba(245,158,11,.08), var(--glass)); }
+.chap-item.prem-locked:hover { border-color: rgba(245,158,11,.7); }
+.chap-item.prem::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(#f59e0b, #fcd34d); }
+.chap-item .prem-tag { color: #fbbf24; font-weight: 700; }
 .chap-item.read::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--grad); }
 .chap-item .resume-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 10px var(--violet); }
 

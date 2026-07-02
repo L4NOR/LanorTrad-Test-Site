@@ -7,6 +7,7 @@
   <meta name="description" content="Passez Premium sur LanorTrad : chapitres en avance, sans publicité, badge exclusif et thème Or. Soutenez l'équipe.">
   <meta name="theme-color" content="#0b0b16">
   <link rel="icon" href="images/icons/icon-192x192.png">
+  <link rel="canonical" href="https://lanortrad.com/premium.html">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css"><link rel="stylesheet" href="css/premium.css">
@@ -25,7 +26,7 @@
     <section class="section" style="padding-top:40px">
       <div class="wrap">
         <div class="perks" data-reveal data-delay="1">
-          <div class="perk"><div class="pi">⏩</div><h3>Chapitres en avance</h3><p>Lisez les nouveaux chapitres avant tout le monde.</p><span class="soon-tag">Nécessite déploiement</span></div>
+          <div class="perk"><div class="pi">⏩</div><h3>Chapitres en avance</h3><p>Lisez les nouveaux chapitres avant tout le monde, dès leur sortie.</p></div>
           <div class="perk"><div class="pi">🚫</div><h3>Zéro publicité</h3><p>Une lecture 100 % propre, sans aucune publicité.</p></div>
           <div class="perk"><div class="pi">✦</div><h3>Badge Premium</h3><p>Un badge doré qui vous distingue sur le site.</p></div>
           <div class="perk"><div class="pi">🎨</div><h3>Thème exclusif « Or »</h3><p>Un thème doré réservé aux membres Premium.</p></div>
@@ -55,15 +56,11 @@
           </div>
         </div>
 
-        <!-- Code membre -->
-        <div class="code-box" data-reveal style="margin-top:40px">
+        <!-- Connexion + activation par code (rempli par premium.js) -->
+        <div class="code-box" id="code-box" data-reveal style="margin-top:40px">
           <h3>Déjà membre ?</h3>
-          <p>Entrez le code reçu après votre paiement pour activer le Premium sur cet appareil.</p>
-          <form class="code-form" id="code-form">
-            <input type="text" id="code-input" placeholder="VOTRE-CODE" autocomplete="off" aria-label="Code Premium">
-            <button class="btn btn-premium" type="submit">Activer</button>
-          </form>
-          <div class="code-msg" id="code-msg"></div>
+          <p>Connectez-vous à votre compte LanorTrad pour activer votre code.</p>
+          <div class="code-msg">Chargement…</div>
         </div>
       </div>
     </section>
@@ -74,7 +71,8 @@
         <div class="member" data-reveal>
           <div class="big-badge">✦</div>
           <h2>Vous êtes <span class="gold">Premium</span></h2>
-          <p>Merci pour votre soutien ! Vos avantages sont actifs : sans pub, badge et thème exclusif.</p>
+          <p>Merci pour votre soutien ! Vos avantages sont actifs : chapitres en avance, sans pub, badge et thème exclusif.</p>
+          <p class="prem-expiry" id="prem-expiry"></p>
           <div class="actions">
             <button class="btn btn-premium" id="btn-aurum">✦ Activer le thème Or</button>
             <button class="btn btn-ghost" id="btn-off">Désactiver sur cet appareil</button>
@@ -85,8 +83,11 @@
   </main>
 
   <script src="js/data/series.js"></script><script src="js/data/chapters.js"></script>
+  <script src="js/data/premium-config.js"></script>
   <script src="js/store.js"></script><script src="js/palette.js"></script>
   <script src="js/core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script src="js/premium.js"></script>
 </body>
 </html>

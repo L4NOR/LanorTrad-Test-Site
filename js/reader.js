@@ -39,7 +39,7 @@
   /* ========================================================================
      INITIALISATION
      ===================================================================== */
-  function init() {
+  async function init() {
     const p = new URLSearchParams(location.search);
     A.manga = p.get("manga");
     A.S = window.LT.seriesById(A.manga);
@@ -54,6 +54,9 @@
     document.title = `${A.S.title} — Lecture — LanorTrad`;
     window.LTstore && window.LTstore.markSeen(A.manga);
 
+    // Fusionne les chapitres en avance (premium, Supabase) avec les publics
+    await mergePremiumChapters();
+
     // Chapitre demandé : URL > reprise > plus ancien dispo (chapitre 1)
     let wantNum = p.get("chapter");
     const saved = loadProgress();
@@ -67,7 +70,7 @@
 
     // Sélecteur de chapitres
     const sel = $("rd-chap-select");
-    sel.innerHTML = A.chapters.map(c => `<option value="${c.num}">Chapitre ${c.num}</option>`).join("");
+    sel.innerHTML = A.chapters.map(c => `<option value="${c.num}">Chapitre ${c.num}${chapLocked(c) ? " 🔒" : ""}</option>`).join("");
     sel.addEventListener("change", () => goChapter(sel.value));
 
     wireControls();
@@ -206,17 +209,29 @@
   /* ========================================================================
      CHARGEMENT D'UN CHAPITRE
      ===================================================================== */
-  function loadChapter() {
+  async function loadChapter() {
     A.idx = 0; A.total = A.chap.pages; A.prefetched = null;
     $("rd-chap-label").textContent = `Chapitre ${A.chap.num} · ${A.chap.pages} pages`;
     $("rd-chap-select").value = A.chap.num;
     history.replaceState(null, "", `reader.html?manga=${encodeURIComponent(A.manga)}&chapter=${A.chap.num}`);
+    setCanonical();
 
     const track = $("rd-track");
-    const base = `Manga/${A.manga}/${A.chap.folder}/`;
-    A.imgs = (A.chap.files || []).map((f, i) => {
+
+    // URLs des pages : publiques (Manga/…) ou signées (bucket privé premium).
+    let urls;
+    if (A.chap.premium) {
+      urls = await premiumPageUrls(A.chap);
+      if (!urls) { renderLocked(); return; }   // accès refusé : non premium & pas encore gratuit
+    } else {
+      const base = `Manga/${A.manga}/${A.chap.folder}/`;
+      urls = (A.chap.files || []).map(f => encodeURI(base + f));
+    }
+    A.total = urls.length || A.chap.pages;
+
+    A.imgs = urls.map((src, i) => {
       const im = document.createElement("img");
-      im.src = encodeURI(base + f);
+      im.src = src;
       im.alt = `${A.S.title} — Chapitre ${A.chap.num} — page ${i + 1}`;
       im.loading = i < 2 ? "eager" : "lazy";
       im.decoding = "async";
@@ -765,6 +780,84 @@
     if (!window.supabase || !C.url || !C.anonKey || /VOTRE_|YOUR_/i.test(C.url + C.anonKey)) return null;
     A.sb = window.supabase.createClient(C.url, C.anonKey);
     return A.sb;
+  }
+
+  /* ========================================================================
+     PREMIUM — chapitres en avance (bucket privé Supabase + signed URLs).
+     La règle d'accès (gratuit après délai OU membre premium) est appliquée
+     côté serveur par la RLS Storage : si createSignedUrls échoue → verrouillé.
+     ===================================================================== */
+  async function mergePremiumChapters() {
+    const c = sbClient();
+    if (!c) return;
+    try { await window.LTpremium?.refresh?.(); } catch {}
+    let rows = [];
+    try {
+      const { data } = await c.from("premium_chapters")
+        .select("chapter_num,released,pages").eq("manga_id", A.manga);
+      rows = data || [];
+    } catch { return; }
+    if (!rows.length) return;
+    const have = new Set(A.chapters.map(x => x.num));
+    const extra = rows.filter(r => !have.has(r.chapter_num)).map(r => ({
+      num: r.chapter_num, pages: r.pages, released: r.released, premium: true, files: null,
+    }));
+    if (extra.length)
+      A.chapters = A.chapters.concat(extra).sort((a, b) => parseFloat(b.num) - parseFloat(a.num));
+  }
+
+  function freeDelayMs() { return ((window.LT_PREMIUM && window.LT_PREMIUM.freeDelayDays) || 7) * 86400000; }
+
+  function chapLocked(c) {
+    if (!c || !c.premium) return false;
+    const free = c.released && (Date.now() - new Date(c.released).getTime() >= freeDelayMs());
+    return free ? false : !(window.LTpremium && window.LTpremium.isActive());
+  }
+
+  function lockCountdown(c) {
+    if (!c || !c.released) return "prochainement";
+    const days = Math.ceil((new Date(c.released).getTime() + freeDelayMs() - Date.now()) / 86400000);
+    return days > 0 ? `dans ${days} jour${days > 1 ? "s" : ""}` : "très bientôt";
+  }
+
+  async function premiumPageUrls(chap) {
+    const c = sbClient();
+    if (!c) return null;
+    const bucket = (window.LT_PREMIUM && window.LT_PREMIUM.bucket) || "premium-chapters";
+    const ttl = (window.LT_PREMIUM && window.LT_PREMIUM.signedUrlTTL) || 7200;
+    const n = chap.pages || 0;
+    if (!n) return null;
+    const paths = Array.from({ length: n }, (_, i) => `${A.manga}/${chap.num}/${String(i + 1).padStart(3, "0")}.webp`);
+    try {
+      const { data, error } = await c.storage.from(bucket).createSignedUrls(paths, ttl);
+      if (error || !data) return null;
+      const urls = data.map(d => d.signedUrl).filter(Boolean);
+      return urls.length === paths.length ? urls : null;   // une page refusée = accès refusé
+    } catch { return null; }
+  }
+
+  function renderLocked() {
+    A.total = 0; A.imgs = [];
+    const track = $("rd-track");
+    if (track) track.innerHTML = `
+      <div class="rd-empty rd-locked">
+        <div class="big">✦</div>
+        <p class="rd-locked-h">Chapitre en avance — réservé aux membres Premium</p>
+        <p class="rd-locked-sub">Gratuit pour tous ${lockCountdown(A.chap)}. Passez Premium pour le lire dès maintenant.</p>
+        <div class="acts">
+          <a class="btn btn-primary" href="premium.html"><span>✦ Passer Premium</span></a>
+          <a class="btn btn-ghost" href="${A.S ? A.S.url : "catalogue.html"}">Retour à la fiche</a>
+        </div>
+      </div>`;
+    updateChapBtns();
+    updateScrub();
+  }
+
+  function setCanonical() {
+    if (!A.chap) return;
+    let l = document.querySelector('link[rel="canonical"]');
+    if (!l) { l = document.createElement("link"); l.rel = "canonical"; document.head.appendChild(l); }
+    l.href = "https://lanortrad.com/reader.html?manga=" + encodeURIComponent(A.manga) + "&chapter=" + encodeURIComponent(A.chap.num);
   }
   function comAvatar(p, size = 34) {
     const name = (p && p.username) || "?";

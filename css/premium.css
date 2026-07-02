@@ -38,6 +38,10 @@
 .code-form input:focus { border-color: rgba(245,158,11,.6); }
 .code-msg { margin-top: 14px; font-size: .9rem; font-weight: 600; min-height: 1.2em; }
 .code-msg.ok { color: #4ade80; } .code-msg.err { color: #fb7185; }
+/* Formulaire de connexion (email/mot de passe) : champs empilés, texte normal */
+.code-form.prem-auth { flex-direction: column; }
+.code-form.prem-auth input { text-align: left; text-transform: none; letter-spacing: normal; font-weight: 500; }
+.prem-expiry { color: #fbbf24; font-weight: 700; margin-bottom: 18px; }
 
 /* Espace membre (déjà premium) */
 .member { max-width: 600px; margin: 0 auto; padding: 30px; border-radius: var(--radius-lg); text-align: center; background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(252,211,77,.06)); border: 1px solid rgba(245,158,11,.4); }

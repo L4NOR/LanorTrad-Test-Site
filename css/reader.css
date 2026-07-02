@@ -332,6 +332,11 @@ body.reader-body {
 .rd-empty p { color: var(--txt-soft); margin-bottom: 18px; }
 .rd-empty .acts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
+/* Chapitre en avance verrouillé (premium) */
+.rd-locked .big { background: linear-gradient(135deg, #f59e0b, #fcd34d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rd-locked .rd-locked-h { font-family: var(--font-display); font-weight: 800; color: var(--txt); font-size: 1.15rem; margin-bottom: 6px; }
+.rd-locked .rd-locked-sub { color: var(--txt-mut); }
+
 /* ------------------------------------------------------------------ Mobile */
 @media (max-width: 600px) {
   .rd { --rd-top-h: 52px; }
