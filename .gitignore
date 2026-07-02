@@ -2,6 +2,10 @@
 # Régénérez le manifeste avec : py tools/build-data.py après les avoir ajoutées.
 tools/
 
+# Chapitres EN AVANCE (premium) : staging local uploadé sur Supabase.
+# NE DOIT JAMAIS être committé (sinon le contenu premium devient public).
+Manga/*/Premium/
+
 # OS / éditeurs
 Thumbs.db
 desktop.ini

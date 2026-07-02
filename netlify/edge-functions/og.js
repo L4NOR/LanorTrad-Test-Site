@@ -33,8 +33,20 @@ export default async (request, context) => {
     const desc = `Lisez ${s.title} en français sur LanorTrad. ${(s.description || "").replace(/\s+/g, " ")}`.slice(0, 200);
     const image = site + "/" + encodeURI(s.cover);
     const pageUrl = site + "/manga.html?id=" + encodeURIComponent(id);
+    const genresList = (s.genres || []).join(", ");
+
+    // Pré-rendu minimal (titre + synopsis + genres) injecté dans le <main> pour
+    // que les crawlers voient un vrai contenu sans exécuter le JS.
+    const prerender = `<article>`
+      + `<h1>${esc(s.title)}</h1>`
+      + (s.status ? `<p><strong>Statut :</strong> ${esc(s.status)}</p>` : "")
+      + (genresList ? `<p><strong>Genres :</strong> ${esc(genresList)}</p>` : "")
+      + `<p>${esc((s.description || "").replace(/\s+/g, " "))}</p>`
+      + `<p><a href="${esc(site + "/reader.html?manga=" + encodeURIComponent(id))}">Lire ${esc(s.title)} en ligne</a></p>`
+      + `</article>`;
 
     const tags = `
+  <link rel="canonical" href="${esc(pageUrl)}">
   <meta property="og:type" content="book">
   <meta property="og:site_name" content="LanorTrad">
   <meta property="og:title" content="${esc(title)}">
@@ -49,7 +61,8 @@ export default async (request, context) => {
 
     let html = await res.text();
     html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`)
-               .replace(/<\/head>/i, tags + "</head>");
+               .replace(/<\/head>/i, tags + "</head>")
+               .replace(/<main id="series-root">\s*<\/main>/i, `<main id="series-root">${prerender}</main>`);
 
     const headers = new Headers(res.headers);
     headers.delete("content-length");

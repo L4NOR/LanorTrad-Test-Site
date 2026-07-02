@@ -20,7 +20,7 @@
     setSeo(s);
     window.LTambiance && window.LTambiance.set(s.accent);   // le site adopte l'univers de la série
     window.LTstore.markSeen(s.id);   // consulter la fiche « consomme » la nouveauté
-    const chapters = (window.CHAPTERS || {})[s.id] || [];
+    let chapters = (window.CHAPTERS || {})[s.id] || [];
     const progress = window.LTstore.progress(s.id);
     const gallery = (window.GALLERY || {})[s.id] || null;
     const hasGallery = !!(gallery && ((gallery.tomes && gallery.tomes.length) || (gallery.colors && gallery.colors.length)));
@@ -138,11 +138,14 @@
 
       list.innerHTML = data.map(c => {
         if (c.locked) return `<div class="chap-item locked"><span class="n">Ch. ${c.num}</span><span class="pages">🔒</span></div>`;
+        if (c.premium && chapLocked(c))
+          return `<a class="chap-item prem-locked" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}" title="Chapitre en avance — réservé aux membres Premium">
+              <span class="n">Ch. ${c.num}</span><span class="pages prem-tag">✦ En avance</span></a>`;
         const isRead = progress && parseFloat(c.num) < parseFloat(progress.chapter);
         const isCur = progress && c.num === progress.chapter;
-        return `<a class="chap-item ${isRead ? "read" : ""}" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}">
+        return `<a class="chap-item ${isRead ? "read" : ""} ${c.premium ? "prem" : ""}" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}">
             <span class="n">Ch. ${c.num}</span>
-            ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.pages} p.</span>`}
+            ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.premium ? "✦ " : ""}${c.pages} p.</span>`}
           </a>`;
       }).join("");
       document.dispatchEvent(new Event("lt:cards"));
@@ -150,6 +153,29 @@
     search.addEventListener("input", render);
     order.addEventListener("change", render);
     render();
+
+    // Chapitres en avance (premium, Supabase) : chargés puis fusionnés + re-rendu
+    async function loadPremiumChaps() {
+      const c = window.LTsb && window.LTsb();
+      if (!c) return;
+      try { await window.LTpremium?.refresh?.(); } catch {}
+      let rows = [];
+      try {
+        const { data } = await c.from("premium_chapters")
+          .select("chapter_num,released,pages").eq("manga_id", s.id);
+        rows = data || [];
+      } catch { return; }
+      if (!rows.length) return;
+      const have = new Set(chapters.map(x => x.num));
+      const extra = rows.filter(r => !have.has(r.chapter_num))
+        .map(r => ({ num: r.chapter_num, pages: r.pages, released: r.released, premium: true }));
+      if (extra.length) {
+        chapters = chapters.concat(extra).sort((a, b) => parseFloat(b.num) - parseFloat(a.num));
+        if (notice) notice.innerHTML = "";
+      }
+      render();
+    }
+    loadPremiumChaps();
 
     // Onglets Chapitres / Anime / Galerie
     if (hasGallery) renderGallery(gallery, s.id);
@@ -223,6 +249,12 @@
   }
 
   function enc(x) { return encodeURIComponent(x); }
+  function freeDelayMs() { return ((window.LT_PREMIUM && window.LT_PREMIUM.freeDelayDays) || 7) * 86400000; }
+  function chapLocked(c) {
+    if (!c || !c.premium) return false;
+    const free = c.released && (Date.now() - new Date(c.released).getTime() >= freeDelayMs());
+    return free ? false : !(window.LTpremium && window.LTpremium.isActive());
+  }
   function handshake() { return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m11 17 2 2a1 1 0 0 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 0 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0l-1.6 1.6a2 2 0 0 1-2.8 0l-2-2a1 1 0 0 1 0-1.4l3.4-3.4a4 4 0 0 1 5.6 0l5.6 5.6"/><path d="m2 13 2.5 2.5a1 1 0 0 0 3-3L4 8"/></svg>`; }
 
   /* ---------- Anime (saisons + épisodes) ---------- */
@@ -416,6 +448,8 @@
     const title = `${s.title} — LanorTrad`;
     const img = new URL(s.cover, location.href).href;
     const genres = s.genres.filter(g => g !== "LanorTrad" && g !== "Collaboration");
+    // Canonique : URL propre sur le domaine de prod (identique au sitemap)
+    setLink("canonical", "https://lanortrad.com/manga.html?id=" + encodeURIComponent(s.id));
     setMeta("description", `Lisez ${s.title} en français sur LanorTrad. ${s.description}`);
     // OpenGraph
     setProp("og:type", "book");
@@ -455,6 +489,7 @@
   }
   function setMeta(name, content) { let m = document.querySelector(`meta[name="${name}"]`); if (!m) { m = document.createElement("meta"); m.name = name; document.head.appendChild(m); } m.content = content; }
   function setProp(prop, content) { let m = document.querySelector(`meta[property="${prop}"]`); if (!m) { m = document.createElement("meta"); m.setAttribute("property", prop); document.head.appendChild(m); } m.setAttribute("content", content); }
+  function setLink(rel, href) { let l = document.querySelector(`link[rel="${rel}"]`); if (!l) { l = document.createElement("link"); l.rel = rel; document.head.appendChild(l); } l.href = href; }
 
   document.addEventListener("lt:ready", init);
 })();
