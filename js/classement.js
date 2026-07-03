@@ -36,6 +36,7 @@
     try { const { data: { session } } = await c.auth.getSession(); me = session ? session.user : null; } catch {}
 
     mount.innerHTML = `
+      <div id="lb-missions"></div>
       <div class="lb-tabs" id="lb-tabs" role="tablist">
         <button class="lb-tab on" data-tab="week" role="tab">Cette semaine</button>
         <button class="lb-tab" data-tab="alltime" role="tab">All-time</button>
@@ -51,8 +52,59 @@
       render();
     });
 
+    loadMissions();
     loadSelf();
     render();
+  }
+
+  /* ---------- Missions de la semaine ---------- */
+  async function loadMissions() {
+    const box = $("#lb-missions");
+    if (!box) return;
+    const c = sb();
+    let data;
+    try { ({ data } = await c.rpc("weekly_missions")); } catch { box.innerHTML = ""; return; }
+    if (!data || !data.missions || !data.missions.length) { box.innerHTML = ""; return; }
+    box.innerHTML = `
+      <div class="lb-mtitle">
+        <h2>Missions de la semaine</h2>
+        ${me ? "" : `<span class="lb-mnote">Connecte-toi pour gagner l'XP</span>`}
+      </div>
+      <div class="lb-missions">${data.missions.map(missionCard).join("")}</div>`;
+    box.querySelectorAll("[data-claim]").forEach(b =>
+      b.addEventListener("click", () => claim(b.dataset.claim, b)));
+  }
+
+  function missionCard(m) {
+    const pct = Math.min(100, Math.round(m.progress / m.target * 100));
+    const action = m.claimed
+      ? `<span class="lb-mclaimed">Réclamé ✓</span>`
+      : (m.done && me)
+        ? `<button class="btn btn-primary btn-sm" data-claim="${esc(m.key)}">Réclamer +50 XP</button>`
+        : `<span class="lb-mcount">${m.progress}/${m.target}</span>`;
+    return `<div class="lb-mission${m.claimed ? " claimed" : m.done ? " done" : ""}">
+      <div class="lb-mission-head"><span class="lb-mcat">${esc(m.category)}</span>${action}</div>
+      <div class="lb-mlabel">${esc(m.label)}</div>
+      <div class="lb-mbar"><div class="lb-mfill" style="width:${pct}%"></div></div>
+    </div>`;
+  }
+
+  async function claim(key, btn) {
+    if (!me) return;
+    btn.disabled = true;
+    try {
+      const { data } = await sb().rpc("claim_mission", { p_key: key });
+      if (data && data.ok) {
+        window.LT.toast(data.already ? "Déjà réclamé."
+          : data.perfect ? "🌟 Semaine parfaite · +100 XP !"
+          : "✨ Mission accomplie · +50 XP");
+        loadMissions(); loadSelf();
+        if (tab === "alltime") render();
+      } else {
+        window.LT.toast("Mission pas encore terminée.");
+        btn.disabled = false;
+      }
+    } catch { btn.disabled = false; }
   }
 
   async function loadSelf() {

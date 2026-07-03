@@ -20,6 +20,7 @@ Supabase → **SQL Editor** → collez et exécutez, dans l'ordre :
    Idempotent, sans risque ; le rattrapage débloque les succès déjà mérités.
 4. `supabase/gamification-triggers.sql` (XP des **réactions reçues** — déclencheur)
 5. `supabase/leaderboard.sql` (le **classement** — `leaderboard_weekly`, `my_rank`)
+6. `supabase/missions.sql` (les **missions hebdomadaires** — `weekly_missions`, `claim_mission`)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 - les colonnes `xp`, `streak`, `streak_best`, `last_active`, `streak_freeze_week`,

@@ -40,3 +40,18 @@
   .lb-name .lt-rank { display: none; }   /* place réduite : on garde pseudo + XP */
   .lb-xp { font-size: .84rem; }
 }
+
+/* Missions de la semaine */
+.lb-mtitle { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+.lb-mnote { font-size: .82rem; color: var(--txt-mut); }
+.lb-missions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 26px; }
+.lb-mission { padding: 14px 16px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.lb-mission.done { border-color: color-mix(in srgb, var(--violet) 45%, transparent); }
+.lb-mission.claimed { opacity: .68; }
+.lb-mission-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 30px; }
+.lb-mcat { font-family: var(--font-display); font-weight: 800; font-size: .66rem; letter-spacing: .05em; text-transform: uppercase; color: var(--txt-mut); }
+.lb-mcount { font-family: var(--font-display); font-weight: 800; font-size: .82rem; color: var(--txt-mut); }
+.lb-mclaimed { font-family: var(--font-display); font-weight: 800; font-size: .76rem; color: #4ade80; }
+.lb-mlabel { font-size: .9rem; color: var(--txt); line-height: 1.35; }
+.lb-mbar { height: 6px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.lb-mfill { height: 100%; border-radius: 999px; background: var(--grad); transition: width .5s var(--ease, ease); }
