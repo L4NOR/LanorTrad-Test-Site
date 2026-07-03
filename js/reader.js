@@ -72,6 +72,7 @@
 
     wireControls();
     wirePrefs();
+    startMarathon();
 
     if (!A.chap) {
       $("rd-viewer").innerHTML = emptyHTML(
@@ -261,10 +262,76 @@
   }
 
   /* -------- Gain d'XP : chapitre terminé (une seule fois par chapitre) -------- */
-  function awardRead() {
+  async function awardRead() {
     if (A.readAwarded || !A.chap) return;
     A.readAwarded = true;
-    window.LTxp && window.LTxp.award("read", A.manga + ":" + A.chap.num);
+    if (!window.LTxp) return;
+    await window.LTxp.award("read", A.manga + ":" + A.chap.num);
+    checkReadingMilestones();
+    trackEarlyRead();
+  }
+
+  /* -------- Succès « Aux premières loges » : 10 chapitres lus < 48 h après la
+     sortie de leur série. La donnée « fraîcheur au moment de la lecture » n'existe
+     pas côté serveur → suivi local (dédupliqué). Volontairement souple. -------- */
+  function trackEarlyRead() {
+    try {
+      if (!A.S || !A.S.lastUpdate || !A.chap || !A.chapters.length) return;
+      const isNewest = A.chap.num === A.chapters[0].num;               // le dernier chapitre
+      const fresh = (Date.now() - new Date(A.S.lastUpdate).getTime()) < 48 * 3600 * 1000;
+      if (!isNewest || !fresh) return;
+      const key = A.manga + ":" + A.chap.num;
+      const set = JSON.parse(localStorage.getItem("lt-early") || "[]");
+      if (set.includes(key)) return;
+      set.push(key);
+      localStorage.setItem("lt-early", JSON.stringify(set));
+      if (set.length >= 10) window.LTxp && window.LTxp.grantClient("early_10");
+    } catch {}
+  }
+
+  /* -------- Succès de lecture détectés côté client (le site connaît le catalogue) --
+     series_1 (série rattrapée) + library_full (≥1 chapitre de chaque série). Le
+     serveur borne l'octroi à une liste blanche (grant_client_achievement). -------- */
+  async function checkReadingMilestones() {
+    const c = window.LTsb && window.LTsb();
+    if (!c || !window.LTxp) return;
+    try {
+      const { data: { session } } = await c.auth.getSession();
+      if (!session) return;
+      const { data } = await c.from("xp_events").select("ref").eq("user_id", session.user.id).eq("kind", "read");
+      if (!data) return;
+      const mangas = new Set(data.map(e => (e.ref || "").split(":")[0]));
+      // Série rattrapée : tous les chapitres connus de la série courante lus.
+      const total = ((window.CHAPTERS || {})[A.manga] || []).length;
+      const readHere = data.filter(e => (e.ref || "").split(":")[0] === A.manga).length;
+      if (total > 0 && readHere >= total) {
+        await window.LTxp.award("series_complete", A.manga);   // 100 XP idempotent/série
+        await window.LTxp.grantClient("series_1");
+      }
+      // Bibliothèque complète : ≥1 chapitre de chaque série qui a des chapitres.
+      const catalog = (window.SERIES || []).filter(s => ((window.CHAPTERS || {})[s.id] || []).length > 0);
+      if (catalog.length > 0 && catalog.every(s => mangas.has(s.id))) {
+        await window.LTxp.grantClient("library_full");
+      }
+    } catch {}
+  }
+
+  /* -------- Succès « Marathon » : 2 h de lecture ACTIVE d'affilée -------- */
+  function startMarathon() {
+    if (A._marathon) return;
+    A._marathon = true;
+    let sec = 0, done = false, lastAct = Date.now();
+    const bump = () => { lastAct = Date.now(); };
+    addEventListener("scroll", bump, { passive: true });
+    addEventListener("pointerdown", bump);
+    addEventListener("keydown", bump);
+    setInterval(() => {
+      const idle = Date.now() - lastAct;
+      if (idle > 600000) { sec = 0; return; }                 // >10 min inactif → série cassée
+      if (document.visibilityState !== "visible" || idle > 90000) return;
+      sec += 30;
+      if (sec >= 7200 && !done) { done = true; window.LTxp && window.LTxp.grantClient("marathon_2h"); }
+    }, 30000);
   }
 
   /* ========================================================================
