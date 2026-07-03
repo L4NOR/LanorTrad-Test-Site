@@ -11,6 +11,17 @@
 }
 :root[data-theme="oled"] .bg-blob { opacity: .32; }
 
+/* ---------- Chip de rang « Aura » (forum, commentaires, profil) ---------- */
+.lt-rank { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:999px; font-family:var(--font-display); font-weight:700; font-size:.64rem; letter-spacing:.02em; line-height:1.7; vertical-align:middle; border:1px solid currentColor; }
+.lt-rank b { font-weight:800; opacity:.7; }
+.lt-rank::before { content:""; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 6px currentColor; }
+.lt-rank.r-etincelle { color:#9aa3b2; background:rgba(154,163,178,.10); border-color:rgba(154,163,178,.30); }
+.lt-rank.r-lueur     { color:#eab308; background:rgba(234,179,8,.10);  border-color:rgba(234,179,8,.30); }
+.lt-rank.r-flamme    { color:#f97316; background:rgba(249,115,22,.12); border-color:rgba(249,115,22,.35); }
+.lt-rank.r-brasier   { color:#ef4444; background:rgba(239,68,68,.12);  border-color:rgba(239,68,68,.35); }
+.lt-rank.r-aurore    { color:#ec4899; background:rgba(236,72,153,.13); border-color:rgba(236,72,153,.40); }
+.lt-rank.r-astre     { color:#f5c842; background:rgba(245,200,66,.14); border-color:rgba(245,200,66,.5); box-shadow:0 0 12px -3px rgba(245,200,66,.6); }
+
 /* ---------- Halo couleur extrait de la couverture ---------- */
 .card-glow {
   position: absolute; inset: -1px; z-index: 0; border-radius: inherit; pointer-events: none;

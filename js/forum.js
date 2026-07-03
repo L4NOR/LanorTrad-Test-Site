@@ -70,6 +70,9 @@
     r === "admin"     ? '<span class="fo-role admin">Admin</span>' :
     r === "moderator" ? '<span class="fo-role mod">Modo</span>'    : "";
 
+  // Badge de rang XP (chip « Aura »). Vide si xp inconnu ou module absent.
+  const rankBadge = xp => (window.LTxp && xp != null) ? window.LTxp.rankBadge(xp) : "";
+
   // Badges de profil : sexe, âge, types lus, genres préférés (« rôles »).
   function profileTags(pf) {
     const t = [];
@@ -98,7 +101,7 @@
         <button class="fo-bell icon-btn" id="fo-bell" title="Notifications" aria-label="Notifications">🔔<span class="fo-bell-badge" hidden>0</span></button>
         <div class="fo-user">
           ${avatar(profile, 34)}
-          <span class="fo-uname">${esc(profile.username)}</span>${roleBadge(profile.role)}
+          <span class="fo-uname">${esc(profile.username)}</span>${roleBadge(profile.role)}${rankBadge(profile.xp)}
           <button class="icon-btn" id="fo-settings" title="Modifier mon profil" aria-label="Modifier mon profil">${gearIcon}</button>
           <button class="icon-btn" id="fo-logout" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
         </div>`;
@@ -282,7 +285,7 @@
     const { data: cat } = await c.from("categories").select("*").eq("slug", slug).maybeSingle();
     if (!cat) { app().innerHTML = errBox("Catégorie introuvable."); setBusy(false); return; }
     const { data: topics, error } = await c.from("topics")
-      .select("id,title,pinned,locked,reply_count,created_at,last_activity,author:profiles(username,avatar_url,role)")
+      .select("id,title,pinned,locked,reply_count,created_at,last_activity,author:profiles(username,avatar_url,role,xp)")
       .eq("category_id", cat.id)
       .order("pinned", { ascending: false })
       .order("last_activity", { ascending: false });
@@ -313,7 +316,7 @@
             ${t.locked ? '<span class="fo-tag lock">🔒</span>' : ""}
             ${esc(t.title)}
           </span>
-          <span class="fo-topic-meta">par ${esc(a.username || "?")}${roleBadge(a.role)} · ${timeAgo(t.created_at)}</span>
+          <span class="fo-topic-meta">par ${esc(a.username || "?")}${roleBadge(a.role)}${rankBadge(a.xp)} · ${timeAgo(t.created_at)}</span>
         </span>
         <span class="fo-topic-stat"><b>${n}</b><i>réponse${n > 1 ? "s" : ""}</i></span>
         <span class="fo-topic-last">${timeAgo(t.last_activity)}</span>
@@ -325,11 +328,11 @@
     setBusy(true);
     const c = client();
     const { data: t, error } = await c.from("topics")
-      .select("*, category:categories(slug,name), author:profiles(username,avatar_url,role)")
+      .select("*, category:categories(slug,name), author:profiles(username,avatar_url,role,xp)")
       .eq("id", id).maybeSingle();
     if (error || !t) { app().innerHTML = errBox("Sujet introuvable."); setBusy(false); return; }
     const { data: posts } = await c.from("posts")
-      .select("*, author:profiles(username,avatar_url,role)")
+      .select("*, author:profiles(username,avatar_url,role,xp)")
       .eq("topic_id", id).order("created_at");
 
     const head = `
@@ -366,7 +369,7 @@
     const a = p.author || {};
     return `
       <article class="fo-post${isOp ? " op" : ""}" data-post="${isOp ? "op" : p.id}" data-reveal>
-        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${roleBadge(a.role)}</div>
+        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${roleBadge(a.role)}${rankBadge(a.xp)}</div>
         <div class="fo-post-body">
           <div class="fo-post-meta">${isOp ? "Auteur du sujet" : "A répondu"} · ${timeAgo(p.created_at)}
             ${canEdit(p.author_id) ? `<span class="fo-post-actions">
@@ -570,7 +573,7 @@
         <div class="fo-prof-head">
           ${avatar(pf, 84)}
           <div class="fo-prof-id">
-            <h2>${esc(pf.username)} ${roleBadge(pf.role)}</h2>
+            <h2>${esc(pf.username)} ${roleBadge(pf.role)} ${rankBadge(pf.xp)}</h2>
             <div class="fo-prof-since">Membre depuis ${timeAgo(pf.created_at)}</div>
             ${pf.bio ? `<p class="fo-prof-bio">${esc(pf.bio).replace(/\n/g, "<br>")}</p>`
               : `<p class="fo-prof-bio muted">${own ? "Ajoute une bio depuis « Modifier mon profil » ✏️" : "Pas encore de bio."}</p>`}
@@ -770,7 +773,7 @@
   async function loadProfile() {
     profile = null;
     if (!me) return;
-    const { data } = await client().from("profiles").select("id,username,avatar_url,role").eq("id", me.id).maybeSingle();
+    const { data } = await client().from("profiles").select("id,username,avatar_url,role,xp").eq("id", me.id).maybeSingle();
     profile = data || null;
   }
 

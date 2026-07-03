@@ -77,5 +77,13 @@
     };
   }
 
-  window.LTxp = { award, me, rankOf, levelFromXp, xpForLevel, ranks: RANKS };
+  // Badge de rang (HTML — données contrôlées, aucune entrée utilisateur) pour le
+  // « chip » réutilisé sur le forum, les commentaires de chapitre et le profil.
+  function rankBadge(xp) {
+    const level = levelFromXp(xp || 0);
+    const r = rankOf(level);
+    return `<span class="lt-rank r-${r.key}" title="${r.name} · niveau ${level}">${r.name}<b>${level}</b></span>`;
+  }
+
+  window.LTxp = { award, me, rankOf, levelFromXp, xpForLevel, rankBadge, ranks: RANKS };
 })();
