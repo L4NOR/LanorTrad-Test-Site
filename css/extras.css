@@ -22,6 +22,25 @@
 .lt-rank.r-aurore    { color:#ec4899; background:rgba(236,72,153,.13); border-color:rgba(236,72,153,.40); }
 .lt-rank.r-astre     { color:#f5c842; background:rgba(245,200,66,.14); border-color:rgba(245,200,66,.5); box-shadow:0 0 12px -3px rgba(245,200,66,.6); }
 
+/* ---------- Profil : vitrine XP / stats / succès ---------- */
+.fo-xp { margin:18px 0 6px; }
+.fo-xp-head { display:flex; justify-content:space-between; gap:12px; font-size:.78rem; color:var(--txt-mut); margin-bottom:6px; }
+.fo-xp-track { height:8px; border-radius:999px; background:var(--bg-2); overflow:hidden; }
+.fo-xp-fill { height:100%; border-radius:999px; background:var(--grad); transition:width .5s var(--ease, ease); }
+.fo-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin:16px 0; }
+.fo-stat { background:var(--glass); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+.fo-stat b { display:block; font-family:var(--font-display); font-weight:800; font-size:1.4rem; line-height:1.1; }
+.fo-stat span { font-size:.74rem; color:var(--txt-mut); }
+.fo-ach { margin:20px 0; }
+.fo-ach h3 { display:flex; align-items:baseline; gap:8px; }
+.fo-ach-count { font-size:.8rem; color:var(--txt-mut); font-weight:500; }
+.fo-ach-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(94px,1fr)); gap:10px; margin-top:12px; }
+.fo-ach-tile { display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; padding:12px 8px; border-radius:12px; border:1px solid var(--line); background:var(--glass); }
+.fo-ach-tile.off { opacity:.42; filter:grayscale(.7); }
+.fo-ach-tile.on { border-color:color-mix(in srgb, var(--violet) 45%, transparent); background:color-mix(in srgb, var(--violet) 10%, var(--glass)); }
+.fo-ach-ico { font-size:1.55rem; line-height:1; }
+.fo-ach-name { font-size:.72rem; color:var(--txt); line-height:1.25; }
+
 /* ---------- Halo couleur extrait de la couverture ---------- */
 .card-glow {
   position: absolute; inset: -1px; z-index: 0; border-radius: inherit; pointer-events: none;

@@ -556,6 +556,48 @@
     });
   }
 
+  /* ---------- Vitrine gamifiée du profil (barre d'XP + stats + succès) ------ */
+  // Emojis des succès, côté client (indépendant de la colonne `icon` en base).
+  const ACH_ICON = {
+    first_chapter: "✨", read_100: "📚", read_500: "📖", read_1000: "🏆",
+    library_full: "🗂️", streak_7: "🔥", streak_30: "🔥", streak_365: "🌟",
+    first_comment: "💬", forum_50: "🗣️", reactions_100: "❤️", series_1: "✅",
+    early_10: "⏱️", night_owl: "🌙", marathon_2h: "⏳",
+    rank_flamme: "🔥", rank_brasier: "🔥", rank_aurore: "🌅", rank_astre: "⭐"
+  };
+  function profileVitrine(pf, uach, achAll) {
+    const X = window.LTxp;
+    const xp = pf.xp || 0;
+    const level = X ? X.levelFromXp(xp) : 1;
+    const rank = X ? X.rankOf(level) : { name: "" };
+    const into = xp - (X ? X.xpForLevel(level) : 0);
+    const span = X ? (X.xpForLevel(level + 1) - X.xpForLevel(level)) : 1;
+    const pct = Math.max(0, Math.min(100, Math.round(into / span * 100)));
+    const earned = new Set((uach || []).map(u => u.key));
+    const list = achAll || [];
+    const earnedCount = list.filter(a => earned.has(a.key)).length;
+    const tiles = list.map(a => {
+      const has = earned.has(a.key);
+      const secret = a.secret && !has;
+      const ico = secret ? "❓" : (ACH_ICON[a.key] || (has ? "🏅" : "🔒"));
+      const name = secret ? "Secret" : a.name;
+      const tip = secret ? "Succès secret — à découvrir"
+        : `${a.name} — ${a.description}${a.xp ? " · +" + a.xp + " XP" : ""}`;
+      return `<div class="fo-ach-tile ${has ? "on" : "off"}" title="${esc(tip)}"><span class="fo-ach-ico">${ico}</span><span class="fo-ach-name">${esc(name)}</span></div>`;
+    }).join("");
+    return `
+      <div class="fo-xp">
+        <div class="fo-xp-head"><span>${esc(rank.name)} · niveau ${level}</span><span>${into} / ${span} XP</span></div>
+        <div class="fo-xp-track"><div class="fo-xp-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="fo-stats">
+        <div class="fo-stat"><b>${xp}</b><span>XP total</span></div>
+        <div class="fo-stat"><b>${pf.streak || 0} j</b><span>série · record ${pf.streak_best || 0}</span></div>
+        <div class="fo-stat"><b>${earnedCount}/${list.length}</b><span>succès</span></div>
+      </div>
+      ${list.length ? `<div class="fo-ach"><h3>Succès <span class="fo-ach-count">${earnedCount}/${list.length}</span></h3><div class="fo-ach-grid">${tiles}</div></div>` : ""}`;
+  }
+
   /* ---------- Vue : profil public ---------- */
   async function viewProfile(username) {
     setBusy(true);
@@ -563,10 +605,13 @@
     const { data: pf } = await c.from("profiles").select("*").ilike("username", username).maybeSingle();
     if (!pf) { app().innerHTML = errBox("Profil introuvable."); setBusy(false); return; }
     const own = !!(me && me.id === pf.id);
-    const [{ data: topics }, { data: posts }] = await Promise.all([
+    const [{ data: topics }, { data: posts }, { data: uach }, { data: achAll }] = await Promise.all([
       c.from("topics").select("id,title,created_at,reply_count").eq("author_id", pf.id).order("created_at", { ascending: false }).limit(20),
-      c.from("posts").select("id,created_at,topic:topics(id,title)").eq("author_id", pf.id).order("created_at", { ascending: false }).limit(10)
+      c.from("posts").select("id,created_at,topic:topics(id,title)").eq("author_id", pf.id).order("created_at", { ascending: false }).limit(10),
+      c.from("user_achievements").select("key,earned_at").eq("user_id", pf.id),
+      c.from("achievements").select("key,name,description,xp,secret,position").order("position")
     ]);
+    const vitrine = profileVitrine(pf, uach, achAll);
     app().innerHTML = `
       ${crumbs([{ label: "Forum", href: "#/" }, { label: pf.username }])}
       <div class="fo-profile">
@@ -581,6 +626,7 @@
           </div>
           ${own ? `<button class="btn btn-ghost btn-sm" id="prof-edit">Modifier mon profil</button>` : ""}
         </div>
+        ${vitrine}
         <div class="fo-prof-cols">
           <div class="fo-prof-col">
             <h3>Sujets (${(topics || []).length})</h3>
