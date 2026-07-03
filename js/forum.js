@@ -510,6 +510,7 @@
       reply.querySelector("button").disabled = true;
       const { error } = await c.from("posts").insert({ topic_id: t.id, author_id: me.id, body });
       if (error) { toast("Erreur : " + error.message); reply.querySelector("button").disabled = false; return; }
+      window.LTxp && window.LTxp.award("forum", "forum:reply:" + t.id);
       viewTopic(id);
     });
 
@@ -705,6 +706,7 @@
       form.querySelector("button").disabled = true;
       const { data, error } = await c.from("topics").insert(payload).select("id").single();
       if (error) { toast("Erreur : " + error.message); form.querySelector("button").disabled = false; return; }
+      window.LTxp && window.LTxp.award("forum", "forum:topic:" + data.id);
       toast("Sujet publié ✓");
       location.hash = "#/t/" + data.id;
     });

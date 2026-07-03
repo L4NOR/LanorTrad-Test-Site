@@ -207,7 +207,7 @@
      CHARGEMENT D'UN CHAPITRE
      ===================================================================== */
   async function loadChapter() {
-    A.idx = 0; A.total = A.chap.pages; A.prefetched = null;
+    A.idx = 0; A.total = A.chap.pages; A.prefetched = null; A.readAwarded = false;
     $("rd-chap-label").textContent = `Chapitre ${A.chap.num} · ${A.chap.pages} pages`;
     $("rd-chap-select").value = A.chap.num;
     history.replaceState(null, "", `reader.html?manga=${encodeURIComponent(A.manga)}&chapter=${A.chap.num}`);
@@ -258,6 +258,13 @@
     updateScrub();
     updateProgress();
     loadComments();
+  }
+
+  /* -------- Gain d'XP : chapitre terminé (une seule fois par chapitre) -------- */
+  function awardRead() {
+    if (A.readAwarded || !A.chap) return;
+    A.readAwarded = true;
+    window.LTxp && window.LTxp.award("read", A.manga + ":" + A.chap.num);
   }
 
   /* ========================================================================
@@ -316,6 +323,7 @@
 
     if (A.idx >= A.total) {
       end.classList.add("cur");
+      awardRead();
     } else {
       A.imgs[A.idx].classList.add("cur");
       if (step === 2 && A.imgs[A.idx + 1]) A.imgs[A.idx + 1].classList.add("cur");
@@ -462,6 +470,7 @@
           const down = scrollY > lastY && scrollY > 200;
           setChrome(!down);   // descente → masque, montée → affiche
           lastY = scrollY;
+          if (document.documentElement.scrollHeight - innerHeight - scrollY < 300) awardRead();
         }
       });
     }, { passive: true });
@@ -835,6 +844,7 @@
     const { error } = await c.from("chapter_comments").insert({ manga_id: A.manga, chapter_num: A.chap.num, author_id: A.me.id, body });
     if (error) { window.LT.toast("Erreur : " + error.message); e.target.querySelector("button").disabled = false; return; }
     ta.value = ""; loadComments();
+    if (body.length >= 10) window.LTxp && window.LTxp.award("comment", "comment:" + A.manga + ":" + A.chap.num);
   }
 
   /* ========================================================================
