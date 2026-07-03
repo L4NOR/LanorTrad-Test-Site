@@ -97,6 +97,15 @@
       }
     }
 
+    /* — Pour toi : recommandations selon les genres suivis / déjà lus — */
+    const fySec = document.getElementById("foryou-section");
+    const fyGrid = document.getElementById("foryou-grid");
+    if (fyGrid) {
+      const recs = recommendFor(S);
+      if (recs.length) { if (fySec) fySec.style.display = ""; fyGrid.innerHTML = recs.map(LTcard).join(""); }
+      else if (fySec) fySec.style.display = "none";
+    }
+
     /* — Séries populaires (mangas d'abord) — */
     const pop = document.getElementById("popular-grid");
     if (pop) {
@@ -153,6 +162,23 @@
   }
 
   function playIcon() { return `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`; }
+
+  // Recommandations : score les séries non suivies/non lues par affinité de genre
+  // avec ce que le lecteur suit ou a déjà commencé. Vide si aucune donnée.
+  function recommendFor(S) {
+    const store = window.LTstore;
+    if (!store) return [];
+    const seeds = new Set([...store.follows(), ...store.history().map(h => h.s.id)]);
+    if (!seeds.size) return [];
+    const weight = {};
+    S.filter(s => seeds.has(s.id)).forEach(s =>
+      s.genres.forEach(g => { if (g !== "LanorTrad") weight[g] = (weight[g] || 0) + 1; }));
+    return S.filter(s => !seeds.has(s.id))
+      .map(s => ({ s, score: s.genres.reduce((n, g) => n + (weight[g] || 0), 0) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score || (b.s.rating || 0) - (a.s.rating || 0))
+      .slice(0, 6).map(x => x.s);
+  }
 
   function dateLabel(d, today) {
     const diff = Math.round((d.setHours(0, 0, 0, 0) - today.getTime()) / 86400000);

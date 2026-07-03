@@ -56,6 +56,10 @@
 .lt-fr-aurore { box-shadow:0 0 0 2px #ec4899, 0 0 12px -1px #a855f7 !important; }
 .lt-fr-astre  { box-shadow:0 0 0 2px #f5c842, 0 0 14px -2px #f5c842 !important; }
 
+/* ---------- Barre de progression de lecture sur les cartes ---------- */
+.m-card .card-prog { height:4px; border-radius:999px; background:rgba(255,255,255,.13); overflow:hidden; margin-top:9px; }
+.m-card .card-prog i { display:block; height:100%; border-radius:999px; background:var(--grad); }
+
 /* ---------- Sélecteur de cosmétiques (profil) ---------- */
 .fo-cosmetics { margin:18px 0; }
 .fo-cos-group { margin-bottom:14px; }

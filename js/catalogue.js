@@ -59,6 +59,15 @@
     [fSearch, fStatus, fType, fGenre, fSort].forEach(elm =>
       elm.addEventListener("input", apply));
     apply();
+
+    // « Surprends-moi » : ouvre une série au hasard (lecture si dispo, sinon fiche)
+    const rnd = document.getElementById("cat-random");
+    if (rnd) rnd.addEventListener("click", () => {
+      const playable = S.filter(s => window.LT.playable(s));
+      const pool = playable.length ? playable : S;
+      const s = pool[Math.floor(Math.random() * pool.length)];
+      if (s) location.href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}` : s.url;
+    });
   }
 
   document.addEventListener("lt:ready", init);
