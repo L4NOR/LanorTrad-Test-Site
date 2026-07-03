@@ -107,7 +107,7 @@
 .stars { color: #fbbf24; letter-spacing: 1px; font-size: .8rem; }
 
 /* ---------- Footer ---------- */
-.footer { margin-top: 40px; border-top: 1px solid var(--line); background: linear-gradient(to bottom, transparent, rgba(124,58,237,.05)); }
+.footer { margin-top: 40px; padding-bottom: 96px; border-top: 1px solid var(--line); background: linear-gradient(to bottom, transparent, rgba(124,58,237,.05)); }
 .footer .grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 40px; padding-block: 60px; }
 .footer h4 { font-size: 1rem; margin-bottom: 16px; }
 .footer p { color: var(--txt-mut); max-width: 42ch; }

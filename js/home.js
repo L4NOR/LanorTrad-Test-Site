@@ -138,8 +138,6 @@
     const totalCh = S.reduce((n, s) => n + (s.chapters || 0), 0);
     setCounter("stat-series", mangas);
     setCounter("stat-chapters", totalCh, "+");
-    setCounter("stat-oneshots", oneshots);
-    setCounter("stat-readers", 12, "k+");
 
     /* — Marquee de genres — */
     const mq = document.getElementById("genre-track");

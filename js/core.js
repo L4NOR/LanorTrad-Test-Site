@@ -101,6 +101,9 @@
 
     // Footer
     const yr = new Date().getFullYear();
+    const fS = window.SERIES || [];
+    const fSeries = fS.filter(s => s.type === "manga").length;
+    const fChapters = fS.reduce((a, s) => a + (s.chapters || 0), 0);
     const footer = el(`
       <footer class="footer">
         <div class="wrap grid">
@@ -119,8 +122,8 @@
           <div>
             <h4>LanorTrad</h4>
             <ul>
-              <li>5 séries traduites</li>
-              <li>500+ chapitres</li>
+              <li>${fSeries || 5} séries traduites</li>
+              <li>${fChapters ? fChapters + "+" : "500+"} chapitres</li>
               <li><a href="feed.xml">📡 Flux RSS des sorties</a></li>
               <li><a href="${DISCORD}" target="_blank" rel="noopener">Signaler un problème</a></li>
             </ul>

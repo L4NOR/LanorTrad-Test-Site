@@ -7,7 +7,7 @@
   min-height: 150px; transition: border-color .3s, transform .3s var(--ease);
 }
 .day.today { border-color: rgba(168,85,247,.6); box-shadow: 0 0 0 1px rgba(168,85,247,.4), 0 14px 40px -20px rgba(124,58,237,.7); }
-.day .dh { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.day .dh { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .day .dh .name { font-family: var(--font-display); font-weight: 700; font-size: .95rem; }
 .day.today .dh .name { color: var(--violet); }
 .day .dh .tag { font-size: .65rem; color: var(--txt-mut); text-transform: uppercase; letter-spacing: .1em; }
