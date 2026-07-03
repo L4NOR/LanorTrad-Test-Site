@@ -12,10 +12,6 @@
 [build.environment]
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
 
-# Fonctions serverless (validation des codes Premium)
-[functions]
-  directory = "netlify/functions"
-
 # Edge function : injecte les balises OpenGraph par série sur la fiche manga
 [[edge_functions]]
   path = "/manga.html"
@@ -28,6 +24,15 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "SAMEORIGIN"
+    # Force HTTPS pendant 1 an (Netlify sert déjà tout en HTTPS).
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Coupe les API navigateur non utilisées par le site.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), usb=(), payment=(), midi=()"
+    # CSP calibrée pour le site + Google Fonts, Supabase, CDN, Google Analytics et
+    # AdSense. 'unsafe-inline'/'unsafe-eval' sont requis par les scripts inline
+    # (404/bibliothèque) et par AdSense/GA. La protection forte reste sur
+    # connect-src (anti-exfiltration), object-src, base-uri et frame-ancestors.
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.googleadservices.com https://*.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://*.googlesyndication.com https://*.doubleclick.net https://pagead2.googlesyndication.com; frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com"
 
 # Images de chapitres : cache long (immuables)
 [[headers]]
