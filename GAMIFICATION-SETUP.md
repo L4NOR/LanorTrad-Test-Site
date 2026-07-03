@@ -14,9 +14,12 @@ reste active pour tous. Remplace l'ancien Premium payant (retiré).
 
 Supabase → **SQL Editor** → collez et exécutez, dans l'ordre :
 1. `supabase/schema.sql` (si pas déjà fait — c'est le forum/les comptes)
-2. `supabase/gamification.sql`
-3. `supabase/leaderboard.sql` (le classement — fonctions `leaderboard_weekly`,
-   `my_rank`, `week_start_paris`)
+2. `supabase/forum-reactions-notifications.sql` (si pas déjà fait — table des réactions)
+3. `supabase/gamification.sql` — ⚠️ **à ré-exécuter** si tu l'avais déjà collé : il a
+   été enrichi (compteurs `reads_count`…, attribution **automatique** des succès).
+   Idempotent, sans risque ; le rattrapage débloque les succès déjà mérités.
+4. `supabase/gamification-triggers.sql` (XP des **réactions reçues** — déclencheur)
+5. `supabase/leaderboard.sql` (le **classement** — `leaderboard_weekly`, `my_rank`)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 - les colonnes `xp`, `streak`, `streak_best`, `last_active`, `streak_freeze_week`,

@@ -15,13 +15,18 @@ alter table public.profiles add column if not exists last_active          date;
 alter table public.profiles add column if not exists streak_freeze_week   date;   -- semaine (lundi) où le gel a été consommé
 alter table public.profiles add column if not exists leaderboard_opt_out  boolean not null default false;
 alter table public.profiles add column if not exists equipped             jsonb   not null default '{}'::jsonb;
+alter table public.profiles add column if not exists reads_count          int     not null default 0;
+alter table public.profiles add column if not exists comments_count       int     not null default 0;
+alter table public.profiles add column if not exists forum_count          int     not null default 0;
+alter table public.profiles add column if not exists reactions_count      int     not null default 0;
 
 -- Empêche toute écriture DIRECTE de l'XP / du streak par le client (sinon le
 -- règlement RLS profiles_update_own laisserait un membre se fixer 99999 XP).
 -- Seule la fonction award_xp (SECURITY DEFINER, exécutée en tant que
 -- propriétaire) peut modifier ces colonnes. Le reste du profil (bio, avatar,
 -- equipped, opt-out) reste modifiable par le membre.
-revoke update (xp, streak, streak_best, last_active, streak_freeze_week)
+revoke update (xp, streak, streak_best, last_active, streak_freeze_week,
+               reads_count, comments_count, forum_count, reactions_count)
   on public.profiles from anon, authenticated;
 
 -- ----------------------------------------------------------------------
@@ -94,6 +99,8 @@ declare
   v_streak_bonus int := 0;
   v_new_streak int;
   v_first_today boolean := false;
+  v_ach text[];
+  v_n text;
 begin
   if v_uid is null then
     return jsonb_build_object('ok', false, 'error', 'not_authenticated');
@@ -168,9 +175,23 @@ begin
     v_new_streak := v_prof.streak;
   end if;
 
-  -- Crédit total (gain de l'action + éventuel bonus de streak du jour)
-  update public.profiles set xp = xp + v_xp + v_streak_bonus where id = v_uid
-    returning * into v_prof;
+  -- Crédit total (gain de l'action + bonus de streak) + compteurs par type
+  update public.profiles
+     set xp = xp + v_xp + v_streak_bonus,
+         reads_count    = reads_count    + (case when p_kind = 'read'    then 1 else 0 end),
+         comments_count = comments_count + (case when p_kind = 'comment' then 1 else 0 end),
+         forum_count    = forum_count    + (case when p_kind = 'forum'   then 1 else 0 end)
+   where id = v_uid;
+
+  -- Succès automatiques (seuils) + succès secret « oiseau de nuit » (2 h–5 h)
+  v_ach := check_achievements(v_uid);
+  if p_kind = 'read'
+     and extract(hour from (now() at time zone 'Europe/Paris')) between 2 and 4 then
+    v_n := grant_achievement(v_uid, 'night_owl');
+    if v_n is not null then v_ach := array_append(v_ach, v_n); end if;
+  end if;
+
+  select * into v_prof from public.profiles where id = v_uid;   -- inclut l'XP des succès
   v_new_level := level_from_xp(v_prof.xp);
 
   return jsonb_build_object(
@@ -181,11 +202,67 @@ begin
     'leveled_up', v_new_level > v_old_level,
     'streak', v_new_streak,
     'streak_bonus', case when v_first_today then v_streak_bonus else 0 end,
+    'new_achievements', to_jsonb(v_ach),
     'duplicate', false
   );
 end; $$;
 
 grant execute on function public.award_xp(text, text) to authenticated;
+
+-- ----------------------------------------------------------------------
+--  5b. SUCCÈS AUTOMATIQUES
+--  grant_achievement  : attribue un succès (idempotent) + crédite son XP.
+--                       Retourne le NOM si nouvellement obtenu, sinon NULL.
+--  check_achievements : passe en revue les seuils et attribue ce qui est dû.
+--                       Retourne les noms nouvellement obtenus (toast client).
+--  Ces deux fonctions ne sont appelées QUE côté serveur (award_xp / trigger) :
+--  on RÉVOQUE l'accès direct client pour empêcher tout auto-octroi.
+-- ----------------------------------------------------------------------
+create or replace function public.grant_achievement(p_uid uuid, p_key text)
+returns text
+language plpgsql security definer set search_path = public as $$
+declare v_xp int; v_name text;
+begin
+  select xp, name into v_xp, v_name from public.achievements where key = p_key;
+  if v_name is null then return null; end if;
+  insert into public.user_achievements (user_id, key) values (p_uid, p_key)
+    on conflict (user_id, key) do nothing;
+  if not found then return null; end if;                 -- déjà obtenu
+  insert into public.xp_events (user_id, kind, ref, xp)
+    values (p_uid, 'achievement', p_key, coalesce(v_xp, 0))
+    on conflict (user_id, kind, ref) do nothing;
+  update public.profiles set xp = xp + coalesce(v_xp, 0) where id = p_uid;
+  return v_name;
+end; $$;
+
+create or replace function public.check_achievements(p_uid uuid)
+returns text[]
+language plpgsql security definer set search_path = public as $$
+declare r public.profiles; v_level int; v_new text[] := '{}'; v_n text;
+begin
+  select * into r from public.profiles where id = p_uid;
+  if not found then return v_new; end if;
+  v_level := level_from_xp(r.xp);
+
+  v_n := case when r.reads_count     >= 1    then grant_achievement(p_uid, 'first_chapter') end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.reads_count     >= 100  then grant_achievement(p_uid, 'read_100')      end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.reads_count     >= 500  then grant_achievement(p_uid, 'read_500')      end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.reads_count     >= 1000 then grant_achievement(p_uid, 'read_1000')     end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.streak          >= 7    then grant_achievement(p_uid, 'streak_7')      end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.streak          >= 30   then grant_achievement(p_uid, 'streak_30')     end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.streak          >= 365  then grant_achievement(p_uid, 'streak_365')    end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.comments_count  >= 1    then grant_achievement(p_uid, 'first_comment') end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.forum_count     >= 50   then grant_achievement(p_uid, 'forum_50')      end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when r.reactions_count >= 100  then grant_achievement(p_uid, 'reactions_100') end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when v_level           >= 10   then grant_achievement(p_uid, 'rank_flamme')   end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when v_level           >= 20   then grant_achievement(p_uid, 'rank_brasier')  end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when v_level           >= 30   then grant_achievement(p_uid, 'rank_aurore')   end; if v_n is not null then v_new := v_new || v_n; end if;
+  v_n := case when v_level           >= 50   then grant_achievement(p_uid, 'rank_astre')    end; if v_n is not null then v_new := v_new || v_n; end if;
+  return v_new;
+end; $$;
+
+revoke execute on function public.grant_achievement(uuid, text) from public, anon, authenticated;
+revoke execute on function public.check_achievements(uuid)       from public, anon, authenticated;
 
 -- ----------------------------------------------------------------------
 --  6. RLS
@@ -241,8 +318,20 @@ on conflict (key) do update set
   name = excluded.name, description = excluded.description, icon = excluded.icon,
   xp = excluded.xp, secret = excluded.secret, position = excluded.position;
 
+-- ----------------------------------------------------------------------
+--  8. RATTRAPAGE des données existantes : compteurs + succès rétroactifs
+-- ----------------------------------------------------------------------
+update public.profiles p set
+  reads_count    = coalesce((select count(*) from public.xp_events e where e.user_id = p.id and e.kind = 'read'), 0),
+  comments_count = coalesce((select count(*) from public.xp_events e where e.user_id = p.id and e.kind = 'comment'), 0),
+  forum_count    = coalesce((select count(*) from public.xp_events e where e.user_id = p.id and e.kind = 'forum'), 0);
+
+do $$ declare r record; begin
+  for r in select id from public.profiles loop perform public.check_achievements(r.id); end loop;
+end $$;
+
 -- =========================================================================
---  NOTE : l'attribution automatique des succès et l'XP des réactions reçues
---  (déclencheur sur la table des réactions) arrivent en tranche 5. Ici on pose
---  les tables, la courbe, le journal et la fonction d'attribution.
+--  NOTE : l'XP des RÉACTIONS reçues (déclencheur sur public.reactions) vit
+--  dans supabase/gamification-triggers.sql (dépend du forum + des réactions).
+--  Les MISSIONS hebdomadaires arrivent ensuite.
 -- =========================================================================

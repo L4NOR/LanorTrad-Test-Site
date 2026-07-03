@@ -42,7 +42,8 @@
       if (!session) return null;                       // non connecté → pas d'XP
       const { data, error } = await c.rpc("award_xp", { p_kind: kind, p_ref: ref });
       if (error || !data || !data.ok) return null;
-      if (!data.duplicate && data.awarded > 0) feedback(data);
+      const gotAch = data.new_achievements && data.new_achievements.length;
+      if (!data.duplicate && (data.awarded > 0 || gotAch)) feedback(data);
       document.dispatchEvent(new CustomEvent("lt:xp", { detail: data }));
       return data;
     } catch { return null; }
@@ -50,10 +51,12 @@
   }
 
   function feedback(d) {
+    if (d.new_achievements && d.new_achievements.length)
+      d.new_achievements.forEach(n => toast(`🏆 Succès débloqué : ${n}`));
     if (d.leveled_up) {
       const r = rankOf(d.level);
       toast(`🎉 Niveau ${d.level} — ${r.name} !`);
-    } else {
+    } else if (d.awarded > 0) {
       const s = d.streak_bonus > 0 ? ` · série ${d.streak} j` : "";
       toast(`✨ +${d.awarded} XP${s}`);
     }

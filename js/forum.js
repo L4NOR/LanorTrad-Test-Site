@@ -591,6 +591,7 @@
         <div class="fo-xp-track"><div class="fo-xp-fill" style="width:${pct}%"></div></div>
       </div>
       <div class="fo-stats">
+        <div class="fo-stat"><b>${pf.reads_count || 0}</b><span>chapitres lus</span></div>
         <div class="fo-stat"><b>${xp}</b><span>XP total</span></div>
         <div class="fo-stat"><b>${pf.streak || 0} j</b><span>série · record ${pf.streak_best || 0}</span></div>
         <div class="fo-stat"><b>${earnedCount}/${list.length}</b><span>succès</span></div>
