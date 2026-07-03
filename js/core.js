@@ -10,6 +10,7 @@
     { label: "Catalogue",    href: "catalogue.html" },
     { label: "Planning",     href: "planning.html" },
     { label: "Forum",        href: "forum.html" },
+    { label: "Classement",   href: "classement.html" },
     { label: "Bibliothèque", href: "bibliotheque.html" },
     { label: "Équipe",       href: "equipe.html" },
   ];
@@ -67,6 +68,7 @@
       { label: "Planning",     href: "planning.html",     ic: "calendar" },
       { label: "Bibliothèque", href: "bibliotheque.html", ic: "library" },
       { label: "Forum",        href: "forum.html",        ic: "chat" },
+      { label: "Classement",   href: "classement.html",   ic: "trophy" },
       { label: "Équipe",       href: "equipe.html",       ic: "users" },
       { type: "search", label: "Recherche", ic: "search" },
       { type: "theme",  label: "Thème",     ic: "theme" },
@@ -392,6 +394,7 @@
       library:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2V4Z"/><path d="M6 18a2 2 0 0 0-2 2"/><path d="M6 4a2 2 0 0 0-2 2v12"/></svg>`,
       chat:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-5.4A8 8 0 1 1 21 11.5Z"/></svg>`,
       users:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.4 19a5.6 5.6 0 0 1 11.2 0"/><path d="M16.2 5.3a3.2 3.2 0 0 1 0 5.4"/><path d="M17.8 13.4a5.6 5.6 0 0 1 2.8 4.9"/></svg>`,
+      trophy: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>`,
       more:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`,
       chevron:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>`,
       apps:   `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>`,

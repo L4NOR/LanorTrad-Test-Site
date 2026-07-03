@@ -15,6 +15,8 @@ reste active pour tous. Remplace l'ancien Premium payant (retiré).
 Supabase → **SQL Editor** → collez et exécutez, dans l'ordre :
 1. `supabase/schema.sql` (si pas déjà fait — c'est le forum/les comptes)
 2. `supabase/gamification.sql`
+3. `supabase/leaderboard.sql` (le classement — fonctions `leaderboard_weekly`,
+   `my_rank`, `week_start_paris`)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 - les colonnes `xp`, `streak`, `streak_best`, `last_active`, `streak_freeze_week`,
