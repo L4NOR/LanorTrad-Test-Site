@@ -60,10 +60,11 @@
 
   function avatar(p, size = 40) {
     const name = (p && p.username) || "?";
-    if (p && p.avatar_url) return `<img class="fo-av" src="${esc(p.avatar_url)}" alt="" style="width:${size}px;height:${size}px">`;
+    const fr = window.LTxp ? window.LTxp.frameClass(p && p.equipped) : "";
+    if (p && p.avatar_url) return `<img class="fo-av${fr}" src="${esc(p.avatar_url)}" alt="" style="width:${size}px;height:${size}px">`;
     const initials = name.slice(0, 2).toUpperCase();
     const hue = [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
-    return `<span class="fo-av" style="width:${size}px;height:${size}px;font-size:${size * .38}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
+    return `<span class="fo-av${fr}" style="width:${size}px;height:${size}px;font-size:${size * .38}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
   }
 
   const roleBadge = r =>
@@ -72,6 +73,8 @@
 
   // Badge de rang XP (chip « Aura »). Vide si xp inconnu ou module absent.
   const rankBadge = xp => (window.LTxp && xp != null) ? window.LTxp.rankBadge(xp) : "";
+  // Classe de couleur de pseudo (cosmétique équipé).
+  const nameCls = eq => (window.LTxp ? window.LTxp.nameClass(eq) : "");
 
   // Badges de profil : sexe, âge, types lus, genres préférés (« rôles »).
   function profileTags(pf) {
@@ -101,7 +104,7 @@
         <button class="fo-bell icon-btn" id="fo-bell" title="Notifications" aria-label="Notifications">🔔<span class="fo-bell-badge" hidden>0</span></button>
         <div class="fo-user">
           ${avatar(profile, 34)}
-          <span class="fo-uname">${esc(profile.username)}</span>${roleBadge(profile.role)}${rankBadge(profile.xp)}
+          <span class="fo-uname${nameCls(profile.equipped)}">${esc(profile.username)}</span>${roleBadge(profile.role)}${rankBadge(profile.xp)}
           <button class="icon-btn" id="fo-settings" title="Modifier mon profil" aria-label="Modifier mon profil">${gearIcon}</button>
           <button class="icon-btn" id="fo-logout" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
         </div>`;
@@ -285,7 +288,7 @@
     const { data: cat } = await c.from("categories").select("*").eq("slug", slug).maybeSingle();
     if (!cat) { app().innerHTML = errBox("Catégorie introuvable."); setBusy(false); return; }
     const { data: topics, error } = await c.from("topics")
-      .select("id,title,pinned,locked,reply_count,created_at,last_activity,author:profiles(username,avatar_url,role,xp)")
+      .select("id,title,pinned,locked,reply_count,created_at,last_activity,author:profiles(username,avatar_url,role,xp,equipped)")
       .eq("category_id", cat.id)
       .order("pinned", { ascending: false })
       .order("last_activity", { ascending: false });
@@ -316,7 +319,7 @@
             ${t.locked ? '<span class="fo-tag lock">🔒</span>' : ""}
             ${esc(t.title)}
           </span>
-          <span class="fo-topic-meta">par ${esc(a.username || "?")}${roleBadge(a.role)}${rankBadge(a.xp)} · ${timeAgo(t.created_at)}</span>
+          <span class="fo-topic-meta">par <span class="fo-tauthor${nameCls(a.equipped)}">${esc(a.username || "?")}</span>${roleBadge(a.role)}${rankBadge(a.xp)} · ${timeAgo(t.created_at)}</span>
         </span>
         <span class="fo-topic-stat"><b>${n}</b><i>réponse${n > 1 ? "s" : ""}</i></span>
         <span class="fo-topic-last">${timeAgo(t.last_activity)}</span>
@@ -328,11 +331,11 @@
     setBusy(true);
     const c = client();
     const { data: t, error } = await c.from("topics")
-      .select("*, category:categories(slug,name), author:profiles(username,avatar_url,role,xp)")
+      .select("*, category:categories(slug,name), author:profiles(username,avatar_url,role,xp,equipped)")
       .eq("id", id).maybeSingle();
     if (error || !t) { app().innerHTML = errBox("Sujet introuvable."); setBusy(false); return; }
     const { data: posts } = await c.from("posts")
-      .select("*, author:profiles(username,avatar_url,role,xp)")
+      .select("*, author:profiles(username,avatar_url,role,xp,equipped)")
       .eq("topic_id", id).order("created_at");
 
     const head = `
@@ -369,7 +372,7 @@
     const a = p.author || {};
     return `
       <article class="fo-post${isOp ? " op" : ""}" data-post="${isOp ? "op" : p.id}" data-reveal>
-        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${roleBadge(a.role)}${rankBadge(a.xp)}</div>
+        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name${nameCls(a.equipped)}">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${roleBadge(a.role)}${rankBadge(a.xp)}</div>
         <div class="fo-post-body">
           <div class="fo-post-meta">${isOp ? "Auteur du sujet" : "A répondu"} · ${timeAgo(p.created_at)}
             ${canEdit(p.author_id) ? `<span class="fo-post-actions">
@@ -599,6 +602,39 @@
       ${list.length ? `<div class="fo-ach"><h3>Succès <span class="fo-ach-count">${earnedCount}/${list.length}</span></h3><div class="fo-ach-grid">${tiles}</div></div>` : ""}`;
   }
 
+  // Sélecteur de cosmétiques (sur son propre profil) : débloqués par le rang.
+  async function loadCosmetics(pf) {
+    const mount = document.getElementById("fo-cos-mount");
+    if (!mount) return;
+    const c = client();
+    const { data: cos } = await c.from("cosmetics").select("*").order("kind").order("position");
+    if (!cos || !cos.length) { mount.innerHTML = ""; return; }
+    const level = window.LTxp ? window.LTxp.levelFromXp(pf.xp || 0) : 1;
+    const eq = pf.equipped || {};
+    const groups = { name_color: "Couleur de pseudo", avatar_frame: "Cadre d'avatar" };
+    let html = `<div class="fo-cosmetics"><h3>Personnalisation</h3>`;
+    for (const kind in groups) {
+      const opts = cos.filter(x => x.kind === kind);
+      const current = eq[kind] || "";
+      html += `<div class="fo-cos-group"><h4>${groups[kind]}</h4><div class="fo-cos-opts">`;
+      html += opts.map(o => {
+        const locked = level < o.min_level, on = current === o.css;
+        const preview = kind === "name_color"
+          ? `<span class="${o.css ? "lt-nc-" + o.css : ""}">${esc(o.label)}</span>`
+          : `<span class="fo-cos-sw ${o.css ? "lt-fr-" + o.css : ""}" style="background:var(--bg-3,#2a2a3a)"></span>${esc(o.label)}`;
+        const lock = locked ? ` <span class="lock">🔒 niv.${o.min_level}</span>` : "";
+        return `<button class="fo-cos-opt${on ? " on" : ""}${locked ? " locked" : ""}" data-cos="${esc(o.id)}"${locked ? " disabled" : ""}>${preview}${lock}</button>`;
+      }).join("");
+      html += `</div></div>`;
+    }
+    mount.innerHTML = html + `</div>`;
+    mount.querySelectorAll("[data-cos]").forEach(b => b.addEventListener("click", async () => {
+      const { data } = await c.rpc("set_cosmetic", { p_id: b.dataset.cos });
+      if (data && data.ok) { toast("Cosmétique équipé ✓"); await loadProfile(); renderBar(); viewProfile(pf.username); }
+      else toast(data && data.error === "locked" ? "Pas encore débloqué." : "Impossible d'équiper ce cosmétique.");
+    }));
+  }
+
   /* ---------- Vue : profil public ---------- */
   async function viewProfile(username) {
     setBusy(true);
@@ -619,7 +655,7 @@
         <div class="fo-prof-head">
           ${avatar(pf, 84)}
           <div class="fo-prof-id">
-            <h2>${esc(pf.username)} ${roleBadge(pf.role)} ${rankBadge(pf.xp)}</h2>
+            <h2><span class="fo-pname${nameCls(pf.equipped)}">${esc(pf.username)}</span> ${roleBadge(pf.role)} ${rankBadge(pf.xp)}</h2>
             <div class="fo-prof-since">Membre depuis ${timeAgo(pf.created_at)}</div>
             ${pf.bio ? `<p class="fo-prof-bio">${esc(pf.bio).replace(/\n/g, "<br>")}</p>`
               : `<p class="fo-prof-bio muted">${own ? "Ajoute une bio depuis « Modifier mon profil » ✏️" : "Pas encore de bio."}</p>`}
@@ -628,6 +664,7 @@
           ${own ? `<button class="btn btn-ghost btn-sm" id="prof-edit">Modifier mon profil</button>` : ""}
         </div>
         ${vitrine}
+        ${own ? `<div id="fo-cos-mount"></div>` : ""}
         <div class="fo-prof-cols">
           <div class="fo-prof-col">
             <h3>Sujets (${(topics || []).length})</h3>
@@ -639,7 +676,7 @@
           </div>
         </div>
       </div>`;
-    if (own) app().querySelector("#prof-edit").addEventListener("click", () => editProfile(pf));
+    if (own) { app().querySelector("#prof-edit").addEventListener("click", () => editProfile(pf)); loadCosmetics(pf); }
     // Engrenage de la barre : ouvre directement l'édition au chargement du profil.
     if (editAfterLoad) { editAfterLoad = false; if (own) editProfile(pf); }
     setBusy(false); rescan();
@@ -820,7 +857,7 @@
   async function loadProfile() {
     profile = null;
     if (!me) return;
-    const { data } = await client().from("profiles").select("id,username,avatar_url,role,xp").eq("id", me.id).maybeSingle();
+    const { data } = await client().from("profiles").select("id,username,avatar_url,role,xp,equipped").eq("id", me.id).maybeSingle();
     profile = data || null;
   }
 

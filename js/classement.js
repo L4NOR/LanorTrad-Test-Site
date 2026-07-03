@@ -16,10 +16,11 @@
 
   function avatar(p, size = 42) {
     const name = (p && p.username) || "?";
-    if (p && p.avatar_url) return `<img class="lb-av" src="${esc(p.avatar_url)}" alt="" style="width:${size}px;height:${size}px">`;
+    const fr = window.LTxp ? window.LTxp.frameClass(p && p.equipped) : "";
+    if (p && p.avatar_url) return `<img class="lb-av${fr}" src="${esc(p.avatar_url)}" alt="" style="width:${size}px;height:${size}px">`;
     const initials = name.slice(0, 2).toUpperCase();
     const hue = [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
-    return `<span class="lb-av" style="width:${size}px;height:${size}px;font-size:${size * .38}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
+    return `<span class="lb-av${fr}" style="width:${size}px;height:${size}px;font-size:${size * .38}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
   }
 
   let me = null, mount = null, tab = "week";
@@ -134,7 +135,7 @@
     return `<a class="lb-row${isMe ? " me" : ""}${idx < 3 ? " top" : ""}" href="forum.html#/u/${encodeURIComponent(r.username)}">
       <span class="lb-pos">${medal(idx)}</span>
       ${avatar(r)}
-      <span class="lb-name">${esc(r.username)}${badge}</span>
+      <span class="lb-name"><span class="${window.LTxp ? window.LTxp.nameClass(r.equipped).trim() : ""}">${esc(r.username)}</span>${badge}</span>
       <span class="lb-xp">${xpLabel}</span>
     </a>`;
   }
@@ -156,7 +157,7 @@
       ).join("");
     } else {
       const { data, error } = await c.from("profiles")
-        .select("id,username,avatar_url,xp")
+        .select("id,username,avatar_url,xp,equipped")
         .eq("leaderboard_opt_out", false).gt("xp", 0)
         .order("xp", { ascending: false }).limit(25);
       if (error) { list.innerHTML = `<div class="lb-empty">Classement indisponible pour le moment.</div>`; return; }

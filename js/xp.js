@@ -89,5 +89,25 @@
   }
   function rankBadge(xp) { return rankBadgeForLevel(levelFromXp(xp || 0)); }
 
-  window.LTxp = { award, me, rankOf, levelFromXp, xpForLevel, rankBadge, rankBadgeForLevel, ranks: RANKS };
+  // Cosmétiques équipés → suffixes de classe CSS (pseudo coloré, cadre d'avatar).
+  function nameClass(eq) { const c = eq && eq.name_color;   return c ? " lt-nc-" + c : ""; }
+  function frameClass(eq) { const f = eq && eq.avatar_frame; return f ? " lt-fr-" + f : ""; }
+
+  // Attribution d'un succès détecté CÔTÉ CLIENT (le serveur applique une liste
+  // blanche : series_1, library_full, early_10, marathon_2h). No-op si non connecté.
+  async function grantClient(key) {
+    const c = sb();
+    if (!c) return null;
+    try {
+      const { data: { session } } = await c.auth.getSession();
+      if (!session) return null;
+      const { data, error } = await c.rpc("grant_client_achievement", { p_key: key });
+      if (error || !data || !data.ok) return null;
+      if (data.granted && data.name) toast(`🏆 Succès débloqué : ${data.name}`);
+      return data;
+    } catch { return null; }
+  }
+
+  window.LTxp = { award, me, rankOf, levelFromXp, xpForLevel, rankBadge, rankBadgeForLevel,
+                  nameClass, frameClass, grantClient, ranks: RANKS };
 })();

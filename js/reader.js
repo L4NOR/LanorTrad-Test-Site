@@ -792,7 +792,8 @@
     const name = (p && p.username) || "?";
     const initials = name.slice(0, 2).toUpperCase();
     const hue = [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
-    return `<span class="rd-com-av" style="width:${size}px;height:${size}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
+    const fr = window.LTxp ? window.LTxp.frameClass(p && p.equipped) : "";
+    return `<span class="rd-com-av${fr}" style="width:${size}px;height:${size}px;background:linear-gradient(135deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 45%))">${esc(initials)}</span>`;
   }
   async function loadComments() {
     const box = $("rd-comments");
@@ -803,7 +804,7 @@
     const { data: { session } } = await c.auth.getSession();
     A.me = session ? session.user : null;
     const { data, error } = await c.from("chapter_comments")
-      .select("id,body,created_at,author_id,author:profiles(username,avatar_url,role,xp)")
+      .select("id,body,created_at,author_id,author:profiles(username,avatar_url,role,xp,equipped)")
       .eq("manga_id", A.manga).eq("chapter_num", A.chap.num).order("created_at", { ascending: true });
     const list = $("rd-com-list");
     if (!list) return;
@@ -816,7 +817,7 @@
     const role = a.role === "admin" ? ' <span class="rd-com-role">Admin</span>' : a.role === "moderator" ? ' <span class="rd-com-role">Modo</span>' : "";
     const del = (A.me && A.me.id === m.author_id) ? `<button class="rd-com-del" data-id="${m.id}">Supprimer</button>` : "";
     return `<div class="rd-com">${comAvatar(a)}<div class="rd-com-b">
-      <div class="rd-com-head"><b>${esc(a.username || "?")}</b>${role}${window.LTxp && a.xp != null ? window.LTxp.rankBadge(a.xp) : ""} <span class="rd-com-t">${window.LT.timeAgo(m.created_at)}</span>${del}</div>
+      <div class="rd-com-head"><b class="${window.LTxp ? window.LTxp.nameClass(a.equipped).trim() : ""}">${esc(a.username || "?")}</b>${role}${window.LTxp && a.xp != null ? window.LTxp.rankBadge(a.xp) : ""} <span class="rd-com-t">${window.LT.timeAgo(m.created_at)}</span>${del}</div>
       <div class="rd-com-txt">${comBody(m.body)}</div></div></div>`;
   }
   function renderComForm() {

@@ -41,6 +41,33 @@
 .fo-ach-ico { font-size:1.55rem; line-height:1; }
 .fo-ach-name { font-size:.72rem; color:var(--txt); line-height:1.25; }
 
+/* ---------- Cosmétiques : couleurs de pseudo ---------- */
+.lt-nc-amber  { color:#eab308 !important; }
+.lt-nc-rose   { color:#ec4899 !important; }
+.lt-nc-violet { color:#a855f7 !important; }
+.lt-nc-teal   { color:#14b8a6 !important; }
+.lt-nc-gold   { color:#f5c842 !important; text-shadow:0 0 10px rgba(245,200,66,.45); }
+.lt-nc-aurora { background:linear-gradient(90deg,#a855f7,#ec4899,#f5c842,#a855f7); background-size:300% 100%; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; animation:lt-aurora 6s linear infinite; }
+@keyframes lt-aurora { to { background-position:300% 0; } }
+
+/* ---------- Cosmétiques : cadres d'avatar ---------- */
+.lt-fr-lueur  { box-shadow:0 0 0 2px #eab308, 0 0 8px -1px #eab308 !important; }
+.lt-fr-flamme { box-shadow:0 0 0 2px #f97316, 0 0 10px -1px #f97316 !important; }
+.lt-fr-aurore { box-shadow:0 0 0 2px #ec4899, 0 0 12px -1px #a855f7 !important; }
+.lt-fr-astre  { box-shadow:0 0 0 2px #f5c842, 0 0 14px -2px #f5c842 !important; }
+
+/* ---------- Sélecteur de cosmétiques (profil) ---------- */
+.fo-cosmetics { margin:18px 0; }
+.fo-cos-group { margin-bottom:14px; }
+.fo-cos-group h4 { font-size:.85rem; color:var(--txt-mut); margin-bottom:8px; }
+.fo-cos-opts { display:flex; flex-wrap:wrap; gap:8px; }
+.fo-cos-opt { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--glass); cursor:pointer; font-size:.8rem; color:var(--txt); }
+.fo-cos-opt:hover { border-color:color-mix(in srgb,var(--violet) 45%,transparent); }
+.fo-cos-opt.on { border-color:var(--violet); background:color-mix(in srgb,var(--violet) 12%,var(--glass)); }
+.fo-cos-opt.locked { opacity:.42; cursor:not-allowed; }
+.fo-cos-opt .lock { font-size:.72rem; opacity:.8; }
+.fo-cos-sw { width:14px; height:14px; border-radius:50%; }
+
 /* ---------- Halo couleur extrait de la couverture ---------- */
 .card-glow {
   position: absolute; inset: -1px; z-index: 0; border-radius: inherit; pointer-events: none;
