@@ -68,7 +68,6 @@
       { label: "Bibliothèque", href: "bibliotheque.html", ic: "library" },
       { label: "Forum",        href: "forum.html",        ic: "chat" },
       { label: "Équipe",       href: "equipe.html",       ic: "users" },
-      { label: "Premium",      href: "premium.html",      ic: "sparkle", premium: true },
       { type: "search", label: "Recherche", ic: "search" },
       { type: "theme",  label: "Thème",     ic: "theme" },
       { label: "Discord", href: DISCORD, ic: "discord", external: true },
@@ -82,7 +81,7 @@
         return `<button type="button" class="rn-item rn-action" data-action="theme" ${attr}><span class="rn-ic"><span class="theme-ico">☾</span></span></button>`;
       if (it.external)
         return `<a class="rn-item" href="${it.href}" target="_blank" rel="noopener" data-external ${attr}><span class="rn-ic">${icon(it.ic)}</span></a>`;
-      const cls = `rn-item ${it.premium ? "rn-premium" : ""} ${it.href === page ? "current" : ""}`;
+      const cls = `rn-item ${it.href === page ? "current" : ""}`;
       const badge = it.href === "bibliotheque.html" ? `<span class="nav-badge rn-badge" data-follow-badge hidden></span>` : "";
       return `<a class="${cls}" href="${it.href}" ${attr}><span class="rn-ic">${icon(it.ic)}</span>${badge}</a>`;
     };
@@ -378,41 +377,6 @@
   }
   window.LTsb = sbClient;
 
-  /* ---------- Premium : statut RÉEL côté Supabase (badge + sans pub + thème) ----
-     Le contenu (chapitres en avance) est protégé côté serveur par la RLS Storage ;
-     ici on ne pilote que le COSMÉTIQUE. Cache localStorage pour un affichage
-     instantané sur les pages sans Supabase ; refreshPremium() re-valide dès que
-     le client est disponible (reader / manga / premium / forum). */
-  let _premOn = false, _premUntil = null;
-  try { _premOn = localStorage.getItem("lt-premium") === "1"; } catch {}
-  function premiumActive() { return _premOn; }
-  function applyPremium() {
-    document.documentElement.classList.toggle("premium", _premOn);
-    const btn = $("#premium-btn");
-    if (btn) { btn.innerHTML = _premOn ? "✦ Membre" : "✦ Premium"; btn.classList.toggle("is-on", _premOn); }
-  }
-  async function refreshPremium() {
-    const c = sbClient();
-    if (!c) { applyPremium(); return; }          // page sans Supabase → on garde le cache
-    let on = false, until = null;
-    try {
-      const { data: { session } } = await c.auth.getSession();
-      if (session) {
-        const { data } = await c.from("profiles").select("premium_until").eq("id", session.user.id).maybeSingle();
-        if (data && data.premium_until && new Date(data.premium_until) > new Date()) { on = true; until = data.premium_until; }
-      }
-    } catch { return; }                          // erreur réseau → ne pas casser le cache
-    _premOn = on; _premUntil = until;
-    try { localStorage.setItem("lt-premium", on ? "1" : "0"); } catch {}
-    applyPremium();
-    document.dispatchEvent(new Event("lt:premium"));
-  }
-  window.LTpremium = {
-    isActive: premiumActive,
-    status: () => ({ active: _premOn, until: _premUntil }),
-    refresh: refreshPremium
-  };
-
   /* ---------- mini utils ---------- */
   function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
   function icon(name) {
@@ -505,8 +469,6 @@
   function boot() {
     wireHead();
     buildShell();
-    applyPremium();
-    refreshPremium();
     buildPalette();
     wireFollows();
     updateFollowBadge();

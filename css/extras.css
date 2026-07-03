@@ -3,18 +3,6 @@
    OLED, transitions partagées (View Transitions), rail reprise.
    ========================================================================= */
 
-/* ---------- Premium ---------- */
-html.premium .adsbygoogle, html.premium .ad-slot, html.premium [data-ad] { display: none !important; }
-.btn-premium.is-on { background: linear-gradient(135deg, #16a34a, #4ade80); color: #042310; }
-/* Thème exclusif premium "Aurum" (sombre + accents or) */
-:root[data-theme="aurum"] {
-  --indigo: #f59e0b; --violet: #fbbf24; --magenta: #fcd34d; --accent: #fbbf24;
-  --grad: linear-gradient(135deg, #f59e0b 0%, #fcd34d 55%, #f59e0b 100%);
-  --grad-soft: linear-gradient(135deg, rgba(245,158,11,.18), rgba(252,211,77,.18));
-}
-:root[data-theme="aurum"] .bg-blob.b1 { background: radial-gradient(circle, #b45309, transparent 70%); }
-:root[data-theme="aurum"] .bg-blob.b2 { background: radial-gradient(circle, #a16207, transparent 70%); }
-
 /* ---------- Thème OLED (noir pur) ---------- */
 :root[data-theme="oled"] {
   --bg-0: #000; --bg-1: #000; --bg-2: #07070c; --bg-3: #0e0e18;
@@ -134,10 +122,8 @@ button.link[hidden] { display: none; }
 .rn-item:active { transform: translate(var(--x, 0), var(--y, 0)) scale(.9); }
 .rn-item svg { width: 22px; height: 22px; }
 .rn-item .theme-ico { font-size: 1.2rem; line-height: 1; }
-/* Seuls la page active (violet) et Premium (doré) ressortent. */
+/* Seule la page active (violet) ressort. */
 .rn-item.current { color: #fff; background: var(--grad); border-color: transparent; box-shadow: 0 10px 26px -8px rgba(124,58,237,.7); }
-.rn-premium { color: #f5c842; border-color: rgba(245,200,66,.45); }
-.rn-premium:hover, .rn-premium:focus-visible { color: #f5c842; border-color: #f5c842; }
 .rn-badge { position: absolute; top: 3px; right: 5px; }
 
 /* Légende du nom (en haut), affichée au survol/appui d'une bulle */

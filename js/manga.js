@@ -138,14 +138,11 @@
 
       list.innerHTML = data.map(c => {
         if (c.locked) return `<div class="chap-item locked"><span class="n">Ch. ${c.num}</span><span class="pages">🔒</span></div>`;
-        if (c.premium && chapLocked(c))
-          return `<a class="chap-item prem-locked" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}" title="Chapitre en avance — réservé aux membres Premium">
-              <span class="n">Ch. ${c.num}</span><span class="pages prem-tag">✦ En avance</span></a>`;
         const isRead = progress && parseFloat(c.num) < parseFloat(progress.chapter);
         const isCur = progress && c.num === progress.chapter;
-        return `<a class="chap-item ${isRead ? "read" : ""} ${c.premium ? "prem" : ""}" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}">
+        return `<a class="chap-item ${isRead ? "read" : ""}" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}">
             <span class="n">Ch. ${c.num}</span>
-            ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.premium ? "✦ " : ""}${c.pages} p.</span>`}
+            ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.pages} p.</span>`}
           </a>`;
       }).join("");
       document.dispatchEvent(new Event("lt:cards"));
@@ -153,29 +150,6 @@
     search.addEventListener("input", render);
     order.addEventListener("change", render);
     render();
-
-    // Chapitres en avance (premium, Supabase) : chargés puis fusionnés + re-rendu
-    async function loadPremiumChaps() {
-      const c = window.LTsb && window.LTsb();
-      if (!c) return;
-      try { await window.LTpremium?.refresh?.(); } catch {}
-      let rows = [];
-      try {
-        const { data } = await c.from("premium_chapters")
-          .select("chapter_num,released,pages").eq("manga_id", s.id);
-        rows = data || [];
-      } catch { return; }
-      if (!rows.length) return;
-      const have = new Set(chapters.map(x => x.num));
-      const extra = rows.filter(r => !have.has(r.chapter_num))
-        .map(r => ({ num: r.chapter_num, pages: r.pages, released: r.released, premium: true }));
-      if (extra.length) {
-        chapters = chapters.concat(extra).sort((a, b) => parseFloat(b.num) - parseFloat(a.num));
-        if (notice) notice.innerHTML = "";
-      }
-      render();
-    }
-    loadPremiumChaps();
 
     // Onglets Chapitres / Anime / Galerie
     if (hasGallery) renderGallery(gallery, s.id);
@@ -249,12 +223,6 @@
   }
 
   function enc(x) { return encodeURIComponent(x); }
-  function freeDelayMs() { return ((window.LT_PREMIUM && window.LT_PREMIUM.freeDelayDays) || 7) * 86400000; }
-  function chapLocked(c) {
-    if (!c || !c.premium) return false;
-    const free = c.released && (Date.now() - new Date(c.released).getTime() >= freeDelayMs());
-    return free ? false : !(window.LTpremium && window.LTpremium.isActive());
-  }
   function handshake() { return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m11 17 2 2a1 1 0 0 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 0 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0l-1.6 1.6a2 2 0 0 1-2.8 0l-2-2a1 1 0 0 1 0-1.4l3.4-3.4a4 4 0 0 1 5.6 0l5.6 5.6"/><path d="m2 13 2.5 2.5a1 1 0 0 0 3-3L4 8"/></svg>`; }
 
   /* ---------- Anime (saisons + épisodes) ---------- */
