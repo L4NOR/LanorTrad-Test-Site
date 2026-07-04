@@ -125,7 +125,7 @@ Site settings → Environment variables → ajouter :
 |---|---|
 | `VAPID_PUBLIC` | la clé **publique** VAPID (même que `LT_VAPID_PUBLIC`) |
 | `VAPID_PRIVATE` | la clé **privée** VAPID (⚠️ secrète) |
-| `VAPID_SUBJECT` | `mailto:lanortradprofessionnel@gmail.com` |
+| `VAPID_SUBJECT` | `` |
 | `SUPABASE_URL` | l'URL du projet Supabase |
 | `SUPABASE_SERVICE_ROLE` | la clé **service_role** (⚠️ secrète, `sb_secret_…`) |
 | `PUSH_SECRET` | un mot de passe **fort** (protège l'envoi) |
