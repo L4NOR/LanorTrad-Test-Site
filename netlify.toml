@@ -8,13 +8,9 @@
 # conception (utilisées dans le navigateur, protégées par les règles RLS), donc
 # présentes volontairement dans js/supabase-config.js. On les exclut du scan
 # pour éviter un faux positif, sans désactiver la détection des vrais secrets
-# (service_role, VAPID privé, etc.).
+# (service_role, etc.).
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_PUBLIC,VAPID_SUBJECT"
-
-# Fonctions serverless (envoi des notifications push — netlify/functions/notify.js)
-[functions]
-  directory = "netlify/functions"
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
 
 # Edge function : injecte les balises OpenGraph par série sur la fiche manga
 [[edge_functions]]

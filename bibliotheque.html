@@ -31,10 +31,7 @@
       <div class="wrap">
         <div class="section-head" data-reveal>
           <div><span class="eyebrow">Vos séries suivies</span><h2>Mes suivis</h2></div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <button class="btn btn-ghost btn-sm" id="notif-btn" hidden></button>
-            <button class="link" id="mark-seen-btn" hidden>Tout marquer comme vu</button>
-          </div>
+          <button class="link" id="mark-seen-btn" hidden>Tout marquer comme vu</button>
         </div>
         <div class="card-grid cards-row" id="follow-grid"></div>
       </div>
@@ -59,7 +56,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/views.js"></script>
-  <script src="js/push.js"></script>
   <script src="js/reader-card.js"></script>
   <script>
     function renderReaderCard() {
@@ -128,27 +124,8 @@
       document.dispatchEvent(new Event("lt:cards"));
       window.LT._scanReveals && window.LT._scanReveals();
     }
-    // Notifications de sortie (bloc 4) : bouton d'abonnement (visible seulement si
-    // le navigateur supporte le push ET qu'une clé VAPID publique est configurée).
-    async function initPush() {
-      const btn = document.getElementById("notif-btn");
-      if (!btn || !window.LTpush || !window.LTpush.supported() || !window.LTpush.configured()) { if (btn) btn.hidden = true; return; }
-      btn.hidden = false;
-      const paint = on => { btn.textContent = on ? "🔔 Notifs activées" : "🔔 Être prévenu des sorties"; btn.classList.toggle("is-on", on); };
-      const subscribed = await window.LTpush.isSubscribed();
-      paint(subscribed);
-      if (subscribed) window.LTpush.syncSeries();   // resync des séries suivies à chaque visite
-      btn.onclick = async () => {
-        btn.disabled = true;
-        const on = await window.LTpush.isSubscribed();
-        const res = on ? await window.LTpush.unsubscribe() : await window.LTpush.subscribe();
-        btn.disabled = false;
-        if (res.ok) { const now = await window.LTpush.isSubscribed(); paint(now); window.LT.toast(now ? "🔔 Notifications activées" : "Notifications désactivées"); }
-        else window.LT.toast(res.error === "denied" ? "Autorisation refusée par le navigateur." : "Notifications indisponibles pour l'instant.");
-      };
-    }
-    document.addEventListener("lt:ready", () => { renderLibrary(); loadCardIdentity(); initPush(); });
-    document.addEventListener("lt:store", () => { renderLibrary(); window.LTpush && window.LTpush.syncSeries(); });
+    document.addEventListener("lt:ready", () => { renderLibrary(); loadCardIdentity(); });
+    document.addEventListener("lt:store", renderLibrary);
   </script>
 </body>
 </html>

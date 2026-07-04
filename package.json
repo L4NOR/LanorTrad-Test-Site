@@ -1,8 +1,0 @@
-{
-  "name": "lanortrad-functions",
-  "private": true,
-  "description": "Dépendances des fonctions Netlify de LanorTrad (envoi des notifications push).",
-  "dependencies": {
-    "web-push": "^3.6.7"
-  }
-}
