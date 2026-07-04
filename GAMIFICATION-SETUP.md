@@ -23,6 +23,8 @@ Supabase → **SQL Editor** → collez et exécutez, dans l'ordre :
 6. `supabase/missions.sql` (les **missions hebdomadaires** — `weekly_missions`, `claim_mission`)
 7. `supabase/cosmetics.sql` (les **cosmétiques** — couleur de pseudo, cadre d'avatar ;
    + la liste blanche `grant_client_achievement` pour les succès détectés côté site)
+8. `supabase/views.sql` (les **compteurs de lectures** — table `series_views` + `bump_view` ;
+   indépendant, alimente « X lectures » et la section Tendances)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 - les colonnes `xp`, `streak`, `streak_best`, `last_active`, `streak_freeze_week`,

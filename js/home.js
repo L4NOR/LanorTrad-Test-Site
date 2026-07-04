@@ -106,6 +106,18 @@
       else if (fySec) fySec.style.display = "none";
     }
 
+    /* — Tendances : top des séries les plus lues (compteurs Supabase) — */
+    const trSec = document.getElementById("trending-section");
+    const trGrid = document.getElementById("trending-grid");
+    if (trGrid && window.LTviews) window.LTviews.ready(() => {
+      const list = window.LTviews.trending(6).map(id => window.LT.seriesById(id)).filter(Boolean);
+      if (list.length >= 3) {
+        if (trSec) trSec.style.display = "";
+        trGrid.innerHTML = list.map(LTcard).join("");
+        document.dispatchEvent(new Event("lt:cards"));
+      } else if (trSec) trSec.style.display = "none";
+    });
+
     /* — Séries populaires (mangas d'abord) — */
     const pop = document.getElementById("popular-grid");
     if (pop) {

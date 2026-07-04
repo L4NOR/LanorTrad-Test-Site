@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v21";
+const CACHE = "lanortrad-v22";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "classement.html",
@@ -8,7 +8,7 @@ const SHELL = [
   "css/planning.css", "css/forum.css", "css/classement.css",
   "js/core.js", "js/store.js", "js/palette.js", "js/cards.js", "js/tilt.js",
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
-  "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js",
+  "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js",
   "js/data/series.js", "js/data/chapters.js", "js/data/schedule.js", "js/data/gallery.js",
   "manifest.json"
 ];

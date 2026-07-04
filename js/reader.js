@@ -53,6 +53,7 @@
 
     document.title = `${A.S.title} — Lecture — LanorTrad`;
     window.LTstore && window.LTstore.markSeen(A.manga);
+    window.LTviews && window.LTviews.bump(A.manga);
 
     // Chapitre demandé : URL > reprise > plus ancien dispo (chapitre 1)
     let wantNum = p.get("chapter");

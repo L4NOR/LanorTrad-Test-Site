@@ -45,6 +45,7 @@
                 <span>Par <b>${s.author}</b></span><span class="dot"></span>
                 <span><b>${s.chapters}</b> chapitre${s.chapters > 1 ? "s" : ""}</span><span class="dot"></span>
                 <span>MàJ ${window.LT.timeAgo(s.lastUpdate) || "—"}</span>
+                <span class="dot" id="mv-vdot" hidden></span><span id="mv-views"></span>
               </div>
               <div class="tag-row">${s.genres.map(g => `<a class="tag" href="catalogue.html?q=${encodeURIComponent(g)}">${g}</a>`).join("")}</div>
               <p class="series-desc">${s.description}</p>
@@ -210,6 +211,12 @@
     // Accent extrait de la couverture (teinte le halo de la couverture, sans
     // toucher à l'ambiance globale qui reste calée sur la couleur d'univers).
     window.LTpalette.get(s.cover).then(hex => { if (hex) document.querySelector(".series-hero").style.setProperty("--accent", hex); });
+
+    // Compteur de lectures (Supabase) sur la fiche
+    if (window.LTviews) window.LTviews.ready(() => {
+      const v = window.LTviews.get(s.id), el = document.getElementById("mv-views");
+      if (el && v != null) { el.innerHTML = window.LTviews.eye + " " + window.LTviews.fmt(v) + " lectures"; const d = document.getElementById("mv-vdot"); if (d) d.hidden = false; }
+    });
 
     // Séries similaires (≥ 1 genre commun)
     const rel = (window.SERIES || []).filter(o => o.id !== s.id && o.genres.some(g => g !== "LanorTrad" && s.genres.includes(g)));

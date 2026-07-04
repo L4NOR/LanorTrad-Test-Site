@@ -60,6 +60,10 @@
 .m-card .card-prog { height:4px; border-radius:999px; background:rgba(255,255,255,.13); overflow:hidden; margin-top:9px; }
 .m-card .card-prog i { display:block; height:100%; border-radius:999px; background:var(--grad); }
 
+/* ---------- Preuve sociale : badge Tendance + compteur de vues ---------- */
+.badge.trend { background: linear-gradient(135deg, #f97316, #ef4444); color: #fff; border: none; }
+.m-card .views { display:inline-flex; align-items:center; gap:3px; color: var(--txt-mut); font-size:.74rem; margin-left:auto; }
+
 /* ---------- Sélecteur de cosmétiques (profil) ---------- */
 .fo-cosmetics { margin:18px 0; }
 .fo-cos-group { margin-bottom:14px; }
