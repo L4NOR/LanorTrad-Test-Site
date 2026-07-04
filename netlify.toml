@@ -10,7 +10,7 @@
 # pour éviter un faux positif, sans désactiver la détection des vrais secrets
 # (service_role, VAPID privé, etc.).
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_PUBLIC"
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_PUBLIC,VAPID_SUBJECT"
 
 # Fonctions serverless (envoi des notifications push — netlify/functions/notify.js)
 [functions]

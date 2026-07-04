@@ -6,7 +6,7 @@
    Variables d'environnement Netlify requises (Site settings → Environment) :
      VAPID_PUBLIC          — la clé publique VAPID (même que LT_VAPID_PUBLIC)
      VAPID_PRIVATE         — la clé privée VAPID (SECRÈTE)
-     VAPID_SUBJECT         — ex "mailto:lanortradprofessionnel@gmail.com"
+     VAPID_SUBJECT         — une adresse de contact, ex "mailto:ton-email@exemple.com"
      SUPABASE_URL          — l'URL du projet Supabase
      SUPABASE_SERVICE_ROLE — la clé service_role (SECRÈTE, bypass RLS)
      PUSH_SECRET           — un mot de passe fort pour autoriser l'envoi

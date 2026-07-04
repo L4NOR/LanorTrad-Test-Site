@@ -125,7 +125,7 @@ Site settings → Environment variables → ajouter :
 |---|---|
 | `VAPID_PUBLIC` | la clé **publique** VAPID (même que `LT_VAPID_PUBLIC`) |
 | `VAPID_PRIVATE` | la clé **privée** VAPID (⚠️ secrète) |
-| `VAPID_SUBJECT` | `` |
+| `VAPID_SUBJECT` | une adresse de contact, ex `mailto:ton-email@exemple.com` |
 | `SUPABASE_URL` | l'URL du projet Supabase |
 | `SUPABASE_SERVICE_ROLE` | la clé **service_role** (⚠️ secrète, `sb_secret_…`) |
 | `PUSH_SECRET` | un mot de passe **fort** (protège l'envoi) |
@@ -142,4 +142,4 @@ dans `netlify.toml` — c'est normal, elle est publique.)
 - Les lecteurs cliquent **« 🔔 Être prévenu des sorties »** sur la Bibliothèque
   (le bouton n'apparaît qu'une fois la clé publique en place).
 - Toi : va sur **`/admin.html`**, choisis la série + le n° de chapitre, entre le
-  `ADMIN_SECRET`, clique **Envoyer**. La notif part aux abonnés qui suivent la série.
+  `PUSH_SECRET`, clique **Envoyer**. La notif part aux abonnés qui suivent la série.
