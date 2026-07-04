@@ -123,12 +123,16 @@ Site settings → Environment variables → ajouter :
 
 | Variable | Valeur |
 |---|---|
-| `VAPID_PUBLIC_KEY` | la clé **publique** VAPID (même que `LT_VAPID_PUBLIC`) |
-| `VAPID_PRIVATE_KEY` | la clé **privée** VAPID (⚠️ secrète) |
+| `VAPID_PUBLIC` | la clé **publique** VAPID (même que `LT_VAPID_PUBLIC`) |
+| `VAPID_PRIVATE` | la clé **privée** VAPID (⚠️ secrète) |
 | `VAPID_SUBJECT` | `mailto:lanortradprofessionnel@gmail.com` |
 | `SUPABASE_URL` | l'URL du projet Supabase |
-| `SUPABASE_SERVICE_KEY` | la clé **service_role** (⚠️ secrète, `sb_secret_…`) |
-| `ADMIN_SECRET` | un mot de passe **fort** (protège l'envoi) |
+| `SUPABASE_SERVICE_ROLE` | la clé **service_role** (⚠️ secrète, `sb_secret_…`) |
+| `PUSH_SECRET` | un mot de passe **fort** (protège l'envoi) |
+
+*(Ce sont les noms que tu as déjà sur Netlify. Le code accepte aussi les anciens
+noms `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `SUPABASE_SERVICE_KEY` / `ADMIN_SECRET`
+en repli, mais inutile d'y toucher.)*
 
 Netlify installe `web-push` automatiquement (via `package.json`) et déploie
 `netlify/functions/notify.js`. (La clé publique VAPID est exclue du scan de secrets

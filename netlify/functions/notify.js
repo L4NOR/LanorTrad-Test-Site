@@ -4,12 +4,14 @@
    la série. Protégée par ADMIN_SECRET.
 
    Variables d'environnement Netlify requises (Site settings → Environment) :
-     VAPID_PUBLIC_KEY    — la clé publique VAPID (même que LT_VAPID_PUBLIC)
-     VAPID_PRIVATE_KEY   — la clé privée VAPID (SECRÈTE)
-     VAPID_SUBJECT       — ex "mailto:lanortradprofessionnel@gmail.com"
-     SUPABASE_URL        — l'URL du projet Supabase
-     SUPABASE_SERVICE_KEY— la clé service_role (SECRÈTE, bypass RLS)
-     ADMIN_SECRET        — un mot de passe fort pour autoriser l'envoi
+     VAPID_PUBLIC          — la clé publique VAPID (même que LT_VAPID_PUBLIC)
+     VAPID_PRIVATE         — la clé privée VAPID (SECRÈTE)
+     VAPID_SUBJECT         — ex "mailto:lanortradprofessionnel@gmail.com"
+     SUPABASE_URL          — l'URL du projet Supabase
+     SUPABASE_SERVICE_ROLE — la clé service_role (SECRÈTE, bypass RLS)
+     PUSH_SECRET           — un mot de passe fort pour autoriser l'envoi
+   (Les anciens noms VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / SUPABASE_SERVICE_KEY /
+    ADMIN_SECRET restent acceptés en repli.)
    ========================================================================= */
 const webpush = require("web-push");
 
@@ -21,13 +23,16 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || "{}"); } catch { return json(400, { error: "bad_json" }); }
 
   const { admin_secret, manga_id, chapter, message } = body;
-  if (!process.env.ADMIN_SECRET || admin_secret !== process.env.ADMIN_SECRET)
+  const SECRET = process.env.PUSH_SECRET || process.env.ADMIN_SECRET;
+  if (!SECRET || admin_secret !== SECRET)
     return json(401, { error: "unauthorized" });
   if (!manga_id) return json(400, { error: "manga_id_required" });
 
-  const PUB = process.env.VAPID_PUBLIC_KEY, PRIV = process.env.VAPID_PRIVATE_KEY;
+  const PUB = process.env.VAPID_PUBLIC || process.env.VAPID_PUBLIC_KEY;
+  const PRIV = process.env.VAPID_PRIVATE || process.env.VAPID_PRIVATE_KEY;
   const SUBJECT = process.env.VAPID_SUBJECT || "mailto:contact@lanortrad.com";
-  const SB_URL = process.env.SUPABASE_URL, SB_KEY = process.env.SUPABASE_SERVICE_KEY;
+  const SB_URL = process.env.SUPABASE_URL;
+  const SB_KEY = process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_SERVICE_KEY;
   if (!PUB || !PRIV || !SB_URL || !SB_KEY) return json(500, { error: "server_not_configured" });
 
   webpush.setVapidDetails(SUBJECT, PUB, PRIV);
