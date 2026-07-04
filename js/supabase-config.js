@@ -21,4 +21,4 @@ window.LT_SUPABASE = {
    variable d'env Netlify (VAPID_PRIVATE_KEY) pour la fonction d'envoi. Publique
    par conception. Tant que ce placeholder n'est pas remplacé, l'abonnement est
    simplement désactivé (le bouton ne s'affiche pas). */
-window.LT_VAPID_PUBLIC = "REMPLACER_PAR_VOTRE_CLE_PUBLIQUE_VAPID";
+window.LT_VAPID_PUBLIC = "BIzjC09njKoX_UKyH9XcFFMYuvbhMhIJ-rCgPNVFynp-VixF8AeNqmfjTgaFyquU778sEplc_SxhpfGGg3bcTs0";

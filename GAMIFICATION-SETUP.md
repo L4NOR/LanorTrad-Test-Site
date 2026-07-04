@@ -25,6 +25,8 @@ Supabase → **SQL Editor** → collez et exécutez, dans l'ordre :
    + la liste blanche `grant_client_achievement` pour les succès détectés côté site)
 8. `supabase/views.sql` (les **compteurs de lectures** — table `series_views` + `bump_view` ;
    indépendant, alimente « X lectures » et la section Tendances)
+9. `supabase/push.sql` (les **abonnements aux notifications push** — table
+   `push_subscriptions` + `save/delete_push_subscription` ; bloc 4)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 - les colonnes `xp`, `streak`, `streak_best`, `last_active`, `streak_freeze_week`,
@@ -98,3 +100,42 @@ select public.level_from_xp(0),    -- 1
   synchro multi-appareils plus tard.
 - Les agrégats du **classement** passeront par une vue/fonction dédiée en tranche 4
   (pour ne pas exposer le détail des événements des autres membres).
+
+---
+
+## Notifications push (bloc 4) — mise en service
+
+Prévient les lecteurs (via une notif navigateur) quand une série qu'ils suivent
+sort un chapitre. Envoi **manuel** depuis `admin.html`.
+
+### 1. Générer les clés VAPID
+```
+npx web-push generate-vapid-keys
+```
+- **Public Key** → dans `js/supabase-config.js` (`window.LT_VAPID_PUBLIC`). Déjà fait.
+- **Private Key** → NE PAS committer ; elle va en variable d'env Netlify (ci-dessous).
+
+### 2. Déployer le SQL
+SQL Editor → coller `supabase/push.sql` (table `push_subscriptions` + RPC).
+
+### 3. Variables d'environnement Netlify
+Site settings → Environment variables → ajouter :
+
+| Variable | Valeur |
+|---|---|
+| `VAPID_PUBLIC_KEY` | la clé **publique** VAPID (même que `LT_VAPID_PUBLIC`) |
+| `VAPID_PRIVATE_KEY` | la clé **privée** VAPID (⚠️ secrète) |
+| `VAPID_SUBJECT` | `mailto:lanortradprofessionnel@gmail.com` |
+| `SUPABASE_URL` | l'URL du projet Supabase |
+| `SUPABASE_SERVICE_KEY` | la clé **service_role** (⚠️ secrète, `sb_secret_…`) |
+| `ADMIN_SECRET` | un mot de passe **fort** (protège l'envoi) |
+
+Netlify installe `web-push` automatiquement (via `package.json`) et déploie
+`netlify/functions/notify.js`. (La clé publique VAPID est exclue du scan de secrets
+dans `netlify.toml` — c'est normal, elle est publique.)
+
+### 4. Envoyer
+- Les lecteurs cliquent **« 🔔 Être prévenu des sorties »** sur la Bibliothèque
+  (le bouton n'apparaît qu'une fois la clé publique en place).
+- Toi : va sur **`/admin.html`**, choisis la série + le n° de chapitre, entre le
+  `ADMIN_SECRET`, clique **Envoyer**. La notif part aux abonnés qui suivent la série.

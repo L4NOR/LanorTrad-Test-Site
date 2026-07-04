@@ -10,7 +10,11 @@
 # pour éviter un faux positif, sans désactiver la détection des vrais secrets
 # (service_role, VAPID privé, etc.).
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_PUBLIC_KEY"
+
+# Fonctions serverless (envoi des notifications push — netlify/functions/notify.js)
+[functions]
+  directory = "netlify/functions"
 
 # Edge function : injecte les balises OpenGraph par série sur la fiche manga
 [[edge_functions]]
