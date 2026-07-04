@@ -15,6 +15,16 @@ create table if not exists public.push_subscriptions (
   updated_at timestamptz not null default now()
 );
 
+-- Réconcilie une table PRÉ-EXISTANTE (d'un ancien essai) : ajoute les colonnes
+-- manquantes si besoin (le `create table if not exists` ci-dessus ne modifie pas
+-- une table déjà là). Sans effet sur une table fraîchement créée.
+alter table public.push_subscriptions add column if not exists p256dh     text;
+alter table public.push_subscriptions add column if not exists auth       text;
+alter table public.push_subscriptions add column if not exists series     text[] not null default '{}';
+alter table public.push_subscriptions add column if not exists user_id    uuid;
+alter table public.push_subscriptions add column if not exists created_at timestamptz not null default now();
+alter table public.push_subscriptions add column if not exists updated_at timestamptz not null default now();
+
 -- RLS activée SANS policy de lecture : les endpoints ne sont jamais exposés au
 -- client. L'écriture passe par les fonctions ci-dessous ; l'envoi (Netlify) lit
 -- la table avec la clé service_role (bypass RLS).
