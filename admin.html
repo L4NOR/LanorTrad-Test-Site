@@ -88,7 +88,7 @@
           const data = await res.json().catch(() => ({}));
           if (res.ok && data.ok) show(true, `✅ Envoyé à ${data.sent} abonné(s) sur ${data.targeted} ciblé(s).${data.cleaned ? " (" + data.cleaned + " expiré(s) nettoyé(s))" : ""}`);
           else if (res.status === 401) show(false, "❌ Secret admin incorrect.");
-          else show(false, "❌ Erreur : " + (data.error || res.status));
+          else show(false, "❌ Erreur : " + (data.error || res.status) + (data.detail ? " — " + data.detail : ""));
         } catch (err) {
           show(false, "❌ La fonction d'envoi est-elle déployée ? (" + (err.message || err) + ")");
         } finally { btn.disabled = false; btn.textContent = "Envoyer la notification"; }

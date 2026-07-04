@@ -31,7 +31,7 @@ exports.handler = async (event) => {
   const PUB = process.env.VAPID_PUBLIC || process.env.VAPID_PUBLIC_KEY;
   const PRIV = process.env.VAPID_PRIVATE || process.env.VAPID_PRIVATE_KEY;
   const SUBJECT = process.env.VAPID_SUBJECT || "mailto:contact@lanortrad.com";
-  const SB_URL = process.env.SUPABASE_URL;
+  const SB_URL = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
   const SB_KEY = process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_SERVICE_KEY;
   if (!PUB || !PRIV || !SB_URL || !SB_KEY) return json(500, { error: "server_not_configured" });
 
