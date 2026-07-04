@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v22";
+const CACHE = "lanortrad-v23";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "classement.html",
@@ -8,7 +8,7 @@ const SHELL = [
   "css/planning.css", "css/forum.css", "css/classement.css",
   "js/core.js", "js/store.js", "js/palette.js", "js/cards.js", "js/tilt.js",
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
-  "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js",
+  "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js", "js/push.js",
   "js/data/series.js", "js/data/chapters.js", "js/data/schedule.js", "js/data/gallery.js",
   "manifest.json"
 ];
@@ -47,4 +47,28 @@ self.addEventListener("fetch", e => {
     }
     return res;
   }).catch(() => caches.match(req).then(r => r || caches.match("index.html"))));
+});
+
+/* Notifications push (bloc 4) : affiche la notif reçue + ouvre le lien au clic. */
+self.addEventListener("push", e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch {}
+  const title = d.title || "LanorTrad — nouveau chapitre";
+  const opts = {
+    body: d.body || "",
+    icon: "images/icons/icon-192x192.png",
+    badge: "images/icons/icon-96x96.png",
+    data: { url: d.url || "/" },
+    tag: d.tag
+  };
+  e.waitUntil(self.registration.showNotification(title, opts));
+});
+
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "/";
+  e.waitUntil(clients.matchAll({ type: "window" }).then(list => {
+    for (const c of list) { if ("focus" in c) return c.navigate(url).then(() => c.focus()); }
+    return clients.openWindow(url);
+  }));
 });

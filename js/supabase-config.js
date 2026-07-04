@@ -14,3 +14,11 @@ window.LT_SUPABASE = {
   url:     "https://orjhwwtyceouhxelcejq.supabase.co",   // ← Project URL
   anonKey: "sb_publishable_3Uo_f0zb5aQ70NLoZJ04mQ_4bu3bCns"               // ← clé "anon public"
 };
+
+/* Notifications push (bloc 4) — clé PUBLIQUE VAPID.
+   Génère la paire avec :  npx web-push generate-vapid-keys
+   Colle ici la « Public Key ». La « Private Key » NE VA PAS ici : elle reste une
+   variable d'env Netlify (VAPID_PRIVATE_KEY) pour la fonction d'envoi. Publique
+   par conception. Tant que ce placeholder n'est pas remplacé, l'abonnement est
+   simplement désactivé (le bouton ne s'affiche pas). */
+window.LT_VAPID_PUBLIC = "REMPLACER_PAR_VOTRE_CLE_PUBLIQUE_VAPID";
