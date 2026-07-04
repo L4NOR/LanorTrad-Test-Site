@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v23";
+const CACHE = "lanortrad-v24";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "classement.html",

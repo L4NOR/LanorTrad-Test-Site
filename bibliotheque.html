@@ -135,7 +135,9 @@
       if (!btn || !window.LTpush || !window.LTpush.supported() || !window.LTpush.configured()) { if (btn) btn.hidden = true; return; }
       btn.hidden = false;
       const paint = on => { btn.textContent = on ? "🔔 Notifs activées" : "🔔 Être prévenu des sorties"; btn.classList.toggle("is-on", on); };
-      paint(await window.LTpush.isSubscribed());
+      const subscribed = await window.LTpush.isSubscribed();
+      paint(subscribed);
+      if (subscribed) window.LTpush.syncSeries();   // resync des séries suivies à chaque visite
       btn.onclick = async () => {
         btn.disabled = true;
         const on = await window.LTpush.isSubscribed();
