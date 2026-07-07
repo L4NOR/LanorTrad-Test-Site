@@ -15,6 +15,8 @@
 
     let raf = null, tx = 0, ty = 0;
     function move(e) {
+      // Mode léger (PC modeste détecté par perf.js) : pas de parallaxe 3D.
+      if (window.LTperf && window.LTperf.isLite()) return;
       const r = card.getBoundingClientRect();
       const px = (e.clientX - r.left) / r.width;
       const py = (e.clientY - r.top) / r.height;

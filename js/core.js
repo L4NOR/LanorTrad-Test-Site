@@ -40,6 +40,25 @@
     $$(".theme-ico").forEach(el => el.textContent = THEME_ICON[t] || "☾");
   }
 
+  /* ---------- Fluidité (mode léger pour PC modestes, géré par perf.js) ---------- */
+  const PERF_LABEL = { auto: "Automatique", high: "Qualité maximale", lite: "Mode léger" };
+  function cyclePerf() {
+    if (!window.LTperf) return;
+    const mode = window.LTperf.cycle();
+    const suffix = mode === "auto" ? ` (${window.LTperf.get() === "lite" ? "léger" : "complet"})` : "";
+    syncPerfIcon();
+    toast("Fluidité : " + (PERF_LABEL[mode] || mode) + suffix);
+  }
+  function syncPerfIcon() {
+    if (!window.LTperf) return;
+    const btn = $('.rn-item[data-action="perf"]');
+    if (!btn) return;
+    const name = "Fluidité : " + (PERF_LABEL[window.LTperf.mode()] || "Automatique");
+    btn.dataset.name = name;
+    btn.setAttribute("aria-label", name);
+    btn.classList.toggle("perf-lite", window.LTperf.get() === "lite");
+  }
+
   /* ---------- Shell : fond + navbar + drawer + footer ---------- */
   const minimal = document.body.dataset.shell === "minimal";
 
@@ -72,6 +91,7 @@
       { label: "Équipe",       href: "equipe.html",       ic: "users" },
       { type: "search", label: "Recherche", ic: "search" },
       { type: "theme",  label: "Thème",     ic: "theme" },
+      { type: "perf",   label: "Fluidité",  ic: "gauge" },
       { label: "Discord", href: DISCORD, ic: "discord", external: true },
     ];
     // Bulles : icône seule (le nom s'affiche dans la légende au survol/appui).
@@ -81,6 +101,8 @@
         return `<button type="button" class="rn-item rn-action" data-action="search" ${attr}><span class="rn-ic">${icon("search")}</span></button>`;
       if (it.type === "theme")
         return `<button type="button" class="rn-item rn-action" data-action="theme" ${attr}><span class="rn-ic"><span class="theme-ico">☾</span></span></button>`;
+      if (it.type === "perf")
+        return `<button type="button" class="rn-item rn-action" data-action="perf" ${attr}><span class="rn-ic">${icon("gauge")}</span></button>`;
       if (it.external)
         return `<a class="rn-item" href="${it.href}" target="_blank" rel="noopener" data-external ${attr}><span class="rn-ic">${icon(it.ic)}</span></a>`;
       const cls = `rn-item ${it.href === page ? "current" : ""}`;
@@ -135,6 +157,7 @@
 
     wireShell();
     syncThemeIcon();
+    syncPerfIcon();
   }
 
   function wireShell() {
@@ -190,6 +213,7 @@
     items.forEach(it => it.addEventListener("click", e => {
       const act = it.dataset.action;
       if (act === "theme")  { e.preventDefault(); cycleTheme(); return; }      // garde le menu ouvert
+      if (act === "perf")   { e.preventDefault(); cyclePerf(); return; }        // garde le menu ouvert
       if (act === "search") { e.preventDefault(); setOpen(false); openPalette(); return; }
       if (it.classList.contains("current")) e.preventDefault();                // déjà sur cette page
       setOpen(false);                                                          // page → transition + ferme
@@ -403,6 +427,7 @@
       apps:   `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>`,
       close:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
       sparkle:`<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l1.9 5.1 5.1 1.9-5.1 1.9L12 16.2l-1.9-5.1L5 9.2l5.1-1.9z"/><path d="M18.5 14l.85 2.3 2.3.85-2.3.85L18.5 20.3l-.85-2.3-2.3-.85 2.3-.85z"/></svg>`,
+      gauge:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17.5a9 9 0 1 1 15 0"/><path d="M12 13a1.6 1.6 0 1 0 0-3.2A1.6 1.6 0 0 0 12 13Z"/><path d="m13.2 10.4 3-3"/></svg>`,
     };
     return I[name] || "";
   }
@@ -479,6 +504,7 @@
     wireFollows();
     updateFollowBadge();
     document.addEventListener("lt:store", updateFollowBadge);
+    document.addEventListener("lt:perf", syncPerfIcon);   // la sonde FPS peut basculer en léger
     wirePageTransitions();
     wireReveals();
     hideLoader();

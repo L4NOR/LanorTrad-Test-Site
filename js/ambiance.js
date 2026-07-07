@@ -10,6 +10,8 @@
 
   var layer = null, built = false;
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Mode léger (PC modeste) : couleur d'univers conservée, mais pas de braises.
+  var lite = function () { return !!(window.LTperf && window.LTperf.isLite()); };
 
   function ensureLayer() {
     if (built) return;
@@ -18,7 +20,7 @@
     layer.className = "lt-embers";
     layer.setAttribute("aria-hidden", "true");
 
-    if (!reduce) {
+    if (!reduce && !lite()) {
       var n = window.innerWidth < 640 ? 14 : 26;
       var frag = document.createDocumentFragment();
       for (var i = 0; i < n; i++) {
