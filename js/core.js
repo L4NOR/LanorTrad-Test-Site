@@ -147,6 +147,7 @@
               <li>${fSeries || 5} séries traduites</li>
               <li>${fChapters ? fChapters + "+" : "500+"} chapitres</li>
               <li><a href="feed.xml">📡 Flux RSS des sorties</a></li>
+              <li><a href="${page === "forum.html" ? "forum.html?tour=1" : "index.html?tour=1"}">🧭 ${page === "forum.html" ? "Revoir le tuto du forum" : "Revoir la visite guidée"}</a></li>
               <li><a href="${DISCORD}" target="_blank" rel="noopener">Signaler un problème</a></li>
             </ul>
           </div>
@@ -514,6 +515,7 @@
       else if (e.key === "Escape" && pal && pal.classList.contains("open")) closePalette();
       else if (e.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); openPalette(); }
     });
+    window.__ltReady = true;
     document.dispatchEvent(new Event("lt:ready"));
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

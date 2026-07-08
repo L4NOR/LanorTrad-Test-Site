@@ -1,0 +1,223 @@
+/* =========================================================================
+   LanorTrad — Visite guidée (onboarding « façon jeu vidéo »)
+   Projecteur (spotlight) + carte d'explication. 100 % responsive.
+   Piloté par js/tour.js. Rien ne s'affiche tant que .lt-tour n'est pas .on.
+   ========================================================================= */
+
+/* Couche plein écran qui capture les clics (la page n'est pas cliquable
+   pendant la visite : on navigue avec les boutons de la carte). */
+.lt-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .32s var(--ease), visibility .32s;
+}
+.lt-tour.on { opacity: 1; visibility: visible; }
+
+/* Empêche le scroll de la page pendant la visite */
+body.lt-tour-active { overflow: hidden; }
+
+/* Pendant la visite, on masque les éléments flottants du menu radial qui
+   gêneraient (voile flou + légende) : le projecteur suffit. */
+body.lt-tour-active .rn-scrim { opacity: 0 !important; visibility: hidden !important; }
+body.lt-tour-active .rn-caption { opacity: 0 !important; }
+
+/* ---------- Projecteur (le « trou » lumineux) ----------
+   Le fond sombre est dessiné par le box-shadow géant du trou : tout est
+   assombri SAUF le rectangle transparent posé sur l'élément expliqué. */
+.lt-tour-hole {
+  position: fixed;
+  top: 0; left: 0; width: 0; height: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 100vmax rgba(6, 6, 14, .74),
+    0 0 0 2px rgba(168, 85, 247, .95),
+    0 0 30px 6px rgba(168, 85, 247, .5);
+  transition:
+    top .4s var(--ease), left .4s var(--ease),
+    width .4s var(--ease), height .4s var(--ease),
+    border-radius .4s var(--ease);
+}
+/* Halo qui « respire » autour de la cible (désactivé si trop de mouvement). */
+.lt-tour-hole::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(168, 85, 247, .55);
+  animation: ltTourPulse 2s var(--ease) infinite;
+}
+@keyframes ltTourPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(168, 85, 247, .5); }
+  70%  { box-shadow: 0 0 0 16px rgba(168, 85, 247, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+}
+
+/* Étapes « centrées » (accueil / fin) : pas de cible → on assombrit tout et
+   on cache le trou. */
+.lt-tour.dim-all { background: rgba(6, 6, 14, .8); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.lt-tour.dim-all .lt-tour-hole { display: none; }
+
+/* ---------- Carte d'explication ---------- */
+.lt-tour-card {
+  position: fixed;
+  z-index: 2;
+  width: min(92vw, 384px);
+  max-width: 92vw;
+  background: var(--bg-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  box-shadow: 0 30px 80px -24px #000, var(--glow);
+  padding: clamp(16px, 4vw, 22px);
+  max-height: 88vh;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+  transition:
+    opacity .3s var(--ease), transform .3s var(--ease-back),
+    top .34s var(--ease), left .34s var(--ease);
+}
+.lt-tour-card.show { opacity: 1; transform: none; }
+/* Centrage des étapes d'accueil / fin */
+.lt-tour.dim-all .lt-tour-card {
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(.98);
+}
+.lt-tour.dim-all .lt-tour-card.show { transform: translate(-50%, -50%); }
+
+.lt-tour-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .72rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--violet);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.lt-tour-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.15rem, 4.4vw, 1.4rem);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  margin-bottom: 8px;
+}
+.lt-tour-body {
+  color: var(--txt-soft);
+  font-size: clamp(.9rem, 3.6vw, .96rem);
+  line-height: 1.55;
+}
+.lt-tour-body strong { color: var(--txt); font-weight: 600; }
+.lt-tour-body p { margin: 0 0 9px; }
+.lt-tour-body p:last-child { margin-bottom: 0; }
+
+/* Légende des badges (tuto forum) */
+.lt-tour-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+}
+.lt-tour-leg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+.lt-tour-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Points de progression */
+.lt-tour-dots {
+  display: flex;
+  gap: 6px;
+  margin: 16px 0 14px;
+  flex-wrap: wrap;
+}
+.lt-tour-dots i {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--line-strong);
+  transition: background .25s, transform .25s;
+}
+.lt-tour-dots i.done { background: var(--txt-mut); }
+.lt-tour-dots i.active { background: var(--violet); transform: scale(1.35); box-shadow: 0 0 0 3px rgba(168, 85, 247, .22); }
+
+/* Pied de carte : Passer | (Précédent) (Suivant) */
+.lt-tour-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lt-tour-actions { display: flex; gap: 8px; }
+
+.lt-tour-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .88rem;
+  border-radius: 999px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  transition: transform .2s var(--ease), background .2s, border-color .2s, color .2s, box-shadow .2s;
+  white-space: nowrap;
+}
+.lt-tour-btn:active { transform: scale(.94); }
+
+.lt-tour-btn.primary {
+  color: #fff;
+  background: var(--grad);
+  box-shadow: 0 10px 26px -10px rgba(124, 58, 237, .8);
+}
+.lt-tour-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -10px rgba(124, 58, 237, .9); }
+
+.lt-tour-btn.ghost {
+  color: var(--txt-soft);
+  background: var(--bg-3);
+  border-color: var(--line);
+}
+.lt-tour-btn.ghost:hover { color: var(--txt); border-color: var(--violet); }
+
+.lt-tour-skip {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--txt-mut);
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  transition: color .2s;
+}
+.lt-tour-skip:hover { color: var(--txt-soft); text-decoration: underline; }
+
+.lt-tour-btn[hidden] { display: none; }
+
+/* ---------- Petits écrans : carte confortable en bas ---------- */
+@media (max-width: 560px) {
+  .lt-tour-card { width: calc(100vw - 24px); }
+  .lt-tour-foot { flex-wrap: wrap; }
+  .lt-tour-actions { flex: 1; }
+  .lt-tour-btn.primary { flex: 1; text-align: center; }
+}
+
+/* Respecte la préférence « animations réduites » */
+@media (prefers-reduced-motion: reduce) {
+  .lt-tour-hole::after { animation: none; }
+  .lt-tour-hole,
+  .lt-tour-card { transition-duration: .12s; }
+}
