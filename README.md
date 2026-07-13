@@ -81,16 +81,40 @@ glissant simplement les images. Aucune ligne de commande, aucun code.
    (ou en ligne de commande : `node tools/upload-server.js`).
    Ton navigateur s'ouvre sur <http://localhost:4599>. Laisse la fenêtre noire
    ouverte tant que tu t'en sers ; ferme-la pour arrêter.
-   *Prérequis : Node.js installé (déjà le cas sur ta machine).*
+   *Prérequis : Node.js + Python avec Pillow (`py -m pip install pillow`),
+   déjà le cas sur ta machine.*
 2. **Série** : choisis-la dans la liste (= dossiers de `/Manga`) ou tape un nom
    exact pour une nouvelle série.
 3. **N° de chapitre** : ex. `19` (ou `138.5` pour un demi-chapitre).
-4. **Pages** : glisse-dépose toutes les images du chapitre. Elles sont rangées
-   **dans l'ordre du nom de fichier** (nomme-les `001`, `002`, … ou `01`, `02`).
-5. Clique **Publier le chapitre**. L'outil :
+4. **Pages** : glisse-dépose toutes les images du chapitre **en JPG/PNG, telles
+   quelles** (pas besoin de convertir avant). Elles sont rangées **dans l'ordre
+   du nom de fichier** (nomme-les `001`, `002`, … ou `01`, `02`).
+5. La conversion est **100 % fidèle** : couleurs et tons ne sont jamais
+   modifiés. La case **🔪 Netteté légère** (décochée par défaut) applique
+   uniquement un léger renfort du trait, pour les scans un peu flous — inutile
+   sur des pages propres.
+6. Clique **Publier le chapitre**. L'outil :
    - crée `Manga/<Série>/Chapitres/Chapitre NN/`,
-   - y range les pages renommées `001.jpg`, `002.jpg`, …,
+   - y range les pages renommées `001`, `002`, …,
+   - les **convertit automatiquement en WebP** (qualité 85) avec, si la case est
+     cochée, l'amélioration du rendu — puis supprime les JPG/PNG sources,
    - régénère `js/data/chapters.js` (le catalogue lu par le lecteur).
+   La conversion peut prendre 1 à 2 minutes selon le nombre de pages.
+
+L'onglet **🛠️ Gérer** permet de modifier un chapitre existant :
+
+- **Liste des chapitres** d'une série (avec nombre de pages), y compris les
+  oneshots ;
+- **Éditeur de chapitre** avec miniatures des pages :
+  - ✕ sur une miniature → supprime la page (renumérotation automatique) ;
+  - **➕ Ajouter des pages** → insère des JPG/PNG à la position de ton choix
+    (début, fin, ou après la page N), convertis en WebP comme à l'ajout ;
+  - **♻️ Remplacer toutes les pages** → repart de zéro avec de nouvelles images ;
+  - **🔢 Changer le n°** → renomme le chapitre (ex. `19` → `19.5`) ;
+  - **🗑️ Supprimer le chapitre** → efface le dossier entier (confirmation
+    demandée).
+  Pour corriger une seule page : supprime-la, puis « Ajouter des pages » à sa
+  position. Chaque action met à jour `chapters.js` automatiquement.
 
 > L'outil n'écoute que sur `127.0.0.1` (ta machine) : rien n'est exposé sur
 > Internet.
@@ -100,7 +124,9 @@ glissant simplement les images. Aucune ligne de commande, aucun code.
 1. Copier les pages dans `Manga/<Série>/Chapitres/Chapitre NN/`
    (`001.jpg`, `002.jpg`, …).
 2. Convertir en WebP : `py tools/jpg-to-webp.py "Manga/<Série>"`
-   (puis supprimer les JPG).
+   (puis supprimer les JPG). Options utiles : `--enhance` (netteté légère du
+   trait, sans jamais toucher aux tons), `--delete-src` (supprime les sources
+   après conversion), `--include-png`, `--quality N` (défaut 80).
 3. Régénérer le manifeste : `py tools/build-data.py`
 4. C'est tout — le lecteur et les fiches se mettent à jour automatiquement.
 
