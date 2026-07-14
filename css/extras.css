@@ -206,6 +206,22 @@ button.link[hidden] { display: none; }
   .rn-item, .radial-nav.open .rn-item { transition: opacity .2s, transform .2s; transition-delay: 0s !important; }
 }
 
+/* Bouton de recherche flottant : toujours visible, en pair avec le menu radial */
+.search-fab {
+  position: fixed; right: 18px; bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  width: 52px; height: 52px; border-radius: 50%; z-index: 190;
+  display: grid; place-items: center; cursor: pointer; color: var(--txt-soft);
+  background: color-mix(in srgb, var(--bg-2) 90%, transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid var(--line-strong); box-shadow: 0 10px 24px -10px rgba(0,0,0,.7);
+  transition: transform .25s var(--ease), color .2s, border-color .2s, background .2s, opacity .2s;
+}
+.search-fab svg { width: 20px; height: 20px; }
+.search-fab:hover, .search-fab:focus-visible { color: var(--txt); border-color: var(--violet); background: var(--bg-2); transform: scale(1.06); outline: none; }
+.search-fab:active { transform: scale(.94); }
+/* S'efface pendant que le menu radial est ouvert */
+body.rn-open .search-fab { opacity: 0; pointer-events: none; }
+
 /* ---------- Zones de tap confortables (écrans tactiles) ---------- */
 @media (pointer: coarse) {
   .icon-btn { min-width: 44px; min-height: 44px; }

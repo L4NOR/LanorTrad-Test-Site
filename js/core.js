@@ -121,6 +121,9 @@
       </nav>`);
     document.body.append(radial);
 
+    // Bouton de recherche toujours visible (raccourci vers la palette ⌘K)
+    document.body.append(el(`<button type="button" class="search-fab" data-open-search aria-label="Rechercher" title="Rechercher (/)">${icon("search")}</button>`));
+
     // Footer
     const yr = new Date().getFullYear();
     const fS = window.SERIES || [];
@@ -502,6 +505,10 @@
     wireHead();
     buildShell();
     buildPalette();
+    // Points d'entrée visibles vers la recherche (barre du héros, bouton global…)
+    document.addEventListener("click", e => {
+      if (e.target.closest("[data-open-search]")) { e.preventDefault(); openPalette(); }
+    });
     wireFollows();
     updateFollowBadge();
     document.addEventListener("lt:store", updateFollowBadge);
