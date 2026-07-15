@@ -14,7 +14,7 @@ body.reader-body {
 }
 
 .rd {
-  --rd-w: 820px;
+  --rd-w: 900px;
   --rd-gap: 0px;
   --rd-bright: 1;
   --rd-bg: #0b0b16;
@@ -101,7 +101,8 @@ body.reader-body {
 
 /* ---- Mode webtoon (défilement vertical continu) ---- */
 .rd.mode-webtoon .rd-track {
-  max-width: var(--rd-w, 820px);
+  /* +16px : compense les gouttières ci-dessous pour que l'image fasse vraiment --rd-w */
+  max-width: calc(var(--rd-w, 900px) + 16px);
   gap: var(--rd-gap, 0px);
   padding: 0 max(8px, var(--rd-safe-l)) calc(120px + var(--rd-safe-b)) max(8px, var(--rd-safe-r));
 }
@@ -129,7 +130,7 @@ body.reader-body {
 
 /* Ajustement (fit) en mode page */
 .rd.mode-page.fit-height .rd-track img { max-height: calc(100dvh - var(--rd-top-h) - var(--rd-safe-t) - var(--rd-dock-space) - 16px); width: auto; max-width: 100%; }
-.rd.mode-page.fit-width  .rd-track img { width: min(var(--rd-w, 820px), 100%); height: auto; }
+.rd.mode-page.fit-width  .rd-track img { width: min(var(--rd-w, 900px), 100%); height: auto; }
 .rd.mode-page.fit-orig   .rd-track img { width: auto; height: auto; max-width: 100%; }
 .rd.mode-page.fit-width .rd-track,
 .rd.mode-page.fit-orig  .rd-track { align-items: center; }

@@ -19,7 +19,7 @@
   const DISCORD = "https://discord.gg/md37S7nhkZ";
 
   const PREF_KEY = "lt-reader-prefs";
-  const DEFAULTS = { mode: "webtoon", dir: "ltr", fit: "height", width: 820, gap: 0, bright: 1, bg: "#0b0b16" };
+  const DEFAULTS = { mode: "webtoon", dir: "ltr", fit: "height", width: 900, gap: 0, bright: 1, bg: "#0b0b16" };
   const SWATCHES = ["#0b0b16", "#000000", "#11111f", "#1a1410", "#e9dcc3", "#f5f5f7"];
   const NARROW = 760;   // sous cette largeur, « double » → page simple
 
