@@ -112,6 +112,7 @@
         <button class="rd-fab" id="rd-auto" title="Défilement auto (A)" aria-label="Défilement automatique">${ic("auto")}</button>
         <button class="rd-fab" id="rd-full" title="Plein écran (F)" aria-label="Plein écran">${ic("full")}</button>
         <button class="rd-fab" id="rd-dl" title="Télécharger le chapitre" aria-label="Télécharger">${ic("dl")}</button>
+        <button class="rd-fab" id="rd-off" title="Lire hors connexion" aria-label="Lire hors connexion">${ic("off")}</button>
         <button class="rd-fab" id="rd-help-btn" title="Aide (?)" aria-label="Aide">${ic("help")}</button>
         <button class="rd-fab rd-fab-top" id="rd-top-btn" title="Haut de page" aria-label="Haut de page">${ic("up")}</button>
       </div>
@@ -243,6 +244,7 @@
     range.max = Math.max(1, A.total); range.value = 1;
 
     updateChapBtns();
+    updateOffBtn();
     applyMode();
 
     // Reprise de lecture (uniquement au premier chargement de la session)
@@ -511,6 +513,7 @@
     $("rd-top-btn").addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
     $("rd-full").addEventListener("click", toggleFull);
     $("rd-dl").addEventListener("click", downloadChapter);
+    $("rd-off").addEventListener("click", offlineChapter);
     $("rd-auto").addEventListener("click", () => toggleAuto());
     $("rd-help-btn").addEventListener("click", () => toggleHelp());
     $("rd-help-close").addEventListener("click", () => toggleHelp(false));
@@ -807,6 +810,52 @@
   }
 
   /* ========================================================================
+     LECTURE HORS CONNEXION — pré-cache le chapitre entier dans le service
+     worker (cache images persistant), là où la lecture normale ne met en
+     cache que les pages affichées.
+     ===================================================================== */
+  const OFF_KEY = "lt-offline";
+  function offLoad() { try { return JSON.parse(localStorage.getItem(OFF_KEY) || "{}"); } catch { return {}; } }
+  function offDone() { return !!offLoad()[A.manga + "|" + A.chap.num]; }
+  function offMark() {
+    const m = offLoad(); m[A.manga + "|" + A.chap.num] = A.total;
+    try { localStorage.setItem(OFF_KEY, JSON.stringify(m)); } catch {}
+  }
+  function updateOffBtn() {
+    const b = $("rd-off"); if (!b) return;
+    const done = offDone();
+    b.classList.toggle("on", done);
+    b.title = done ? "Disponible hors connexion ✓" : "Lire hors connexion";
+  }
+
+  let offBusy = false;
+  async function offlineChapter() {
+    if (offBusy) return;
+    if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller)
+      return window.LT.toast("Hors-ligne indisponible sur ce navigateur.");
+    if (offDone()) return window.LT.toast("Chapitre déjà disponible hors connexion ✓");
+    offBusy = true;
+    const b = $("rd-off"); if (b) b.classList.add("busy");
+    window.LT.toast("Téléchargement du chapitre…");
+    const base = `Manga/${A.manga}/${A.chap.folder}/`;
+    const urls = (A.chap.files || []).map(f => encodeURI(base + f));
+    let ok = 0;
+    try {
+      // Par petits paquets : le service worker met chaque page en cache au passage.
+      for (let i = 0; i < urls.length; i += 4)
+        await Promise.all(urls.slice(i, i + 4).map(async u => { const r = await fetch(u); if (r.ok) ok++; }));
+    } catch {}
+    if (b) b.classList.remove("busy");
+    offBusy = false;
+    if (urls.length && ok === urls.length) {
+      offMark(); updateOffBtn();
+      window.LT.toast(`Chapitre ${A.chap.num} disponible hors connexion ✓`);
+    } else {
+      window.LT.toast("Téléchargement incomplet — réessaie.");
+    }
+  }
+
+  /* ========================================================================
      ÉCRAN DE FIN + indispo
      ===================================================================== */
   function endScreen() {
@@ -938,6 +987,7 @@
       case "full":  return svg(`<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>`);
       case "auto":  return svg(`<path d="M12 5v14M6 13l6 6 6-6"/>`);
       case "dl":    return svg(`<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>`, 20);
+      case "off":   return svg(`<path d="M20 17.6A4.5 4.5 0 0 0 17.5 9h-1.3A7 7 0 1 0 4.3 15.9"/><path d="M12 11v9M8.5 16.5 12 20l3.5-3.5"/>`, 20);
       case "help":  return svg(`<circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.5-2.8 2.5"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>`);
       case "gear":  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.6 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4 13.6H3.9a2 2 0 1 1 0-4H4a1.6 1.6 0 0 0 1.5-2.6l-.1-.1A2 2 0 1 1 8.1 4l.1.1A1.6 1.6 0 0 0 10 4.4V4a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1A2 2 0 1 1 19.7 8l-.1.1a1.6 1.6 0 0 0-.2 1.7"/></svg>`;
       default: return "";

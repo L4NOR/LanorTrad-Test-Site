@@ -358,7 +358,9 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
 - **Forum** + **Gamification (XP / classement / missions / cosmétiques)** branchés
   sur Supabase.
 - **Visite guidée** au premier passage (rejouable).
-- **PWA** : `manifest.json` + `sw.js` (lecture hors-ligne des chapitres déjà lus).
+- **PWA** : `manifest.json` + `sw.js` (lecture hors-ligne des chapitres déjà lus,
+  cache images persistant entre les versions). Bouton « Lire hors connexion » dans
+  le rail du lecteur : pré-télécharge le chapitre entier dans ce cache.
   Installable.
 - **SEO** : `sitemap.xml`, `robots.txt`, données structurées JSON-LD (ComicSeries).
 - **Analytics** : Google Analytics + AdSense (chargés uniquement en production).

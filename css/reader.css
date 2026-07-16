@@ -187,6 +187,8 @@ body.reader-body {
 }
 .rd-fab:hover { transform: scale(1.1); border-color: color-mix(in srgb, var(--rd-accent) 60%, transparent); }
 .rd-fab.on { background: var(--grad); border-color: transparent; color: #fff; }
+.rd-fab.busy { pointer-events: none; opacity: .55; animation: rd-busy 1.1s linear infinite; }
+@keyframes rd-busy { 50% { opacity: .3; } }
 .rd-fab.rd-fab-top { opacity: 0; transform: scale(.6); pointer-events: none; }
 .rd.scrolled .rd-fab-top { opacity: 1; transform: none; pointer-events: auto; }
 

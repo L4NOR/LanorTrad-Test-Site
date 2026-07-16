@@ -1,5 +1,9 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v27";
+const CACHE = "lanortrad-v28";
+/* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
+   du shell (sinon chaque mise à jour du site effacerait les chapitres
+   téléchargés pour la lecture hors connexion). */
+const IMG_CACHE = "lanortrad-img-v1";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "classement.html",
@@ -19,7 +23,7 @@ self.addEventListener("install", e => {
 });
 
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== IMG_CACHE).map(k => caches.delete(k)))));
   self.clients.claim();
 });
 
@@ -29,9 +33,10 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
 
-  // Images de chapitres : cache d'abord (lecture hors-ligne des chapitres déjà lus)
-  if (/\/Manga\/.+\.(jpe?g|png)$/i.test(url.pathname)) {
-    e.respondWith(caches.open(CACHE).then(async c => {
+  // Images de chapitres : cache d'abord (lecture hors-ligne des chapitres déjà
+  // lus ou téléchargés). La bibliothèque est en WebP depuis la migration.
+  if (/\/Manga\/.+\.(jpe?g|png|webp)$/i.test(url.pathname)) {
+    e.respondWith(caches.open(IMG_CACHE).then(async c => {
       const hit = await c.match(req);
       if (hit) return hit;
       try { const res = await fetch(req); if (res.ok) c.put(req, res.clone()); return res; }
