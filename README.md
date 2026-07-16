@@ -251,6 +251,10 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
 9. `supabase/ratings.sql` (les **notes des lecteurs** — table `series_ratings`,
    vue publique `series_rating_stats`, RPC `rate_series` ; le widget « Ta note »
    de la fiche série et l'`aggregateRating` du JSON-LD ne s'activent qu'avec lui)
+10. `supabase/sync.sql` (la **synchro multi-appareils** — progression de lecture
+    `reading_progress` + suivis `user_follows`, RLS « ses lignes uniquement » ;
+    pour les membres connectés, reprise et bibliothèque suivent d'un appareil à
+    l'autre, règle « le plus récent gagne »)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 

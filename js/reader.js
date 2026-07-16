@@ -970,7 +970,10 @@
      ===================================================================== */
   function loadPrefs() { try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(PREF_KEY) || "{}")); } catch { return { ...DEFAULTS }; } }
   function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch {} }
-  function saveProgress() { try { localStorage.setItem("lt-progress-" + A.manga, JSON.stringify({ chapter: A.chap.num, page: A.idx, t: Date.now() })); } catch {} }
+  function saveProgress() {
+    try { localStorage.setItem("lt-progress-" + A.manga, JSON.stringify({ chapter: A.chap.num, page: A.idx, t: Date.now() })); } catch {}
+    window.LTsync && window.LTsync.queueProgress(A.manga);
+  }
   function loadProgress() { try { return JSON.parse(localStorage.getItem("lt-progress-" + A.manga) || "null"); } catch { return null; } }
 
   /* ========================================================================

@@ -21,6 +21,10 @@
     const f = follows(); const i = f.indexOf(id);
     if (i >= 0) f.splice(i, 1); else f.unshift(id);
     write(FOLLOW, f);
+    // Horodatage du dernier changement (synchro multi-appareils : « le plus
+    // récent gagne ») ; enregistré même sur les pages sans sync.js.
+    try { localStorage.setItem("lt-follows-t", String(Date.now())); } catch {}
+    window.LTsync && window.LTsync.pushFollows();
     return i < 0; // true = suivi
   }
 
