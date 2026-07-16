@@ -11,7 +11,7 @@
     if (!root) return;
 
     if (!s) {
-      root.innerHTML = `<div class="wrap empty" style="padding-top:160px"><div class="big">📭</div><p>Série introuvable.</p><a class="btn btn-primary" href="catalogue.html" style="margin-top:18px">Retour au catalogue</a></div>`;
+      root.innerHTML = `<div class="wrap empty" style="padding-top:160px"><div class="big">📭</div><p>Cette série n'existe pas… ou pas encore chez nous.</p><a class="btn btn-primary" href="catalogue.html" style="margin-top:18px">Voir ce qu'on traduit</a></div>`;
       window.LT._scanReveals && window.LT._scanReveals();
       return;
     }
@@ -113,7 +113,7 @@
     const blockOf = num => Math.floor((Math.ceil(parseFloat(num)) - 1) / RANGE);
 
     if (!chapters.length) {
-      notice.innerHTML = `<div class="notice">⏳ Les chapitres de cette série arrivent bientôt. <b>${s.chapters}</b> chapitres au total.</div>`;
+      notice.innerHTML = `<div class="notice">⏳ On prépare les <b>${s.chapters}</b> chapitres de cette série. Le Discord te préviendra dès qu'ils tombent.</div>`;
     }
 
     function render() {

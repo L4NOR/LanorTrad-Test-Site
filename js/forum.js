@@ -138,7 +138,7 @@
             </label>
             <label class="fav-field">
               <span>Email</span>
-              <input name="email" type="email" required placeholder="vous@exemple.com" autocomplete="email">
+              <input name="email" type="email" required placeholder="toi@exemple.com" autocomplete="email">
             </label>
             <label class="fav-field">
               <span>Mot de passe</span>
@@ -303,7 +303,7 @@
       </div>
       ${(topics && topics.length)
         ? `<div class="fo-topics">${topics.map(topicRow).join("")}</div>`
-        : `<div class="fo-empty">Aucun sujet pour l'instant. Lancez la discussion !</div>`}`;
+        : `<div class="fo-empty">Personne n'a encore ouvert de sujet ici. À toi l'honneur ?</div>`}`;
     setBusy(false); rescan();
   }
 
@@ -358,7 +358,7 @@
              <textarea name="body" rows="3" maxlength="10000" placeholder="Écrire une réponse…" required></textarea>
              <button class="btn btn-primary" type="submit">Répondre</button>
            </form>`
-        : `<div class="fo-empty">Connectez-vous pour répondre. <button class="fo-link" data-auth="login">Connexion</button></div>`;
+        : `<div class="fo-empty">Connecte-toi pour répondre. <button class="fo-link" data-auth="login">Connexion</button></div>`;
 
     app().innerHTML = head + `<div class="fo-posts">${op}${replies}</div>` + composer;
     wireTopic(t, id);
@@ -477,18 +477,18 @@
     const listEl = notifBox.querySelector(".fo-notifs-list");
     if (error) { listEl.textContent = error.message; return; }
     if (!data || !data.length) {
-      listEl.innerHTML = `<div class="fo-notifs-empty">Aucune notification pour l'instant.</div>`;
+      listEl.innerHTML = `<div class="fo-notifs-empty">Rien de neuf. On te fait signe dès qu'il se passe quelque chose.</div>`;
     } else {
       listEl.innerHTML = data.map(n => {
         const a = n.actor || {};
         let href, label;
         if (n.manga_id) {                                   // mention dans un commentaire de chapitre
           href = `reader.html?manga=${encodeURIComponent(n.manga_id)}${n.chapter_num ? "&chapter=" + encodeURIComponent(n.chapter_num) : ""}`;
-          label = `vous a mentionné en commentaire (${esc(n.manga_id)}${n.chapter_num ? " · ch. " + esc(n.chapter_num) : ""})`;
+          label = `t'a mentionné en commentaire (${esc(n.manga_id)}${n.chapter_num ? " · ch. " + esc(n.chapter_num) : ""})`;
         } else {
           const title = (n.topic && n.topic.title) || "un sujet";
           href = `#/t/${n.topic_id}`;
-          label = `${n.type === "mention" ? "vous a mentionné dans" : "a répondu à"} « ${esc(title)} »`;
+          label = `${n.type === "mention" ? "t'a mentionné dans" : "a répondu à"} « ${esc(title)} »`;
         }
         return `<a class="fo-notif${n.read ? "" : " unread"}" href="${href}" data-close>
           ${avatar(a, 34)}

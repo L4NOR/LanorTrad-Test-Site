@@ -102,7 +102,7 @@
         loadMissions(); loadSelf();
         if (tab === "alltime") render();
       } else {
-        window.LT.toast("Mission pas encore terminée.");
+        window.LT.toast("Pas si vite ! Termine la mission d'abord 😉");
         btn.disabled = false;
       }
     } catch { btn.disabled = false; }

@@ -134,7 +134,7 @@
         <div class="wrap grid">
           <div>
             <a href="index.html" class="brand" style="font-size:1.5rem"><img class="brand-logo" src="images/icons/icon-96x96.png" alt="LanorTrad" width="44" height="44"><span class="brand-name">Lanor<span class="grad-text">Trad</span></span></a>
-            <p style="margin-top:14px">Une équipe passionnée qui traduit vos mangas préférés avec précision et créativité. Lecture gratuite, en français, partout.</p>
+            <p style="margin-top:14px">Trois fans qui traduisent, nettoient et vérifient chaque page sur leur temps libre. Gratuit, en français, pour toi.</p>
             <div class="socials">
               <a href="${DISCORD}" target="_blank" rel="noopener" class="icon-btn">${icon("discord")}</a>
               <a href="${TWITTER}" target="_blank" rel="noopener" class="icon-btn">${icon("x")}</a>
@@ -155,7 +155,7 @@
             </ul>
           </div>
         </div>
-        <div class="copy">© 2024–${yr} LanorTrad — Fait avec passion. Tous droits réservés.</div>
+        <div class="copy">© 2024–${yr} LanorTrad — traduit à la main, souvent tard le soir.</div>
       </footer>`);
     document.body.append(footer);
 
@@ -341,7 +341,7 @@
       palItems = trend;
       $$(".cmdk-recent", palList).forEach(c => c.addEventListener("click", () => { palInput.value = c.dataset.term; renderPalette(); palInput.focus(); }));
     } else if (!palItems.length) {
-      palList.innerHTML = `<div class="cmdk-empty">Aucun résultat pour « ${palInput.value} »</div>`;
+      palList.innerHTML = `<div class="cmdk-empty">Rien pour « ${palInput.value} »… essaie un titre ou un genre.</div>`;
     } else {
       palList.innerHTML = `<div class="cmdk-sec">Séries</div>` + palItems.map(palRow).join("");
     }

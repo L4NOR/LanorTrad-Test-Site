@@ -49,7 +49,7 @@
     applyVars();
 
     const root = $("reader-root");
-    if (!A.S) { root.innerHTML = `<div class="rd">${emptyHTML("Série introuvable.")}</div>`; window.LT._scanReveals?.(); return; }
+    if (!A.S) { root.innerHTML = `<div class="rd">${emptyHTML("Cette série n'existe pas… ou pas encore chez nous.")}</div>`; window.LT._scanReveals?.(); return; }
 
     document.title = `${A.S.title} — Lecture — LanorTrad`;
     window.LTstore && window.LTstore.markSeen(A.manga);
@@ -78,8 +78,8 @@
     if (!A.chap) {
       $("rd-viewer").innerHTML = emptyHTML(
         A.chapters.length
-          ? `Le chapitre ${wantNum || ""} n'est pas encore disponible dans cette démo.`
-          : `Les chapitres de « ${A.S.title} » seront bientôt disponibles.`);
+          ? `Le chapitre ${wantNum || ""} n'est pas encore là. Il arrive, promis.`
+          : `On travaille sur les chapitres de « ${A.S.title} ». Encore un peu de patience !`);
       return;
     }
     loadChapter();
@@ -252,7 +252,7 @@
     if (resumeAt > 0 && resumeAt < A.total) {
       if (prefs.mode === "webtoon") requestAnimationFrame(() => A.imgs[resumeAt]?.scrollIntoView({ block: "start" }));
       else showPage(resumeAt);
-      window.LT.toast(`Reprise à la page ${resumeAt + 1}`);
+      window.LT.toast(`On reprend où tu t'étais arrêté : page ${resumeAt + 1}`);
     } else {
       scrollTo({ top: 0 });
       if (prefs.mode !== "webtoon") showPage(0);
@@ -428,12 +428,12 @@
   function nextChapter() {
     const i = A.chapters.indexOf(A.chap);
     if (i > 0) goChapter(A.chapters[i - 1].num);
-    else window.LT.toast("Vous êtes au dernier chapitre disponible 🎉");
+    else window.LT.toast("Tu es à jour ! C'est le dernier chapitre dispo 🎉");
   }
   function prevChapter() {
     const i = A.chapters.indexOf(A.chap);
     if (i < A.chapters.length - 1) goChapter(A.chapters[i + 1].num);
-    else window.LT.toast("C'est le premier chapitre.");
+    else window.LT.toast("C'est déjà le premier chapitre.");
   }
   function updateChapBtns() {
     const i = A.chapters.indexOf(A.chap);
@@ -791,8 +791,8 @@
      TÉLÉCHARGEMENT ZIP
      ===================================================================== */
   async function downloadChapter() {
-    if (typeof JSZip === "undefined") return window.LT.toast("Téléchargement indisponible.");
-    window.LT.toast("Préparation du téléchargement…");
+    if (typeof JSZip === "undefined") return window.LT.toast("Téléchargement indisponible ici, désolé.");
+    window.LT.toast("On te prépare le ZIP…");
     const zip = new JSZip();
     const base = `Manga/${A.manga}/${A.chap.folder}/`;
     try {
@@ -805,8 +805,8 @@
       a.href = URL.createObjectURL(blob);
       a.download = `${A.S.title} - Chapitre ${A.chap.num}.zip`;
       a.click(); URL.revokeObjectURL(a.href);
-      window.LT.toast("Téléchargement prêt ✓");
-    } catch { window.LT.toast("Échec du téléchargement."); }
+      window.LT.toast("ZIP prêt, bonne lecture ✓");
+    } catch { window.LT.toast("Le téléchargement a raté. Retente ?"); }
   }
 
   /* ========================================================================
@@ -836,7 +836,7 @@
     if (offDone()) return window.LT.toast("Chapitre déjà disponible hors connexion ✓");
     offBusy = true;
     const b = $("rd-off"); if (b) b.classList.add("busy");
-    window.LT.toast("Téléchargement du chapitre…");
+    window.LT.toast("On met le chapitre au chaud…");
     const base = `Manga/${A.manga}/${A.chap.folder}/`;
     const urls = (A.chap.files || []).map(f => encodeURI(base + f));
     let ok = 0;
@@ -849,9 +849,9 @@
     offBusy = false;
     if (urls.length && ok === urls.length) {
       offMark(); updateOffBtn();
-      window.LT.toast(`Chapitre ${A.chap.num} disponible hors connexion ✓`);
+      window.LT.toast(`Chapitre ${A.chap.num} dispo hors connexion, même au fond du métro ✓`);
     } else {
-      window.LT.toast("Téléchargement incomplet — réessaie.");
+      window.LT.toast("Téléchargement incomplet, réessaie.");
     }
   }
 
@@ -861,7 +861,7 @@
   function endScreen() {
     const wrap = window.LT.el(`
       <div class="rd-end" id="rd-end">
-        <div class="thanks">Fin du chapitre ${A.chap.num}</div>
+        <div class="thanks">Chapitre ${A.chap.num} terminé · merci de lire avec nous</div>
         <div class="title">${esc(A.S.title)}</div>
         <div class="rd-credits">${TEAM.map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${t.who}</div></div>`).join("")}</div>
         <div class="rd-end-nav">
@@ -926,7 +926,7 @@
     const list = $("rd-com-list");
     if (!list) return;
     if (error) { list.innerHTML = `<div class="rd-com-empty">Les commentaires seront bientôt disponibles.</div>`; renderComForm(); return; }
-    list.innerHTML = (data && data.length) ? data.map(comRow).join("") : `<div class="rd-com-empty">Aucun commentaire. Lance la discussion !</div>`;
+    list.innerHTML = (data && data.length) ? data.map(comRow).join("") : `<div class="rd-com-empty">Personne n'a encore rien dit sur ce chapitre. À toi l'honneur ?</div>`;
     renderComForm();
   }
   function comRow(m) {

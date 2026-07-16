@@ -48,7 +48,7 @@
 
       count.textContent = `${list.length} résultat${list.length > 1 ? "s" : ""}`;
       if (!list.length) {
-        grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">🔍</div><p>Aucune série ne correspond à ces filtres.</p></div>`;
+        grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">🔍</div><p>Rien avec ces filtres. Élargis un peu : la pépite n'est pas loin.</p></div>`;
       } else {
         grid.innerHTML = list.map(LTcard).join("");
       }
