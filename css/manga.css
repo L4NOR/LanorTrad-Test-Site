@@ -30,6 +30,17 @@
 .series-desc { color: var(--txt-soft); max-width: 64ch; margin-bottom: 26px; font-size: 1.04rem; }
 .series-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
+/* Widget « Ta note » (notes réelles des lecteurs, js/ratings.js) */
+.rate-box { display: inline-flex; align-items: center; gap: 10px; margin-top: 16px; padding: 8px 14px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); flex-wrap: wrap; }
+.rate-label { color: var(--txt-mut); font-size: .82rem; font-weight: 600; }
+.rate-stars { display: inline-flex; gap: 2px; }
+.rate-star { font-size: 1.15rem; line-height: 1; padding: 2px; color: var(--txt-mut); opacity: .55; cursor: pointer; transition: color .15s, opacity .15s, transform .15s; background: none; border: none; }
+.rate-star:hover { transform: scale(1.15); }
+.rate-star.on { color: #fbbf24; opacity: 1; }
+.rate-hint { color: var(--txt-mut); font-size: .8rem; }
+.rate-hint a { color: var(--txt-soft); text-decoration: underline; }
+.rate-votes { color: var(--txt-mut); font-size: .85em; }
+
 .series-statline { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
 .series-statline .box { padding: 16px 22px; border-radius: var(--radius-sm); background: var(--glass); border: 1px solid var(--line); }
 .series-statline .box strong { font-family: var(--font-display); font-size: 1.4rem; display: block; }
@@ -229,5 +240,6 @@ a.ep-tile { cursor: pointer; }
   .series-cover { max-width: 220px; margin: 0 auto; }
   .series-info { text-align: center; }
   .series-meta, .tag-row, .series-actions, .series-statline { justify-content: center; }
+  #rate-block { text-align: center; }
   .series-desc { margin-inline: auto; }
 }

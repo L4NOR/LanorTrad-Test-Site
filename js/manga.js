@@ -41,7 +41,7 @@
               <span class="eyebrow">${s.type === "oneshot" ? "Oneshot" : "Série"} · ${s.status}</span>
               <h1>${s.title}</h1>
               <div class="series-meta">
-                <span>${window.LT.stars(s.rating)} <b>${s.rating}</b></span><span class="dot"></span>
+                <span id="mv-rating">${window.LT.stars(s.rating)} <b>${s.rating}</b></span><span class="dot"></span>
                 <span>Par <b>${s.author}</b></span><span class="dot"></span>
                 <span><b>${s.chapters}</b> chapitre${s.chapters > 1 ? "s" : ""}</span><span class="dot"></span>
                 <span>MàJ ${window.LT.timeAgo(s.lastUpdate) || "—"}</span>
@@ -50,6 +50,7 @@
               <div class="tag-row">${s.genres.map(g => `<a class="tag" href="catalogue.html?q=${encodeURIComponent(g)}">${g}</a>`).join("")}</div>
               <p class="series-desc">${s.description}</p>
               <div class="series-actions" id="series-actions"></div>
+              <div id="rate-block"></div>
               <div id="collab-block"></div>
             </div>
           </div>
@@ -217,6 +218,21 @@
       const v = window.LTviews.get(s.id), el = document.getElementById("mv-views");
       if (el && v != null) { el.innerHTML = window.LTviews.eye + " " + window.LTviews.fmt(v) + " lectures"; const d = document.getElementById("mv-vdot"); if (d) d.hidden = false; }
     });
+
+    // Notes réelles des lecteurs (Supabase) : widget + moyenne dans la meta +
+    // aggregateRating honnête dans le JSON-LD (jamais sans vrais votes).
+    if (window.LTratings) {
+      window.LTratings.widget(document.getElementById("rate-block"), s.id);
+      const syncRating = () => {
+        const r = window.LTratings.get(s.id);
+        if (!r || !r.v) return;
+        const el = document.getElementById("mv-rating");
+        if (el) el.innerHTML = `${window.LT.stars(r.s)} <b>${r.s}</b> <span class="rate-votes">(${r.v} note${r.v > 1 ? "s" : ""})</span>`;
+        setLdRating(r);
+      };
+      window.LTratings.ready(syncRating);
+      document.addEventListener("lt:ratings", syncRating);
+    }
 
     // Séries similaires (≥ 1 genre commun)
     const rel = (window.SERIES || []).filter(o => o.id !== s.id && o.genres.some(g => g !== "LanorTrad" && s.genres.includes(g)));
@@ -440,12 +456,13 @@
     setMeta("twitter:image", img);
 
     // Données structurées : Book (oneshot) ou ComicSeries (série) + fil d'Ariane
+    // Pas d'aggregateRating ici : il n'est ajouté (setLdRating) que s'il existe
+    // de vraies notes de lecteurs — jamais de valeurs inventées (risque SEO).
     const work = {
       "@type": s.type === "oneshot" ? "Book" : "ComicSeries",
       name: s.title, genre: genres,
       author: { "@type": "Person", name: s.author }, inLanguage: "fr",
-      image: img, description: s.description, url: location.href,
-      aggregateRating: { "@type": "AggregateRating", ratingValue: s.rating, bestRating: 5, ratingCount: 120 }
+      image: img, description: s.description, url: location.href
     };
     if (s.type === "oneshot") work.bookFormat = "https://schema.org/GraphicNovel";
     else work.numberOfEpisodes = s.chapters;
@@ -461,6 +478,17 @@
     let e = document.getElementById("ld-json");
     if (!e) { e = document.createElement("script"); e.type = "application/ld+json"; e.id = "ld-json"; document.head.appendChild(e); }
     e.textContent = JSON.stringify(ld);
+  }
+  // Injecte l'aggregateRating dans le JSON-LD déjà posé, UNIQUEMENT avec de
+  // vraies notes (r = {s: moyenne, v: votes} venant de Supabase).
+  function setLdRating(r) {
+    const e = document.getElementById("ld-json");
+    if (!e || !r || !r.v) return;
+    try {
+      const ld = JSON.parse(e.textContent);
+      ld["@graph"][0].aggregateRating = { "@type": "AggregateRating", ratingValue: r.s, bestRating: 5, ratingCount: r.v };
+      e.textContent = JSON.stringify(ld);
+    } catch {}
   }
   function setMeta(name, content) { let m = document.querySelector(`meta[name="${name}"]`); if (!m) { m = document.createElement("meta"); m.name = name; document.head.appendChild(m); } m.content = content; }
   function setProp(prop, content) { let m = document.querySelector(`meta[property="${prop}"]`); if (!m) { m = document.createElement("meta"); m.setAttribute("property", prop); document.head.appendChild(m); } m.setAttribute("content", content); }

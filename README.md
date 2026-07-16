@@ -248,6 +248,9 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
 7. `supabase/cosmetics.sql` (les **cosmétiques** — couleur de pseudo, cadre d'avatar ;
    + la liste blanche `grant_client_achievement`)
 8. `supabase/views.sql` (les **compteurs de lectures** — table `series_views` + `bump_view`)
+9. `supabase/ratings.sql` (les **notes des lecteurs** — table `series_ratings`,
+   vue publique `series_rating_stats`, RPC `rate_series` ; le widget « Ta note »
+   de la fiche série et l'`aggregateRating` du JSON-LD ne s'activent qu'avec lui)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 
