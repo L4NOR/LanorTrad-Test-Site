@@ -305,6 +305,8 @@ body.reader-body {
 .rd-credits .cr { padding: 14px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); }
 .rd-credits .cr .role { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: var(--txt-mut); }
 .rd-credits .cr .who { font-family: var(--font-display); font-weight: 700; margin-top: 4px; }
+.rd-collab { margin: -14px auto 26px; font-size: .88rem; color: var(--txt-mut); }
+.rd-collab a { color: var(--txt-soft); text-decoration: underline; }
 .rd-end-nav { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
 
 /* ----------------------------------------------------- Commentaires chapitre */

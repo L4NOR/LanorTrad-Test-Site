@@ -10,11 +10,11 @@
   "use strict";
 
   /* ---------------------------------------------------------------- Données */
+  // Les vraies personnes derrière chaque chapitre (voir equipe.html).
   const TEAM = [
-    { role: "Traduction", who: "LanorTrad" },
-    { role: "Clean",      who: "LanorTrad" },
-    { role: "Edit",       who: "LanorTrad" },
-    { role: "QC",         who: "LanorTrad" },
+    { role: "Traduction",   who: "Taichoskii" },
+    { role: "Clean & Edit", who: "Lanor" },
+    { role: "QC",           who: "Zerox" },
   ];
   const DISCORD = "https://discord.gg/md37S7nhkZ";
 
@@ -864,6 +864,7 @@
         <div class="thanks">Chapitre ${A.chap.num} terminé · merci de lire avec nous</div>
         <div class="title">${esc(A.S.title)}</div>
         <div class="rd-credits">${TEAM.map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${t.who}</div></div>`).join("")}</div>
+        ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
         <div class="rd-end-nav">
           <button class="btn btn-ghost" id="rd-end-prev">${ic("left")} Précédent</button>
           <a class="btn btn-primary" href="${DISCORD}" target="_blank" rel="noopener">Rejoindre le Discord</a>
