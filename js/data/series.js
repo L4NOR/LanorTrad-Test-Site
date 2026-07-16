@@ -18,7 +18,7 @@ window.SERIES = [
     author: "Yura Urushibara",
     accent: "#e0245e",
     description:
-      "Ichinose Shiki, héritier du sang d'Oni, a passé toute son enfance sans se rendre compte de ce fait. Lorsqu'un inconnu se présente le jour de la mort de son père adoptif, sa véritable nature se réveille et il est entraîné dans la guerre millénaire opposant les descendants de Momotarô aux Oni.",
+      "Shiki Ichinose a grandi sans savoir qu'il portait le sang des Oni. Le jour où son père adoptif meurt, un inconnu se présente, sa vraie nature se réveille, et le voilà jeté dans une guerre millénaire : les descendants de Momotarô contre les Oni. Notre série phare, celle qu'on soigne chapitre après chapitre.",
     cover: "images/Cover/TougenAnki.jpg",
     url: "manga.html?id=Tougen%20Anki",
     demo: true,
@@ -36,7 +36,7 @@ window.SERIES = [
     author: "Kazue Katô",
     accent: "#1B75BC",
     description:
-      "Rin Okumura est un adolescent qui découvre un jour qu'il est le fils de Satan. Déterminé à devenir un exorciste pour vaincre son père démoniaque, il entre à la prestigieuse Académie de la Croix-Vraie pour maîtriser ses flammes bleues.",
+      "Rin Okumura découvre qu'il est le fils de Satan. Plutôt que de subir cet héritage, il décide de le retourner contre son père : direction l'Académie de la Croix-Vraie pour devenir exorciste et dompter ses flammes bleues. Un grand classique du shōnen, et on est fiers de le continuer en français.",
     cover: "images/Cover/AoNoExorcist.jpg",
     url: "manga.html?id=Ao%20No%20Exorcist",
     demo: false,
@@ -59,7 +59,7 @@ window.SERIES = [
       { name: "Flexxon", url: "https://x.com/flexonthefluxxx", color: "#f59e0b" }
     ],
     description:
-      "Yataro Araki, membre de l'équipe de football du lycée Tôjô, nourrit de grandes ambitions : dans dix ans, il se voit déjà au sommet du football européen. Un récit de sport intense porté par la rage de vaincre et l'esprit d'équipe.",
+      "Yataro Araki, du club de foot du lycée Tôjô, s'est donné dix ans pour atteindre le sommet du football européen. Des matchs tendus, une rage de vaincre communicative, un vrai sens du collectif. On le traduit d'ailleurs en équipe, avec les copains de KaminaTrad et Flexxon.",
     cover: "images/Cover/Catenaccio.png",
     url: "manga.html?id=Catenaccio",
     demo: false,
@@ -77,7 +77,7 @@ window.SERIES = [
     author: "Uru Okabe",
     accent: "#9333ea",
     description:
-      "Selon la légende urbaine, les coupables sont condamnés à tomber dans les Enfers de Tokyo. Là, ils ne bénéficient d'aucune pitié et doivent affronter des épreuves mortelles pour espérer revenir à la surface.",
+      "La légende urbaine dit que les coupables tombent dans les Enfers de Tokyo. En bas, aucune pitié : des épreuves mortelles, et une seule direction possible, remonter. Le genre d'histoire qu'on commence un soir et qu'on paye le lendemain au réveil.",
     cover: "images/Cover/TokyoUnderworld.jpg",
     url: "manga.html?id=Tokyo%20Underworld",
     demo: false,
@@ -95,7 +95,7 @@ window.SERIES = [
     author: "Kanata Yanagawa",
     accent: "#f59e0b",
     description:
-      "Akamori Mitsuo veut être un salarié ordinaire mais... c'est un meurtrier de génie né dans une famille qui pratique l'art ancien de tuer. Une comédie d'action décalée où l'on tente d'échapper à son destin.",
+      "Mitsuo Akamori rêve d'une vie de salarié banal. Pas de chance : il est né dans une famille qui pratique l'art ancestral de l'assassinat, et il y excelle malgré lui. La comédie d'action qui nous fait marrer à chaque chapitre.",
     cover: "images/Cover/Satsudou.jpg",
     url: "manga.html?id=Satsudou",
     demo: false,
@@ -113,7 +113,7 @@ window.SERIES = [
     author: "—",
     accent: "#64748b",
     description:
-      "Vêtements noirs, yeux noirs, cheveux noirs... et si vous rencontriez cela...?!",
+      "Vêtements noirs, yeux noirs, cheveux noirs. Si tu croises cette silhouette, le compte à rebours a peut-être déjà commencé. Dix minutes de lecture, et un frisson qui reste.",
     cover: "images/Cover/Countdown.jpg",
     url: "manga.html?id=Countdown",
     demo: false,
@@ -130,7 +130,7 @@ window.SERIES = [
     author: "—",
     accent: "#0ea5e9",
     description:
-      "Après avoir perdu sa femme, Dawei accomplit le rituel de l'enterrement céleste sur son corps afin de faire son deuil.",
+      "Pour faire son deuil, Dawei accomplit le rituel de l'enterrement céleste sur le corps de sa femme. Un oneshot contemplatif sur la perte, qui ne va pas là où tu l'attends.",
     cover: "images/Cover/Gestation of Kalavinka.jpg",
     url: "manga.html?id=Gestation%20of%20Kalavinka",
     demo: false,
@@ -147,7 +147,7 @@ window.SERIES = [
     author: "—",
     accent: "#e2e8f0",
     description:
-      "Une petite araignée vient perturber la vie d'un auteur désespéré.",
+      "Un auteur au bout du rouleau voit une petite araignée s'inviter chez lui. Un oneshot tout en retenue, doux et un peu déchirant à la fois.",
     cover: "images/Cover/In the White.jpg",
     url: "manga.html?id=In%20the%20White",
     demo: false,
@@ -164,7 +164,7 @@ window.SERIES = [
     author: "—",
     accent: "#06b6d4",
     description:
-      "Fumi et Haru sont deux amies d'université qui partagent une passion pour la natation, jusqu'à ce que l'héritage « unique » de Fumi vienne tout compliquer.",
+      "Fumi et Haru se sont rencontrées à l'université, unies par la même passion pour la natation. Puis l'héritage très particulier de Fumi vient tout compliquer. Un de nos oneshots préférés : drame, fantastique et une pointe d'horreur.",
     cover: "images/Cover/Sake to Sakana.jpg",
     url: "manga.html?id=Sake%20to%20Sakana",
     demo: false,
@@ -181,7 +181,7 @@ window.SERIES = [
     author: "—",
     accent: "#dc2626",
     description:
-      "Un forgeron perd sa fille lors d'un sacrifice et attend 40 ans pour se venger.",
+      "Un forgeron perd sa fille, offerte en sacrifice. Il attend quarante ans pour se venger, et chaque page de cette attente pèse. Sombre, sec, marquant.",
     cover: "images/Cover/Second Coming.jpg",
     url: "manga.html?id=Second%20Coming",
     demo: false,

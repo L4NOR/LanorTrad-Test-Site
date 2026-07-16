@@ -441,7 +441,7 @@
     const genres = s.genres.filter(g => g !== "LanorTrad" && g !== "Collaboration");
     // Canonique : URL propre sur le domaine de prod (identique au sitemap)
     setLink("canonical", "https://lanortrad.com/manga.html?id=" + encodeURIComponent(s.id));
-    setMeta("description", `Lisez ${s.title} en français sur LanorTrad. ${s.description}`);
+    setMeta("description", `Lis ${s.title} en français sur LanorTrad. ${s.description}`);
     // OpenGraph
     setProp("og:type", "book");
     setProp("og:site_name", "LanorTrad");
