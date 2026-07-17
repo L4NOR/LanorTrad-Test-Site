@@ -38,6 +38,7 @@
 
     mount.innerHTML = `
       <div id="lb-missions"></div>
+      <div id="lb-quiz"></div>
       <div class="lb-tabs" id="lb-tabs" role="tablist">
         <button class="lb-tab on" data-tab="week" role="tab">Cette semaine</button>
         <button class="lb-tab" data-tab="alltime" role="tab">All-time</button>
@@ -54,6 +55,7 @@
     });
 
     loadMissions();
+    loadQuiz();
     loadSelf();
     render();
   }
@@ -106,6 +108,87 @@
         btn.disabled = false;
       }
     } catch { btn.disabled = false; }
+  }
+
+  /* ---------- Quiz de la semaine (BASE : supabase/quiz.sql) ----------
+     5 questions/semaine, une tentative par membre. Les choix sont mélangés
+     à l'affichage (la solution ne quitte jamais le serveur). Disparaît sans
+     bruit tant que quiz.sql n'est pas déployé. */
+  async function loadQuiz() {
+    const box = $("#lb-quiz");
+    if (!box) return;
+    let data;
+    try { ({ data } = await sb().rpc("weekly_quiz")); } catch { box.innerHTML = ""; return; }
+    if (!data || !data.ok || !data.questions) { box.innerHTML = ""; return; }
+
+    if (data.taken) {
+      box.innerHTML = `
+        <div class="lb-quiz">
+          <div class="lb-mtitle"><h2>Quiz de la semaine</h2></div>
+          <div class="lb-quiz-done">🧠 Déjà joué cette semaine : <b>${Number(data.taken.score)}/${Number(data.taken.total)}</b>.
+          Nouvelles questions lundi !</div>
+        </div>`;
+      return;
+    }
+
+    // Mélange des choix : on affiche dans un ordre aléatoire, on renvoie
+    // l'index d'origine (1-based) au serveur.
+    const qs = data.questions.map(q => {
+      const order = q.options.map((_, i) => i + 1).sort(() => Math.random() - .5);
+      return { id: q.id, question: q.question, options: q.options, order };
+    });
+
+    box.innerHTML = `
+      <div class="lb-quiz">
+        <div class="lb-mtitle">
+          <h2>Quiz de la semaine</h2>
+          ${me ? `<span class="lb-mnote">+10 XP par bonne réponse · +25 si sans-faute</span>`
+               : `<span class="lb-mnote">Connecte-toi pour gagner l'XP</span>`}
+        </div>
+        <form id="lb-quiz-form">
+          ${qs.map((q, qi) => `
+            <fieldset class="lb-quiz-q" data-q="${q.id}">
+              <legend>${qi + 1}. ${esc(q.question)}</legend>
+              ${q.order.map(oi => `
+                <label class="lb-quiz-opt"><input type="radio" name="q${q.id}" value="${oi}" required>
+                  <span>${esc(q.options[oi - 1])}</span></label>`).join("")}
+            </fieldset>`).join("")}
+          <button class="btn btn-primary" type="submit">Valider mes réponses</button>
+        </form>
+      </div>`;
+
+    $("#lb-quiz-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!me) { window.LT.toast("Connecte-toi sur le forum pour jouer (même compte)."); return; }
+      const answers = {};
+      qs.forEach(q => {
+        const sel = box.querySelector(`input[name="q${q.id}"]:checked`);
+        if (sel) answers[q.id] = Number(sel.value);
+      });
+      e.target.querySelector("button").disabled = true;
+      let res;
+      try { ({ data: res } = await sb().rpc("answer_quiz", { p_answers: answers })); } catch {}
+      if (!res || !res.ok) {
+        window.LT.toast(res && res.error === "already_taken" ? "Déjà joué cette semaine !" : "Le quiz n'a pas pu être envoyé.");
+        e.target.querySelector("button").disabled = false;
+        return;
+      }
+      // Correction inline : vert = bon choix, rouge = ton erreur.
+      const corr = res.correction || {};
+      qs.forEach(q => {
+        const good = Number(corr[q.id]);
+        box.querySelectorAll(`input[name="q${q.id}"]`).forEach(inp => {
+          inp.disabled = true;
+          const lab = inp.closest(".lb-quiz-opt");
+          if (Number(inp.value) === good) lab.classList.add("good");
+          else if (inp.checked) lab.classList.add("bad");
+        });
+      });
+      e.target.querySelector("button").outerHTML =
+        `<div class="lb-quiz-score">${res.score === res.total ? "🏆 Sans-faute" : "🧠 Score"} : <b>${res.score}/${res.total}</b>${res.xp > 0 ? ` · +${res.xp} XP` : ""}</div>`;
+      window.LT.toast(res.score === res.total ? `🏆 Sans-faute ! +${res.xp} XP` : `🧠 ${res.score}/${res.total} — +${res.xp} XP`);
+      loadSelf();
+    });
   }
 
   async function loadSelf() {

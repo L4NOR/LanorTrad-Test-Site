@@ -261,6 +261,10 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
 12. `supabase/forum-polls.sql` (les **sondages du forum** — un sondage optionnel
     par sujet, créé avec lui ; RPC `create_poll` + `poll_for_topic` + `vote_poll` ;
     1 vote par membre, modifiable, votes anonymes, agrégat public)
+13. `supabase/quiz.sql` (le **quiz de la semaine** sur la page Classement —
+    5 questions en rotation hebdo, 1 tentative/membre, +10 XP par bonne réponse
+    +25 si sans-faute ; les solutions restent côté serveur. Pour ajouter des
+    questions : Table Editor → `quiz_questions`, mode d'emploi en tête du fichier)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 

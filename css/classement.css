@@ -55,3 +55,18 @@
 .lb-mlabel { font-size: .9rem; color: var(--txt); line-height: 1.35; }
 .lb-mbar { height: 6px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
 .lb-mfill { height: 100%; border-radius: 999px; background: var(--grad); transition: width .5s var(--ease, ease); }
+
+/* ---------- Quiz de la semaine ---------- */
+.lb-quiz { margin-bottom: 26px; }
+.lb-quiz-done { padding: 14px 16px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line);
+  font-size: .92rem; color: var(--txt-soft); }
+.lb-quiz-q { margin: 0 0 14px; padding: 14px 16px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); }
+.lb-quiz-q legend { float: left; width: 100%; font-size: .92rem; font-weight: 600; color: var(--txt); margin-bottom: 10px; line-height: 1.35; }
+.lb-quiz-opt { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 10px; cursor: pointer;
+  font-size: .88rem; color: var(--txt-soft); transition: background .15s, color .15s; }
+.lb-quiz-opt:hover { background: var(--bg-2); color: var(--txt); }
+.lb-quiz-opt:not(.good):not(.bad):has(input:checked) { background: color-mix(in srgb, var(--violet) 14%, transparent); color: var(--txt); }
+.lb-quiz-opt input { accent-color: var(--violet); }
+.lb-quiz-opt.good { background: rgba(74, 222, 128, .13); color: #4ade80; font-weight: 600; }
+.lb-quiz-opt.bad { background: rgba(248, 113, 113, .12); color: #f87171; }
+.lb-quiz-score { font-family: var(--font-display); font-weight: 800; font-size: 1rem; padding: 4px 2px; }
