@@ -244,6 +244,26 @@
 .fo-notif-txt b { color: var(--txt); }
 .fo-notif-time { display: block; color: var(--txt-mut); font-size: .76rem; margin-top: 2px; }
 
+/* ---------- Sondages ---------- */
+.fo-poll { margin: 0 0 18px; padding: 16px; border-radius: var(--radius-sm); background: var(--glass); border: 1px solid var(--line); }
+.fo-poll:empty { display: none; }
+.fo-poll-head { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--txt-mut); margin-bottom: 12px; }
+.fo-poll-opt { position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 14px; margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--line);
+  background: transparent; color: var(--txt); font: inherit; font-size: .92rem; cursor: pointer; text-align: left;
+  transition: border-color .15s, transform .15s var(--ease); }
+.fo-poll-opt:hover:not(:disabled) { border-color: var(--accent); transform: translateX(2px); }
+.fo-poll-opt:disabled { cursor: default; opacity: .85; }
+.fo-poll-opt.on { border-color: var(--accent); }
+.fo-poll-opt.on .fo-poll-label { font-weight: 600; }
+.fo-poll-bar { position: absolute; top: 0; left: 0; bottom: 0; width: 0;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); transition: width .45s var(--ease); }
+.fo-poll-label, .fo-poll-pc { position: relative; z-index: 1; }
+.fo-poll-pc { flex: none; font-size: .8rem; color: var(--txt-soft); }
+.fo-poll-total { font-size: .78rem; color: var(--txt-mut); margin-top: 4px; }
+.fo-poll-new { text-align: left; }
+.fo-poll-fields { display: grid; gap: 10px; margin-top: 10px; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   .fo-cat { grid-template-columns: auto 1fr; }

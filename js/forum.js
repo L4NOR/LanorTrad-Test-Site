@@ -360,12 +360,13 @@
            </form>`
         : `<div class="fo-empty">Connecte-toi pour répondre. <button class="fo-link" data-auth="login">Connexion</button></div>`;
 
-    app().innerHTML = head + `<div class="fo-posts">${op}${replies}</div>` + composer;
+    app().innerHTML = head + `<div class="fo-poll" id="fo-poll"></div><div class="fo-posts">${op}${replies}</div>` + composer;
     wireTopic(t, id);
     setBusy(false); rescan();
 
-    // Réactions (chargées après l'affichage pour ne pas retarder le rendu)
+    // Réactions + sondage (chargés après l'affichage pour ne pas retarder le rendu)
     loadReactions(t.id, (posts || []).map(p => p.id)).then(renderAllReactions);
+    loadPoll(t);
   }
 
   function postCard(p, isOp, rx) {
@@ -443,6 +444,47 @@
       const pal = add.parentElement.querySelector(".fo-rxpalette");
       if (pal) pal.hidden = !pal.hidden;
     }
+  }
+
+  /* ---------- Sondage du sujet (BASE : supabase/forum-polls.sql) ----------
+     Un sondage optionnel par sujet, créé avec lui. Agrégat public via RPC,
+     un vote par membre (re-clic = retirer). Disparaît sans bruit si la base
+     n'a pas encore forum-polls.sql. */
+  async function loadPoll(t) {
+    const box = app().querySelector("#fo-poll");
+    if (!box) return;
+    try {
+      const { data, error } = await client().rpc("poll_for_topic", { p_topic: Number(t.id) });
+      if (error || !data || !data.ok || !data.poll) { box.remove(); return; }
+      renderPoll(t, data.poll);
+    } catch { box.remove(); }
+  }
+  function renderPoll(t, poll) {
+    const box = app().querySelector("#fo-poll");
+    if (!box) return;
+    const total = poll.total || 0;
+    box.innerHTML = `
+      <div class="fo-poll-head">📊 Sondage${t.locked ? " · clos" : ""}</div>
+      ${(poll.options || []).map(o => {
+        const pc = total ? Math.round(o.votes * 100 / total) : 0;
+        const on = poll.mine === o.id;
+        return `<button class="fo-poll-opt${on ? " on" : ""}" data-opt="${o.id}"${t.locked ? " disabled" : ""}>
+          <i class="fo-poll-bar" style="width:${total ? pc : 0}%"></i>
+          <span class="fo-poll-label">${on ? "✓ " : ""}${esc(o.label)}</span>
+          <span class="fo-poll-pc">${total ? pc + " %" : ""}</span>
+        </button>`;
+      }).join("")}
+      <div class="fo-poll-total">${total} vote${total > 1 ? "s" : ""}${me || t.locked ? "" : " · connecte-toi pour voter"}</div>`;
+    box.querySelectorAll(".fo-poll-opt").forEach(b =>
+      b.addEventListener("click", () => votePoll(t, Number(b.dataset.opt))));
+  }
+  async function votePoll(t, optionId) {
+    if (!requireAuth()) return;
+    try {
+      const { data, error } = await client().rpc("vote_poll", { p_option: optionId });
+      if (error || !data || !data.ok) return toast("Vote impossible pour le moment.");
+      renderPoll(t, data.poll);
+    } catch {}
   }
 
   /* ---------- Notifications ---------- */
@@ -775,12 +817,34 @@
         <label class="fav-field"><span>Catégorie</span><select name="category">${options}</select></label>
         <label class="fav-field"><span>Titre</span><input name="title" type="text" minlength="3" maxlength="140" required placeholder="Titre de votre sujet"></label>
         <label class="fav-field"><span>Message</span><textarea name="body" rows="7" maxlength="10000" required placeholder="Développez votre sujet…"></textarea></label>
+        <div class="fo-poll-new">
+          <button class="fo-link" type="button" id="fo-poll-toggle">📊 Ajouter un sondage</button>
+          <div class="fo-poll-fields" id="fo-poll-fields" hidden>
+            <label class="fav-field"><span>Option 1</span><input data-poll type="text" maxlength="80" placeholder="Premier choix"></label>
+            <label class="fav-field"><span>Option 2</span><input data-poll type="text" maxlength="80" placeholder="Deuxième choix"></label>
+            <button class="fo-link" type="button" id="fo-poll-more">+ Encore une option</button>
+          </div>
+        </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-primary" type="submit">Publier le sujet</button>
           <a class="btn btn-ghost" href="#/">Annuler</a>
         </div>
       </form>`;
     const form = app().querySelector("#fo-new");
+
+    // Sondage optionnel : dépliage + ajout d'options (6 max).
+    const pollFields = form.querySelector("#fo-poll-fields");
+    form.querySelector("#fo-poll-toggle").addEventListener("click", e => {
+      pollFields.hidden = !pollFields.hidden;
+      e.target.textContent = pollFields.hidden ? "📊 Ajouter un sondage" : "📊 Retirer le sondage";
+    });
+    form.querySelector("#fo-poll-more").addEventListener("click", e => {
+      const n = pollFields.querySelectorAll("[data-poll]").length + 1;
+      if (n > 6) return;
+      e.target.before(el(`<label class="fav-field"><span>Option ${n}</span><input data-poll type="text" maxlength="80" placeholder="Autre choix"></label>`));
+      if (n === 6) e.target.remove();
+    });
+
     form.addEventListener("submit", async e => {
       e.preventDefault();
       if (!requireAuth()) return;
@@ -790,9 +854,19 @@
         title: form.title.value.trim(),
         body: form.body.value.trim()
       };
-      form.querySelector("button").disabled = true;
+      form.querySelector('button[type="submit"]').disabled = true;
       const { data, error } = await c.from("topics").insert(payload).select("id").single();
-      if (error) { toast("Erreur : " + error.message); form.querySelector("button").disabled = false; return; }
+      if (error) { toast("Erreur : " + error.message); form.querySelector('button[type="submit"]').disabled = false; return; }
+
+      // Le sondage ne bloque jamais la publication du sujet.
+      if (!pollFields.hidden) {
+        const opts = [...pollFields.querySelectorAll("[data-poll]")].map(i => i.value.trim()).filter(Boolean);
+        if (opts.length >= 2) {
+          const { data: pr, error: pe } = await c.rpc("create_poll", { p_topic: data.id, p_options: opts });
+          if (pe || !pr || !pr.ok) toast("Sujet publié, mais le sondage n'a pas pu être créé.");
+        }
+      }
+
       window.LTxp && window.LTxp.award("forum", "forum:topic:" + data.id);
       toast("Sujet publié ✓");
       location.hash = "#/t/" + data.id;

@@ -258,6 +258,9 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
 11. `supabase/chapter-mood.sql` (les **réactions d'ambiance** « Ce chapitre t'a
     fait quoi ? » sur l'écran de fin — table `chapter_moods`, RPC `chapter_mood`
     + `set_chapter_mood` ; 1 réaction par membre et par chapitre, agrégat public)
+12. `supabase/forum-polls.sql` (les **sondages du forum** — un sondage optionnel
+    par sujet, créé avec lui ; RPC `create_poll` + `poll_for_topic` + `vote_poll` ;
+    1 vote par membre, modifiable, votes anonymes, agrégat public)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 
