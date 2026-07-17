@@ -154,6 +154,17 @@
 .team-word .team-sign a { color: var(--txt-mut); font-family: var(--font-body, inherit); font-weight: 500; font-size: .88rem; }
 .team-word .team-sign a:hover { color: var(--txt-soft); }
 
+/* — En ce moment : fil d'activité de la communauté (accueil) — */
+.pulse-feed { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 10px; }
+.pu-item { display: flex; align-items: baseline; gap: 10px; padding: 12px 15px; border-radius: 14px;
+  background: var(--glass); border: 1px solid var(--line); font-size: .88rem; color: var(--txt-soft); line-height: 1.45; }
+.pu-ico { flex: none; font-size: 1rem; }
+.pu-item p { margin: 0; flex: 1; min-width: 0; }
+.pu-item a { color: var(--txt); }
+.pu-item a:hover { color: var(--accent); }
+.pu-user { font-weight: 600; }
+.pu-when { flex: none; font-size: .74rem; color: var(--txt-mut); white-space: nowrap; }
+
 /* — Responsive — */
 @media (max-width: 980px) {
   .hero { min-height: auto; padding-bottom: 100px; }   /* dégage la place du bouton de nav flottant */

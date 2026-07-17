@@ -265,6 +265,9 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
     5 questions en rotation hebdo, 1 tentative/membre, +10 XP par bonne réponse
     +25 si sans-faute ; les solutions restent côté serveur. Pour ajouter des
     questions : Table Editor → `quiz_questions`, mode d'emploi en tête du fichier)
+14. `supabase/activity.sql` (le fil **« Ça bouge sur LanorTrad »** de l'accueil —
+    RPC `recent_activity` : derniers commentaires, sujets du forum, succès
+    débloqués, nouveaux membres ; uniquement des infos déjà publiques)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 
