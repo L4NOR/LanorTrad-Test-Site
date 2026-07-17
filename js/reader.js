@@ -262,6 +262,7 @@
     updateScrub();
     updateProgress();
     loadComments();
+    loadMood();
   }
 
   /* -------- Gain d'XP : chapitre terminé (une seule fois par chapitre) -------- */
@@ -865,6 +866,7 @@
         <div class="title">${esc(A.S.title)}</div>
         <div class="rd-credits">${TEAM.map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${t.who}</div></div>`).join("")}</div>
         ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
+        <div class="rd-mood" id="rd-mood"></div>
         <div class="rd-end-nav">
           <button class="btn btn-ghost" id="rd-end-prev">${ic("left")} Précédent</button>
           <a class="btn btn-primary" href="${DISCORD}" target="_blank" rel="noopener">Rejoindre le Discord</a>
@@ -884,6 +886,59 @@
         <a class="btn btn-ghost" href="${A.S ? A.S.url : "catalogue.html"}">Retour à la fiche</a>
         <a class="btn btn-primary" href="index.html">Accueil</a>
       </div></div>`;
+  }
+
+  /* ========================================================================
+     « CE CHAPITRE T'A FAIT QUOI ? » — réaction d'ambiance (1 par membre,
+     agrégat public). BASE : supabase/chapter-mood.sql. No-op sans Supabase.
+     ===================================================================== */
+  const MOODS = [
+    { e: "🔥", label: "Épique" },
+    { e: "😭", label: "Émouvant" },
+    { e: "😂", label: "Drôle" },
+    { e: "😮", label: "Choc" },
+  ];
+  async function loadMood() {
+    const box = $("rd-mood");
+    if (!box) return;
+    const c = sbClient();
+    if (!c) { box.innerHTML = ""; return; }
+    try {
+      const { data, error } = await c.rpc("chapter_mood", { p_manga: A.manga, p_chapter: A.chap.num });
+      if (error || !data || !data.ok) { box.innerHTML = ""; return; }
+      renderMood(data);
+    } catch { box.innerHTML = ""; }
+  }
+  function renderMood(d) {
+    const box = $("rd-mood");
+    if (!box) return;
+    const counts = d.counts || {};
+    const total = MOODS.reduce((a, m) => a + (counts[m.e] || 0), 0);
+    box.innerHTML = `
+      <div class="rd-mood-q">Ce chapitre t'a fait quoi ?</div>
+      <div class="rd-mood-row">${MOODS.map(m => {
+        const n = counts[m.e] || 0;
+        const pc = total ? Math.round(n * 100 / total) : 0;
+        return `<button class="rd-mood-btn${d.mine === m.e ? " on" : ""}" data-emoji="${m.e}" aria-label="${m.label}">
+          <i class="rd-mood-bar" style="height:${pc}%"></i>
+          <span class="rd-mood-e">${m.e}</span>
+          <span class="rd-mood-n">${total ? pc + " %" : m.label}</span>
+        </button>`;
+      }).join("")}</div>
+      <div class="rd-mood-hint">${total ? total + (total > 1 ? " réactions" : " réaction") : "Sois le premier à donner le ton."}</div>`;
+    box.querySelectorAll(".rd-mood-btn").forEach(b =>
+      b.addEventListener("click", () => sendMood(b.dataset.emoji)));
+  }
+  async function sendMood(emoji) {
+    const c = sbClient();
+    if (!c) return;
+    const { data: { session } } = await c.auth.getSession();
+    if (!session) { window.LT.toast("Connecte-toi sur le forum pour réagir (même compte)."); return; }
+    try {
+      const { data, error } = await c.rpc("set_chapter_mood", { p_manga: A.manga, p_chapter: A.chap.num, p_emoji: emoji });
+      if (error || !data || !data.ok) return;
+      renderMood(data);
+    } catch {}
   }
 
   /* ========================================================================

@@ -255,6 +255,9 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
     `reading_progress` + suivis `user_follows`, RLS « ses lignes uniquement » ;
     pour les membres connectés, reprise et bibliothèque suivent d'un appareil à
     l'autre, règle « le plus récent gagne »)
+11. `supabase/chapter-mood.sql` (les **réactions d'ambiance** « Ce chapitre t'a
+    fait quoi ? » sur l'écran de fin — table `chapter_moods`, RPC `chapter_mood`
+    + `set_chapter_mood` ; 1 réaction par membre et par chapitre, agrégat public)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 
