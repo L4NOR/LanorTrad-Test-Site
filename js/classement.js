@@ -218,7 +218,7 @@
     return `<a class="lb-row${isMe ? " me" : ""}${idx < 3 ? " top" : ""}" href="forum.html#/u/${encodeURIComponent(r.username)}">
       <span class="lb-pos">${medal(idx)}</span>
       ${avatar(r)}
-      <span class="lb-name"><span class="${window.LTxp ? window.LTxp.nameClass(r.equipped).trim() : ""}">${esc(r.username)}</span>${badge}</span>
+      <span class="lb-name"><span class="${window.LTxp ? window.LTxp.nameClass(r.equipped).trim() : ""}">${esc(r.username)}</span>${window.LTxp && window.LTxp.crown ? window.LTxp.crown(r.username) : ""}${badge}</span>
       <span class="lb-xp">${xpLabel}</span>
     </a>`;
   }
@@ -230,6 +230,7 @@
     list.innerHTML = `<div class="lb-loading">Chargement…</div>`;
     const c = sb();
     const X = window.LTxp;
+    if (X && X.podium) await X.podium();   // couronnes 👑 du top 3 de la semaine passée
 
     if (tab === "week") {
       const { data, error } = await c.rpc("leaderboard_weekly", { p_limit: 25 });

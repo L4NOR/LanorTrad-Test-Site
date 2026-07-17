@@ -52,14 +52,77 @@
 
   function feedback(d) {
     if (d.new_achievements && d.new_achievements.length)
-      d.new_achievements.forEach(n => toast(`🏆 Succès débloqué : ${n}`));
+      d.new_achievements.forEach(n => achToast(n));
     if (d.leveled_up) {
-      const r = rankOf(d.level);
-      toast(`🎉 Niveau ${d.level} — ${r.name} !`);
+      const r = rankOf(d.level), prev = rankOf(Math.max(1, d.level - 1));
+      if (r.key !== prev.key) celebrate(r, d.level);   // changement de RANG → vrai moment
+      else toast(`🎉 Niveau ${d.level} — ${r.name} !`);
     } else if (d.awarded > 0) {
       const s = d.streak_bonus > 0 ? ` · série ${d.streak} j` : "";
       toast(`✨ +${d.awarded} XP${s}`);
     }
+  }
+
+  const escXp = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // Toast de succès « façon jeu vidéo » (bandeau doré, icône, nom).
+  function achToast(name) {
+    toast(`<span class="lt-ach-toast"><span class="lt-ach-cup">🏆</span><span><b>Succès débloqué</b><i>${escXp(name)}</i></span></span>`);
+  }
+
+  /* -------- Célébration de montée de RANG : overlay plein écran aux couleurs
+     de l'aura + confettis légers (coupés en mode Fluidité « léger »). -------- */
+  function celebrate(rank, level) {
+    try {
+      if (document.querySelector(".lt-rankup")) return;
+      const lite = document.documentElement.getAttribute("data-perf") === "lite";
+      const conf = lite ? "" :
+        `<div class="lt-rankup-conf" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="--i:${i}"></i>`).join("")}</div>`;
+      const host = document.createElement("div");
+      host.className = `lt-rankup r-${rank.key}${lite ? " lite" : ""}`;
+      host.setAttribute("role", "dialog");
+      host.innerHTML = `
+        <div class="lt-rankup-halo" aria-hidden="true"></div>${conf}
+        <div class="lt-rankup-card">
+          <div class="lt-rankup-eyebrow">Nouveau rang</div>
+          <div class="lt-rankup-name">${rank.name}</div>
+          <div class="lt-rankup-lvl">niveau ${level}</div>
+          <button class="btn btn-primary" type="button">La classe. On continue !</button>
+        </div>`;
+      document.body.appendChild(host);
+      requestAnimationFrame(() => host.classList.add("in"));
+      const close = () => { host.classList.remove("in"); setTimeout(() => host.remove(), 450); };
+      host.querySelector("button").addEventListener("click", close);
+      host.addEventListener("click", e => { if (e.target === host) close(); });
+      setTimeout(close, 10000);
+    } catch {}
+  }
+
+  /* -------- Podium de la semaine passée → couronne 👑 (flair top 3).
+     BASE : supabase/podium.sql. Cache localStorage 6 h ; Set vide si la RPC
+     n'est pas déployée (aucune couronne, aucun bruit). -------- */
+  let _podium = null;
+  async function podium() {
+    if (_podium) return _podium;
+    try {
+      const cached = JSON.parse(localStorage.getItem("lt-podium") || "null");
+      if (cached && Date.now() - cached.t < 6 * 3600e3) return (_podium = new Set(cached.names));
+    } catch {}
+    const c = sb();
+    if (!c) return (_podium = new Set());
+    try {
+      const { data, error } = await c.rpc("podium_last_week");
+      if (error || !data || !data.ok) return (_podium = new Set());
+      const names = data.names || [];
+      try { localStorage.setItem("lt-podium", JSON.stringify({ t: Date.now(), names })); } catch {}
+      return (_podium = new Set(names));
+    } catch { return (_podium = new Set()); }
+  }
+  // Synchrone : à appeler après `await podium()`.
+  function crown(username) {
+    return _podium && _podium.has(username)
+      ? `<span class="lt-crown" title="Top 3 du classement de la semaine dernière">👑</span>` : "";
   }
 
   // Stat courante du membre connecté (pour la barre d'XP / le chip). null sinon.
@@ -109,5 +172,5 @@
   }
 
   window.LTxp = { award, me, rankOf, levelFromXp, xpForLevel, rankBadge, rankBadgeForLevel,
-                  nameClass, frameClass, grantClient, ranks: RANKS };
+                  nameClass, frameClass, grantClient, podium, crown, ranks: RANKS };
 })();

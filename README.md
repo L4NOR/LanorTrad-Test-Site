@@ -268,6 +268,9 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
 14. `supabase/activity.sql` (le fil **« Ça bouge sur LanorTrad »** de l'accueil —
     RPC `recent_activity` : derniers commentaires, sujets du forum, succès
     débloqués, nouveaux membres ; uniquement des infos déjà publiques)
+15. `supabase/podium.sql` (la **couronne 👑 du top 3** — RPC `podium_last_week` :
+    les 3 meilleurs de la semaine passée portent une couronne la semaine
+    suivante, sur le classement et le forum ; respecte `leaderboard_opt_out`)
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 

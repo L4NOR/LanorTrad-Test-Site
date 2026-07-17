@@ -56,6 +56,56 @@
 .lt-fr-aurore { box-shadow:0 0 0 2px #ec4899, 0 0 12px -1px #a855f7 !important; }
 .lt-fr-astre  { box-shadow:0 0 0 2px #f5c842, 0 0 14px -2px #f5c842 !important; }
 
+/* ---------- Couronne : top 3 du classement de la semaine passée ---------- */
+.lt-crown { margin-left:4px; font-size:.95em; vertical-align:middle; cursor:help;
+  filter:drop-shadow(0 0 6px rgba(245,200,66,.8)); }
+
+/* ---------- Toast de succès « façon jeu vidéo » ---------- */
+.toast .lt-ach-toast { display:flex; align-items:center; gap:10px; text-align:left; }
+.lt-ach-cup { font-size:1.35rem; filter:drop-shadow(0 0 8px rgba(245,200,66,.75)); }
+.lt-ach-toast b { display:block; font-size:.68rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:.12em; color:#f5c842; }
+.lt-ach-toast i { font-style:normal; font-weight:600; }
+
+/* ---------- Célébration de montée de rang (overlay plein écran) ---------- */
+.lt-rankup { position:fixed; inset:0; z-index:4000; display:grid; place-items:center; padding:20px;
+  background:rgba(8,8,18,.8); backdrop-filter:blur(6px); opacity:0; transition:opacity .45s var(--ease);
+  --aura:#a855f7; overflow:hidden; }
+.lt-rankup.in { opacity:1; }
+.lt-rankup.r-etincelle { --aura:#9aa3b2; }
+.lt-rankup.r-lueur     { --aura:#eab308; }
+.lt-rankup.r-flamme    { --aura:#f97316; }
+.lt-rankup.r-brasier   { --aura:#ef4444; }
+.lt-rankup.r-aurore    { --aura:#ec4899; }
+.lt-rankup.r-astre     { --aura:#f5c842; }
+.lt-rankup-halo { position:absolute; width:min(560px, 120vw); aspect-ratio:1; border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb, var(--aura) 36%, transparent), transparent 65%);
+  animation:lt-halo 3.2s ease-in-out infinite; }
+@keyframes lt-halo { 50% { transform:scale(1.12); opacity:.75; } }
+.lt-rankup-card { position:relative; text-align:center; transform:translateY(16px) scale(.95);
+  transition:transform .5s var(--ease-back); }
+.lt-rankup.in .lt-rankup-card { transform:none; }
+.lt-rankup-eyebrow { font-family:var(--font-display); font-weight:800; font-size:.78rem;
+  letter-spacing:.3em; text-transform:uppercase; color:var(--aura); margin-bottom:8px; }
+.lt-rankup-name { font-family:var(--font-display); font-weight:800; line-height:1.05;
+  font-size:clamp(2.4rem, 9vw, 4.4rem);
+  background:linear-gradient(135deg, #fff 20%, var(--aura)); -webkit-background-clip:text;
+  background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 26px color-mix(in srgb, var(--aura) 55%, transparent)); }
+.lt-rankup-lvl { color:var(--txt-soft); margin:8px 0 24px; }
+.lt-rankup-conf i { position:absolute; top:-24px; left:calc(4% + var(--i) * 5.2%); width:8px; height:14px;
+  border-radius:2px; background:var(--aura); opacity:.9;
+  animation:lt-conf 2.9s linear infinite; animation-delay:calc(var(--i) * -.37s); }
+.lt-rankup-conf i:nth-child(2n) { background:#fff; opacity:.55; height:10px; }
+.lt-rankup-conf i:nth-child(3n) { width:6px; height:6px; border-radius:50%; }
+@keyframes lt-conf { to { transform:translateY(108vh) rotate(680deg); } }
+/* Mode Fluidité « léger » + préférence système : pas d'animations décoratives. */
+.lt-rankup.lite .lt-rankup-halo { animation:none; }
+@media (prefers-reduced-motion: reduce) {
+  .lt-rankup-halo, .lt-rankup-conf i { animation:none; }
+  .lt-rankup-conf { display:none; }
+}
+
 /* ---------- Barre de progression de lecture sur les cartes ---------- */
 .m-card .card-prog { height:4px; border-radius:999px; background:rgba(255,255,255,.13); overflow:hidden; margin-top:9px; }
 .m-card .card-prog i { display:block; height:100%; border-radius:999px; background:var(--grad); }

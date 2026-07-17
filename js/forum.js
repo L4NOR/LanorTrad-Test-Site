@@ -73,6 +73,9 @@
 
   // Badge de rang XP (chip « Aura »). Vide si xp inconnu ou module absent.
   const rankBadge = xp => (window.LTxp && xp != null) ? window.LTxp.rankBadge(xp) : "";
+  // Couronne 👑 top 3 hebdo (après `await LTxp.podium()` dans la vue).
+  const crown = u => (window.LTxp && window.LTxp.crown) ? window.LTxp.crown(u) : "";
+  const podiumReady = () => (window.LTxp && window.LTxp.podium) ? window.LTxp.podium() : Promise.resolve();
   // Classe de couleur de pseudo (cosmétique équipé).
   const nameCls = eq => (window.LTxp ? window.LTxp.nameClass(eq) : "");
 
@@ -293,6 +296,7 @@
       .order("pinned", { ascending: false })
       .order("last_activity", { ascending: false });
     if (error) { app().innerHTML = errBox(error.message); setBusy(false); return; }
+    await podiumReady();
 
     app().innerHTML = `
       ${crumbs([{ label: "Forum", href: "#/" }, { label: cat.name }])}
@@ -319,7 +323,7 @@
             ${t.locked ? '<span class="fo-tag lock">🔒</span>' : ""}
             ${esc(t.title)}
           </span>
-          <span class="fo-topic-meta">par <span class="fo-tauthor${nameCls(a.equipped)}">${esc(a.username || "?")}</span>${roleBadge(a.role)}${rankBadge(a.xp)} · ${timeAgo(t.created_at)}</span>
+          <span class="fo-topic-meta">par <span class="fo-tauthor${nameCls(a.equipped)}">${esc(a.username || "?")}</span>${crown(a.username)}${roleBadge(a.role)}${rankBadge(a.xp)} · ${timeAgo(t.created_at)}</span>
         </span>
         <span class="fo-topic-stat"><b>${n}</b><i>réponse${n > 1 ? "s" : ""}</i></span>
         <span class="fo-topic-last">${timeAgo(t.last_activity)}</span>
@@ -337,6 +341,7 @@
     const { data: posts } = await c.from("posts")
       .select("*, author:profiles(username,avatar_url,role,xp,equipped)")
       .eq("topic_id", id).order("created_at");
+    await podiumReady();
 
     const head = `
       ${crumbs([{ label: "Forum", href: "#/" }, { label: t.category.name, href: "#/c/" + t.category.slug }, { label: t.title }])}
@@ -373,7 +378,7 @@
     const a = p.author || {};
     return `
       <article class="fo-post${isOp ? " op" : ""}" data-post="${isOp ? "op" : p.id}" data-reveal>
-        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name${nameCls(a.equipped)}">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${roleBadge(a.role)}${rankBadge(a.xp)}</div>
+        <div class="fo-post-side">${a.username ? `<a class="fo-post-userlink" href="#/u/${encodeURIComponent(a.username)}">${avatar(a, 46)}<span class="fo-post-name${nameCls(a.equipped)}">${esc(a.username)}</span></a>` : `${avatar(a, 46)}<span class="fo-post-name">?</span>`}${crown(a.username)}${roleBadge(a.role)}${rankBadge(a.xp)}</div>
         <div class="fo-post-body">
           <div class="fo-post-meta">${isOp ? "Auteur du sujet" : "A répondu"} · ${timeAgo(p.created_at)}
             ${canEdit(p.author_id) ? `<span class="fo-post-actions">
@@ -690,6 +695,7 @@
       c.from("user_achievements").select("key,earned_at").eq("user_id", pf.id),
       c.from("achievements").select("key,name,description,xp,secret,position").order("position")
     ]);
+    await podiumReady();
     const vitrine = profileVitrine(pf, uach, achAll);
     app().innerHTML = `
       ${crumbs([{ label: "Forum", href: "#/" }, { label: pf.username }])}
@@ -697,7 +703,7 @@
         <div class="fo-prof-head">
           ${avatar(pf, 84)}
           <div class="fo-prof-id">
-            <h2><span class="fo-pname${nameCls(pf.equipped)}">${esc(pf.username)}</span> ${roleBadge(pf.role)} ${rankBadge(pf.xp)}</h2>
+            <h2><span class="fo-pname${nameCls(pf.equipped)}">${esc(pf.username)}</span>${crown(pf.username)} ${roleBadge(pf.role)} ${rankBadge(pf.xp)}</h2>
             <div class="fo-prof-since">Membre depuis ${timeAgo(pf.created_at)}</div>
             ${pf.bio ? `<p class="fo-prof-bio">${esc(pf.bio).replace(/\n/g, "<br>")}</p>`
               : `<p class="fo-prof-bio muted">${own ? "Ajoute une bio depuis « Modifier mon profil » ✏️" : "Pas encore de bio."}</p>`}
