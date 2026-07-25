@@ -17,7 +17,7 @@ quel sur Netlify ou GitHub Pages.
 1. [Structure du projet](#1-structure-du-projet)
 2. [Aperçu en local](#2-aperçu-en-local)
 3. [Ajouter / mettre à jour des chapitres](#3-ajouter--mettre-à-jour-des-chapitres)
-4. [Ajouter une nouvelle série](#4-ajouter-une-nouvelle-série)
+4. [Ajouter / modifier une série (fiches)](#4-ajouter--modifier-une-série-fiches)
 5. [Forum — configuration (Supabase)](#5-forum--configuration-supabase)
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriel-première-visite)
@@ -43,12 +43,13 @@ css/    base, components, animations, home, catalogue, manga, reader, pages,
         extras, forum, classement, planning, perf, ambiance, tour
 js/     core (shell), cards, tilt, hero, home, catalogue, manga, reader,
         forum, classement, xp, views, perf, store, palette, tour
-js/data/series.js     ← métadonnées des séries (À ÉDITER À LA MAIN)
+js/data/series.js     ← métadonnées des séries (à la main OU via Modifier-Series.bat)
 js/data/chapters.js   ← pages par chapitre (GÉNÉRÉ, ne pas éditer)
 images/ couvertures, logos, icônes
 Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 tools/build-data.py         ← scanner qui régénère chapters.js
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
+tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
 supabase/*.sql              ← schémas Supabase (forum + gamification)
 ```
 
@@ -139,14 +140,62 @@ L'onglet **🛠️ Gérer** permet de modifier un chapitre existant :
 
 ---
 
-## 4. Ajouter une nouvelle série
+## 4. Ajouter / modifier une série (fiches)
 
-Pour une **nouvelle série**, en plus des chapitres :
+Les **infos** d'une série (description, genres, auteur, artiste, année, note,
+statut, couverture…) vivent dans `js/data/series.js`. Les **images** des
+chapitres, elles, se gèrent avec l'outil de la section 3.
 
-1. Ajoute une entrée dans `js/data/series.js` (titre, couverture, genres, statut…).
-   L'`id` doit être **identique** au nom du dossier dans `Manga/`.
-2. Lance le scanner (`py tools/build-data.py`) ou publie un chapitre via l'outil
-   web — la série apparaîtra alors au catalogue.
+### A. Sans coder (interface web locale) — recommandé
+
+1. **Double-clique** sur `tools/Modifier-Series.bat`
+   (ou en ligne de commande : `node tools/series-server.js`).
+   Ton navigateur s'ouvre sur <http://localhost:4600>. Laisse la fenêtre noire
+   ouverte tant que tu t'en sers ; ferme-la pour arrêter.
+   *Prérequis : Node.js. Les deux outils peuvent tourner en même temps
+   (ports 4599 et 4600).*
+2. La liste montre **toutes les fiches** dans l'ordre où elles apparaissent sur
+   le site. Les flèches **↑ ↓** changent cet ordre, **✏️ Modifier** ouvre la
+   fiche, **➕ Nouvelle fiche** en crée une.
+3. Dans le formulaire :
+   - **Identifiant** : doit être **identique** au nom du dossier dans `Manga/`
+     (l'outil te dit s'il le trouve, et combien de chapitres y sont scannés) ;
+   - **Titre, type** (série / oneshot), **statut**, **note /5** ;
+   - **Nombre de chapitres** et **date de MàJ** : un lien sous le champ propose
+     la valeur réelle lue dans `chapters.js` / dans les dossiers, en un clic ;
+   - **Année de parution**, **auteur** (scénario) et **artiste** (dessin, si
+     c'est quelqu'un d'autre) ;
+   - **Genres** : clique sur les genres déjà utilisés pour les ajouter, ou tape
+     le tien puis Entrée ; ✕ pour en retirer un ;
+   - **Description**, **couverture** (choisie parmi `images/Cover/`, avec
+     aperçu), **couleur d'accent** (l'ambiance de la fiche) ;
+   - **Équipes partenaires** pour les collaborations (nom, lien, couleur) ;
+   - **⭐ Mise en avant** (héros et sélections de l'accueil) et **📖 demo**.
+   Un aperçu en haut de page se met à jour pendant que tu tapes.
+4. **💾 Enregistrer** réécrit `js/data/series.js`. Avant chaque écriture, une
+   copie de l'ancienne version est rangée dans `tools/.backups/`
+   (les 30 dernières sont conservées) — en cas de bêtise, tu recopies le
+   fichier voulu par-dessus.
+5. **🗑️ Supprimer la fiche** retire la série du site **sans toucher** aux images
+   ni aux dossiers de `Manga/`.
+
+> L'outil n'écoute que sur `127.0.0.1` (ta machine) : rien n'est exposé sur
+> Internet. Il réécrit le fichier dans le même style qu'à la main ; en revanche
+> les commentaires que tu aurais ajoutés toi-même dans `series.js` ne sont pas
+> conservés (l'en-tête, le séparateur « ONESHOTS » et la note « partenaires », si).
+
+### B. À la main
+
+Ajoute ou modifie une entrée dans `js/data/series.js` (titre, couverture,
+genres, statut…). L'`id` doit être **identique** au nom du dossier dans
+`Manga/`. Lance ensuite le scanner (`py tools/build-data.py`) ou publie un
+chapitre via l'outil web — la série apparaîtra alors au catalogue.
+
+Champs reconnus : `id`, `title`, `type` (`manga` / `oneshot`), `genres`,
+`status`, `chapters`, `lastUpdate` (AAAA-MM-JJ), `rating`, `author`, `artist`,
+`year`, `accent`, `partners`, `description`, `cover`, `url`, `demo`, `featured`.
+`artist` et `year` sont facultatifs : quand ils sont remplis, la fiche affiche
+« Dessin <artiste> » et l'année à côté du statut.
 
 ---
 

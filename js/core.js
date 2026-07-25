@@ -329,7 +329,8 @@
     const term = (palInput.value || "").trim().toLowerCase();
     const S = window.SERIES || [];
     palItems = !term ? [] : S.filter(s =>
-      s.title.toLowerCase().includes(term) || s.genres.join(" ").toLowerCase().includes(term) || (s.author || "").toLowerCase().includes(term)
+      s.title.toLowerCase().includes(term) || s.genres.join(" ").toLowerCase().includes(term) ||
+      (s.author || "").toLowerCase().includes(term) || (s.artist || "").toLowerCase().includes(term)
     ).slice(0, 8);
     palActive = -1;
     if (!term) {

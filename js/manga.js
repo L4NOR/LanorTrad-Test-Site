@@ -38,11 +38,12 @@
               <div class="inner skeleton" style="view-transition-name:cover-active"><img src="${s.cover}" alt="${s.title}" data-fade></div>
             </div>
             <div class="series-info" data-reveal="right">
-              <span class="eyebrow">${s.type === "oneshot" ? "Oneshot" : "Série"} · ${s.status}</span>
+              <span class="eyebrow">${s.type === "oneshot" ? "Oneshot" : "Série"} · ${s.status}${s.year ? " · " + s.year : ""}</span>
               <h1>${s.title}</h1>
               <div class="series-meta">
                 <span id="mv-rating">${window.LT.stars(s.rating)} <b>${s.rating}</b></span><span class="dot"></span>
                 <span>Par <b>${s.author}</b></span><span class="dot"></span>
+                ${s.artist && s.artist !== s.author ? `<span>Dessin <b>${s.artist}</b></span><span class="dot"></span>` : ""}
                 <span><b>${s.chapters}</b> chapitre${s.chapters > 1 ? "s" : ""}</span><span class="dot"></span>
                 <span>MàJ ${window.LT.timeAgo(s.lastUpdate) || "—"}</span>
                 <span class="dot" id="mv-vdot" hidden></span><span id="mv-views"></span>
@@ -464,6 +465,8 @@
       author: { "@type": "Person", name: s.author }, inLanguage: "fr",
       image: img, description: s.description, url: location.href
     };
+    if (s.artist && s.artist !== s.author) work.illustrator = { "@type": "Person", name: s.artist };
+    if (s.year) work.datePublished = String(s.year);
     if (s.type === "oneshot") work.bookFormat = "https://schema.org/GraphicNovel";
     else work.numberOfEpisodes = s.chapters;
     const crumbs = {
