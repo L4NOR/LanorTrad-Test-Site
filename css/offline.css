@@ -1,0 +1,181 @@
+/* =========================================================================
+   LanorTrad — Mode hors ligne : bandeau + mini-jeu « Oni Runner »
+   Piloté par js/offline.js. Rien ne s'affiche tant que la connexion tient.
+   ========================================================================= */
+
+/* ---------------------------- Bandeau ---------------------------- */
+.lt-off-bar {
+  position: fixed;
+  left: 50%;
+  /* Au-dessus du menu radial (64 px à 22 px du bas) et du dock du lecteur :
+     le bandeau ne doit jamais bloquer la navigation. */
+  bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 130%);
+  z-index: 8800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(560px, calc(100vw - 24px));
+  padding: 11px 12px 11px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--glass-2);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transition: transform .45s var(--ease-back), opacity .3s var(--ease);
+}
+.lt-off-bar.on { transform: translate(-50%, 0); opacity: 1; }
+
+.lt-off-ico { font-size: 1.15rem; line-height: 1; flex: none; }
+.lt-off-txt { min-width: 0; line-height: 1.25; }
+.lt-off-txt b { display: block; font-size: .9rem; color: var(--txt); }
+.lt-off-txt small { display: block; font-size: .76rem; color: var(--txt-mut); }
+
+.lt-off-bar button {
+  flex: none;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: filter .2s var(--ease), border-color .2s var(--ease);
+}
+.lt-off-play {
+  padding: 8px 14px;
+  font-size: .82rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--grad);
+  box-shadow: 0 8px 22px -10px rgba(168, 85, 247, .9);
+}
+.lt-off-play:hover { filter: brightness(1.12); }
+.lt-off-x {
+  width: 30px; height: 30px;
+  color: var(--txt-mut);
+  background: transparent;
+  border-color: var(--line);
+}
+.lt-off-x:hover { color: var(--txt); border-color: var(--line-strong); }
+
+.lt-off-bar.ok { border-color: rgba(52, 211, 153, .45); }
+.lt-off-bar.ok .lt-off-txt b { color: #6ee7b7; }
+
+@media (max-width: 520px) {
+  .lt-off-bar { gap: 9px; padding: 10px 10px 10px 13px; }
+  .lt-off-txt small { display: none; }
+}
+
+/* ------------------------------ Jeu ------------------------------ */
+.lt-game {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5, 5, 12, .72);
+  opacity: 0;
+  transition: opacity .26s var(--ease);
+}
+.lt-game.on { opacity: 1; }
+.lt-game[hidden] { display: none; }
+body.lt-game-active { overflow: hidden; }
+
+.lt-game-panel {
+  width: min(880px, 100%);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-strong);
+  background: var(--bg-2);
+  box-shadow: var(--glow), var(--shadow-card);
+  overflow: hidden;
+  transform: translateY(14px) scale(.985);
+  transition: transform .35s var(--ease-back);
+}
+.lt-game.on .lt-game-panel { transform: none; }
+
+.lt-game-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.lt-game-id { flex: 1; min-width: 0; }
+.lt-game-id .eyebrow { font-size: .68rem; }
+.lt-game-id h2 {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: .01em;
+}
+.lt-game-scores { display: flex; gap: 14px; font-size: .76rem; color: var(--txt-mut); text-align: right; }
+.lt-game-scores b { display: block; font-size: 1.05rem; color: var(--txt); font-variant-numeric: tabular-nums; }
+.lt-game-x {
+  flex: none;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--txt-soft);
+  font: inherit;
+  cursor: pointer;
+}
+.lt-game-x:hover { color: var(--txt); border-color: var(--line-strong); }
+
+.lt-game-stage {
+  position: relative;
+  height: clamp(180px, 38vh, 260px);
+  background: #0d0c1c;
+}
+.lt-game-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: manipulation;   /* pas de zoom/scroll parasite en tapant */
+  cursor: pointer;
+}
+
+.lt-game-foot { padding: 12px 16px 14px; }
+.lt-game-help { margin: 0; font-size: .78rem; color: var(--txt-mut); line-height: 1.5; }
+.lt-game-help b { color: var(--txt-soft); font-weight: 600; }
+.lt-game-net {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(52, 211, 153, .35);
+  background: rgba(52, 211, 153, .08);
+  font-size: .8rem;
+  color: #6ee7b7;
+}
+.lt-game-net[hidden] { display: none; }
+.lt-game-resume {
+  margin-left: auto;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: none;
+  background: var(--grad);
+  color: #fff;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lt-game-resume:hover { filter: brightness(1.12); }
+
+@media (max-width: 560px) {
+  .lt-game { padding: 10px; }
+  .lt-game-head { padding: 12px 13px; }
+  .lt-game-scores { gap: 10px; font-size: .7rem; }
+  .lt-game-stage { height: clamp(170px, 38vh, 240px); }
+}
+
+/* Machines modestes / mouvement réduit : on garde le jeu (c'est son métier
+   de bouger) mais on coupe les effets décoratifs autour. */
+:root[data-perf="lite"] .lt-off-bar,
+:root[data-perf="lite"] .lt-game-panel { backdrop-filter: none; }
+@media (prefers-reduced-motion: reduce) {
+  .lt-off-bar, .lt-game, .lt-game-panel { transition-duration: .01ms; }
+}

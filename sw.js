@@ -1,15 +1,21 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v35";
+const CACHE = "lanortrad-v36";
 /* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */
 const IMG_CACHE = "lanortrad-img-v1";
+/* Page servie quand une navigation échoue hors ligne (elle embarque le
+   mini-jeu). Précachée en priorité : sans réseau, impossible d'aller la
+   chercher au moment où on en a besoin. */
+const OFFLINE_PAGE = "offline.html";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "classement.html",
+  OFFLINE_PAGE,
   "css/base.css", "css/components.css", "css/animations.css", "css/extras.css",
   "css/home.css", "css/catalogue.css", "css/manga.css", "css/reader.css", "css/pages.css",
-  "css/planning.css", "css/forum.css", "css/classement.css",
+  "css/planning.css", "css/forum.css", "css/classement.css", "css/offline.css", "css/perf.css",
+  "js/perf.js", "js/offline.js",
   "js/core.js", "js/store.js", "js/palette.js", "js/cards.js", "js/tilt.js",
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
   "js/planning.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js", "js/pulse.js", "js/ratings.js", "js/sync.js",
@@ -51,5 +57,18 @@ self.addEventListener("fetch", e => {
       const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy));
     }
     return res;
-  }).catch(() => caches.match(req).then(r => r || caches.match("index.html"))));
+  }).catch(async () => {
+    const hit = await caches.match(req);
+    if (hit) return hit;
+    if (req.mode === "navigate") {
+      // Les pages sont pilotées par l'URL côté client : manga.html?id=X est
+      // rendu par la version cachée de manga.html (d'où ignoreSearch).
+      const page = await caches.match(req, { ignoreSearch: true });
+      if (page) return page;
+      // Vraiment rien en cache : page « hors ligne » (explications + mini-jeu)
+      // plutôt qu'une erreur du navigateur.
+      return (await caches.match(OFFLINE_PAGE)) || caches.match("index.html");
+    }
+    return caches.match("index.html");
+  }));
 });

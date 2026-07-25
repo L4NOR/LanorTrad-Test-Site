@@ -20,7 +20,8 @@ quel sur Netlify ou GitHub Pages.
 4. [Ajouter / modifier une série (fiches)](#4-ajouter--modifier-une-série-fiches)
 5. [Forum — configuration (Supabase)](#5-forum--configuration-supabase)
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
-7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriel-première-visite)
+7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
+   · [7 bis. Mode hors ligne + mini-jeu](#7-bis-mode-hors-ligne--mini-jeu--oni-runner-)
 8. [Déploiement](#8-déploiement)
 9. [État actuel du site](#9-état-actuel-du-site)
 
@@ -42,7 +43,8 @@ equipe.html        Équipe (membres réels)
 css/    base, components, animations, home, catalogue, manga, reader, pages,
         extras, forum, classement, planning, perf, ambiance, tour
 js/     core (shell), cards, tilt, hero, home, catalogue, manga, reader,
-        forum, classement, xp, views, perf, store, palette, tour
+        forum, classement, xp, views, perf, store, palette, tour, offline
+offline.html          ← page de repli hors ligne (avec le mini-jeu)
 js/data/series.js     ← métadonnées des séries (à la main OU via Modifier-Series.bat)
 js/data/chapters.js   ← pages par chapitre (GÉNÉRÉ, ne pas éditer)
 images/ couvertures, logos, icônes
@@ -409,6 +411,57 @@ Détails techniques :
 
 ---
 
+## 7 bis. Mode hors ligne + mini-jeu « Oni Runner »
+
+Quand la connexion tombe **en pleine navigation** (métro, ascenseur, forfait
+épuisé), le site ne casse pas : il le dit, et il propose de patienter en jouant —
+l'équivalent maison du dinosaure de Chrome.
+
+**Ce que voit le lecteur**
+
+1. **Bandeau « Connexion perdue »** en bas de l'écran (au-dessus du menu radial et
+   du dock du lecteur, il ne bloque jamais la navigation) : il rappelle que les
+   chapitres déjà lus restent lisibles, avec un bouton **🎮 Jouer** et une croix.
+2. **Oni Runner** : un petit Oni court, **saute** les piles de tomes et **se
+   baisse** sous les corbeaux. La vitesse augmente avec le score, le décor bascule
+   en **mode nuit** tous les 700 points, et le **record** est gardé en local
+   (`lt-oni-best`, parties comptées dans `lt-oni-plays`).
+   Commandes : **Espace / ↑ / W** ou tape le haut de l'écran pour sauter,
+   **↓ / S** ou tape le bas pour te baisser, **Échap** pour fermer.
+   Le saut est plus court si tu relâches tôt (comme le dino).
+3. **Retour de la connexion** : le bandeau devient vert. Si une partie est en
+   cours, **elle n'est pas coupée** — un bandeau propose juste « Reprendre la
+   lecture ».
+4. **Page jamais visitée demandée hors ligne** : le service worker sert
+   [`offline.html`](offline.html) (explications + liens + le jeu qui s'ouvre tout
+   seul) au lieu de l'erreur du navigateur.
+
+**Détails techniques**
+
+- **Fichiers** : [`js/offline.js`](js/offline.js) (détection + jeu en canvas) et
+  [`css/offline.css`](css/offline.css), inclus sur **toutes** les pages ;
+  [`offline.html`](offline.html) pour le repli de navigation.
+- **Détection** : événements `online` / `offline` du navigateur + `navigator.onLine`
+  au chargement. Le message vert n'apparaît que si la connexion est réellement
+  tombée pendant la visite.
+- **Service worker** : `offline.html`, `css/offline.css` et `js/offline.js` sont
+  **précachés** (sinon impossible d'aller les chercher au moment où on en a
+  besoin). Le repli navigation est dans `sw.js` (`req.mode === "navigate"`).
+  Toute modification de ces fichiers demande de **monter la version du cache**
+  (`const CACHE = "lanortrad-vNN"` en haut de `sw.js`).
+- **Performance** : le jeu suit le mode **Fluidité** — en `data-perf="lite"`,
+  plus d'étoiles, de collines ni de poussière, et rendu en DPR 1. La partie se met
+  en pause si l'onglet passe en arrière-plan.
+- **Ouvrir le jeu à la demande** (hors panne) : `?jeu=1` dans l'URL, un bouton
+  `data-play-offline` (il y en a un sur la page **404**), ou `LToffline.open()`
+  dans la console. `LToffline.best()` rend le record.
+- **Tester sans couper le wifi** : ouvre la console et lance
+  `window.dispatchEvent(new Event("offline"))` (puis `"online"` pour le retour).
+  Le repli `offline.html`, lui, ne se teste qu'**en ligne réelle** (le service
+  worker est volontairement désactivé en local, cf. §1).
+
+---
+
 ## 8. Déploiement
 
 Le dossier `F:\LanorTrad-Test-Site` est autonome et prêt à déployer (Netlify :
@@ -427,6 +480,8 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
 - **Forum** + **Gamification (XP / classement / missions / cosmétiques)** branchés
   sur Supabase.
 - **Visite guidée** au premier passage (rejouable).
+- **Hors ligne** : bandeau d'alerte + mini-jeu **Oni Runner** (façon dino Chrome)
+  et page de repli `offline.html` quand une page non cachée est demandée.
 - **PWA** : `manifest.json` + `sw.js` (lecture hors-ligne des chapitres déjà lus,
   cache images persistant entre les versions). Bouton « Lire hors connexion » dans
   le rail du lecteur : pré-télécharge le chapitre entier dans ce cache.
