@@ -38,7 +38,8 @@ window.CHAPTERS = {
     "030.webp",
     "031.webp",
     "032.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 166/001.webp"
   },
   {
    "num": "165",
@@ -78,7 +79,8 @@ window.CHAPTERS = {
     "031.webp",
     "032.webp",
     "033.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 165/001.webp"
   },
   {
    "num": "164",
@@ -120,7 +122,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 164/001.webp"
   },
   {
    "num": "163",
@@ -162,7 +165,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 163/001.webp"
   },
   {
    "num": "162",
@@ -193,7 +197,8 @@ window.CHAPTERS = {
     "022.webp",
     "023.webp",
     "024.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 162/001.webp"
   },
   {
    "num": "161",
@@ -234,7 +239,8 @@ window.CHAPTERS = {
     "032.webp",
     "033.webp",
     "034.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 161/001.webp"
   },
   {
    "num": "160",
@@ -278,7 +284,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 160/000.webp"
   },
   {
    "num": "159",
@@ -320,7 +327,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 159/001.webp"
   },
   {
    "num": "158",
@@ -364,7 +372,8 @@ window.CHAPTERS = {
     "035.webp",
     "036.webp",
     "037.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 158/001.webp"
   },
   {
    "num": "157",
@@ -406,7 +415,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 157/001.webp"
   },
   {
    "num": "156",
@@ -447,7 +457,8 @@ window.CHAPTERS = {
     "032.webp",
     "033.webp",
     "034.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 156/001.webp"
   },
   {
    "num": "155",
@@ -481,7 +492,8 @@ window.CHAPTERS = {
     "025.webp",
     "026.webp",
     "027.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 155/001.webp"
   },
   {
    "num": "154",
@@ -523,7 +535,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 154/001.webp"
   },
   {
    "num": "153",
@@ -574,7 +587,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 153/001.webp"
   },
   {
    "num": "152",
@@ -602,7 +616,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 152/001.webp"
   },
   {
    "num": "151",
@@ -637,7 +652,8 @@ window.CHAPTERS = {
     "026.webp",
     "027.webp",
     "028.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 151/001.webp"
   },
   {
    "num": "150",
@@ -669,7 +685,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 150/001.webp"
   },
   {
    "num": "149",
@@ -721,7 +738,8 @@ window.CHAPTERS = {
     "043.webp",
     "044.webp",
     "045.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 149/001.webp"
   },
   {
    "num": "148",
@@ -763,7 +781,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 148/001.webp"
   },
   {
    "num": "147",
@@ -808,7 +827,8 @@ window.CHAPTERS = {
     "036.webp",
     "037.webp",
     "038.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 147/001.webp"
   },
   {
    "num": "146",
@@ -848,7 +868,8 @@ window.CHAPTERS = {
     "031.webp",
     "032.webp",
     "033.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 146/001.webp"
   },
   {
    "num": "145",
@@ -890,7 +911,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 145/001.webp"
   },
   {
    "num": "144",
@@ -932,7 +954,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 144/001.webp"
   },
   {
    "num": "143",
@@ -974,7 +997,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 143/001.webp"
   },
   {
    "num": "142",
@@ -1008,7 +1032,8 @@ window.CHAPTERS = {
     "025.webp",
     "026.webp",
     "027.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 142/001.webp"
   },
   {
    "num": "141",
@@ -1048,7 +1073,8 @@ window.CHAPTERS = {
     "031.webp",
     "032.webp",
     "033.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 141/001.webp"
   },
   {
    "num": "140",
@@ -1090,7 +1116,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 140/001.webp"
   },
   {
    "num": "139",
@@ -1139,7 +1166,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 139/001.webp"
   },
   {
    "num": "138.5",
@@ -1161,7 +1189,8 @@ window.CHAPTERS = {
     "013.webp",
     "014.webp",
     "015.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 138.5/001.webp"
   },
   {
    "num": "138",
@@ -1200,7 +1229,8 @@ window.CHAPTERS = {
     "030.webp",
     "031.webp",
     "032.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 138/001.webp"
   },
   {
    "num": "137",
@@ -1237,7 +1267,8 @@ window.CHAPTERS = {
     "028.webp",
     "029.webp",
     "030.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 137/001.webp"
   },
   {
    "num": "136",
@@ -1275,7 +1306,8 @@ window.CHAPTERS = {
     "029.webp",
     "030.webp",
     "031.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 136/001.webp"
   },
   {
    "num": "135",
@@ -1325,7 +1357,8 @@ window.CHAPTERS = {
     "041.webp",
     "042.webp",
     "043.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 135/001.webp"
   },
   {
    "num": "134",
@@ -1358,7 +1391,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 134/001.webp"
   },
   {
    "num": "133",
@@ -1427,7 +1461,8 @@ window.CHAPTERS = {
     "060.webp",
     "061.webp",
     "062.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 133/001.webp"
   },
   {
    "num": "132",
@@ -1461,7 +1496,8 @@ window.CHAPTERS = {
     "025.webp",
     "026.webp",
     "027.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 132/001.webp"
   },
   {
    "num": "131",
@@ -1518,7 +1554,8 @@ window.CHAPTERS = {
     "048.webp",
     "049.webp",
     "050.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 131/001.webp"
   },
   {
    "num": "130",
@@ -1570,7 +1607,8 @@ window.CHAPTERS = {
     "043.webp",
     "044.webp",
     "045.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 130/001.webp"
   },
   {
    "num": "129",
@@ -1613,7 +1651,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 129/001.webp"
   },
   {
    "num": "128",
@@ -1666,7 +1705,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 128/001.webp"
   },
   {
    "num": "127",
@@ -1709,7 +1749,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 127/001.webp"
   },
   {
    "num": "126",
@@ -1763,7 +1804,8 @@ window.CHAPTERS = {
     "045.webp",
     "046.webp",
     "047.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 126/001.webp"
   },
   {
    "num": "125",
@@ -1833,7 +1875,8 @@ window.CHAPTERS = {
     "061.webp",
     "062.webp",
     "063.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 125/001.webp"
   },
   {
    "num": "124",
@@ -1876,7 +1919,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 124/001.webp"
   },
   {
    "num": "123",
@@ -1919,7 +1963,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 123/001.webp"
   },
   {
    "num": "122",
@@ -1962,7 +2007,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 122/001.webp"
   },
   {
    "num": "121",
@@ -2022,7 +2068,8 @@ window.CHAPTERS = {
     "051.webp",
     "052.webp",
     "053.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 121/001.webp"
   },
   {
    "num": "120",
@@ -2086,7 +2133,8 @@ window.CHAPTERS = {
     "055.webp",
     "056.webp",
     "057.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 120/001.webp"
   },
   {
    "num": "119",
@@ -2137,7 +2185,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 119/001.webp"
   },
   {
    "num": "118",
@@ -2182,7 +2231,8 @@ window.CHAPTERS = {
     "036.webp",
     "037.webp",
     "038.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 118/001.webp"
   },
   {
    "num": "117",
@@ -2229,7 +2279,8 @@ window.CHAPTERS = {
     "038.webp",
     "039.webp",
     "040.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 117/001.webp"
   },
   {
    "num": "116",
@@ -2288,7 +2339,8 @@ window.CHAPTERS = {
     "050.webp",
     "051.webp",
     "052.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 116/001.webp"
   },
   {
    "num": "115",
@@ -2338,7 +2390,8 @@ window.CHAPTERS = {
     "041.webp",
     "042.webp",
     "043.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 115/001.webp"
   },
   {
    "num": "114",
@@ -2388,7 +2441,8 @@ window.CHAPTERS = {
     "041.webp",
     "042.webp",
     "043.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 114/001.webp"
   },
   {
    "num": "113",
@@ -2431,7 +2485,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 113/001.webp"
   },
   {
    "num": "112",
@@ -2475,7 +2530,8 @@ window.CHAPTERS = {
     "035.webp",
     "036.webp",
     "037.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 112/001.webp"
   },
   {
    "num": "111",
@@ -2517,7 +2573,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 111/001.webp"
   },
   {
    "num": "110",
@@ -2562,7 +2619,8 @@ window.CHAPTERS = {
     "036.webp",
     "037.webp",
     "038.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 110/001.webp"
   },
   {
    "num": "109",
@@ -2612,7 +2670,8 @@ window.CHAPTERS = {
     "041.webp",
     "042.webp",
     "043.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 109/001.webp"
   },
   {
    "num": "108",
@@ -2664,7 +2723,8 @@ window.CHAPTERS = {
     "043.webp",
     "044.webp",
     "045.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 108/001.webp"
   },
   {
    "num": "107",
@@ -2707,7 +2767,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 107/001.webp"
   },
   {
    "num": "106",
@@ -2750,7 +2811,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 106/001.webp"
   },
   {
    "num": "105",
@@ -2793,7 +2855,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 105/001.webp"
   },
   {
    "num": "104",
@@ -2844,7 +2907,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 104/001.webp"
   },
   {
    "num": "103",
@@ -2896,7 +2960,8 @@ window.CHAPTERS = {
     "043.webp",
     "044.webp",
     "045.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 103/001.webp"
   },
   {
    "num": "102",
@@ -2939,7 +3004,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 102/001.webp"
   },
   {
    "num": "101",
@@ -2982,7 +3048,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 101/001.webp"
   },
   {
    "num": "100",
@@ -3025,7 +3092,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 100/001.webp"
   },
   {
    "num": "99",
@@ -3086,7 +3154,8 @@ window.CHAPTERS = {
     "052.webp",
     "053.webp",
     "054.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 99/001.webp"
   },
   {
    "num": "98",
@@ -3146,7 +3215,8 @@ window.CHAPTERS = {
     "051.webp",
     "052.webp",
     "053.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 98/001.webp"
   },
   {
    "num": "97",
@@ -3171,7 +3241,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 97/001.webp"
   },
   {
    "num": "96",
@@ -3213,7 +3284,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 96/001.webp"
   },
   {
    "num": "95",
@@ -3261,7 +3333,8 @@ window.CHAPTERS = {
     "039.webp",
     "040.webp",
     "041.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 95/001.webp"
   },
   {
    "num": "94",
@@ -3312,7 +3385,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 94/001.webp"
   },
   {
    "num": "93",
@@ -3374,7 +3448,8 @@ window.CHAPTERS = {
     "053.webp",
     "054.webp",
     "055.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 93/001.webp"
   },
   {
    "num": "92",
@@ -3417,7 +3492,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 92/001.webp"
   },
   {
    "num": "91",
@@ -3460,7 +3536,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 91/001.webp"
   },
   {
    "num": "90",
@@ -3505,7 +3582,8 @@ window.CHAPTERS = {
     "036.webp",
     "037.webp",
     "038.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 90/001.webp"
   },
   {
    "num": "89",
@@ -3556,7 +3634,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 89/001.webp"
   },
   {
    "num": "88",
@@ -3624,7 +3703,8 @@ window.CHAPTERS = {
     "059.webp",
     "060.webp",
     "061.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 88/001.webp"
   },
   {
    "num": "87",
@@ -3667,7 +3747,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 87/001.webp"
   },
   {
    "num": "86",
@@ -3710,7 +3791,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 86/001.webp"
   },
   {
    "num": "85",
@@ -3733,7 +3815,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 85/001.webp"
   },
   {
    "num": "84",
@@ -3782,7 +3865,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 84/001.webp"
   },
   {
    "num": "83",
@@ -3836,7 +3920,8 @@ window.CHAPTERS = {
     "045.webp",
     "046.webp",
     "047.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 83/001.webp"
   },
   {
    "num": "82",
@@ -3879,7 +3964,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 82/001.webp"
   },
   {
    "num": "81",
@@ -3922,7 +4008,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 81/001.webp"
   },
   {
    "num": "80",
@@ -3965,7 +4052,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 80/001.webp"
   },
   {
    "num": "79",
@@ -4014,7 +4102,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 79/001.webp"
   },
   {
    "num": "78",
@@ -4066,7 +4155,8 @@ window.CHAPTERS = {
     "043.webp",
     "044.webp",
     "045.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 78/001.webp"
   },
   {
    "num": "77",
@@ -4109,7 +4199,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 77/001.webp"
   },
   {
    "num": "76",
@@ -4152,7 +4243,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 76/001.webp"
   },
   {
    "num": "75",
@@ -4183,7 +4275,8 @@ window.CHAPTERS = {
     "022.webp",
     "023.webp",
     "024.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 75/001.webp"
   },
   {
    "num": "74",
@@ -4230,7 +4323,8 @@ window.CHAPTERS = {
     "038.webp",
     "039.webp",
     "040.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 74/001.webp"
   },
   {
    "num": "73",
@@ -4280,7 +4374,8 @@ window.CHAPTERS = {
     "041.webp",
     "042.webp",
     "043.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 73/001.webp"
   },
   {
    "num": "72",
@@ -4303,7 +4398,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 72/001.webp"
   },
   {
    "num": "71",
@@ -4346,7 +4442,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 71/001.webp"
   },
   {
    "num": "70",
@@ -4389,7 +4486,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 70/001.webp"
   },
   {
    "num": "69",
@@ -4432,7 +4530,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 69/001.webp"
   },
   {
    "num": "68",
@@ -4481,7 +4580,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 68/001.webp"
   },
   {
    "num": "67",
@@ -4533,7 +4633,8 @@ window.CHAPTERS = {
     "043.webp",
     "044.webp",
     "045.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 67/001.webp"
   },
   {
    "num": "66",
@@ -4576,7 +4677,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 66/001.webp"
   },
   {
    "num": "65",
@@ -4619,7 +4721,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 65/001.webp"
   },
   {
    "num": "64.5",
@@ -4634,7 +4737,8 @@ window.CHAPTERS = {
     "006.webp",
     "007.webp",
     "008.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 64.5/001.webp"
   },
   {
    "num": "64",
@@ -4667,7 +4771,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 64/001.webp"
   },
   {
    "num": "63",
@@ -4717,7 +4822,8 @@ window.CHAPTERS = {
     "041.webp",
     "042.webp",
     "043.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 63/001.webp"
   },
   {
    "num": "62",
@@ -4765,7 +4871,8 @@ window.CHAPTERS = {
     "039.webp",
     "040.webp",
     "041.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 62/001.webp"
   },
   {
    "num": "61",
@@ -4808,7 +4915,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 61/001.webp"
   },
   {
    "num": "60",
@@ -4851,7 +4959,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 60/001.webp"
   },
   {
    "num": "59",
@@ -4894,7 +5003,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 59/001.webp"
   },
   {
    "num": "58",
@@ -4945,7 +5055,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 58/001.webp"
   },
   {
    "num": "57",
@@ -4994,7 +5105,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 57/001.webp"
   },
   {
    "num": "56",
@@ -5037,7 +5149,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 56/001.webp"
   },
   {
    "num": "55",
@@ -5080,7 +5193,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 55/001.webp"
   },
   {
    "num": "54",
@@ -5126,7 +5240,8 @@ window.CHAPTERS = {
     "037.webp",
     "038.webp",
     "039.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 54/001.webp"
   },
   {
    "num": "53",
@@ -5174,7 +5289,8 @@ window.CHAPTERS = {
     "039.webp",
     "040.webp",
     "041.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 53/001.webp"
   },
   {
    "num": "52",
@@ -5222,7 +5338,8 @@ window.CHAPTERS = {
     "039.webp",
     "040.webp",
     "041.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 52/001.webp"
   },
   {
    "num": "51",
@@ -5265,7 +5382,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 51/001.webp"
   },
   {
    "num": "50",
@@ -5308,7 +5426,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 50/001.webp"
   },
   {
    "num": "49",
@@ -5351,7 +5470,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 49/001.webp"
   },
   {
    "num": "48",
@@ -5402,7 +5522,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 48/001.webp"
   },
   {
    "num": "47",
@@ -5455,7 +5576,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 47/001.webp"
   },
   {
    "num": "46",
@@ -5488,7 +5610,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 46/001.webp"
   },
   {
    "num": "45",
@@ -5521,7 +5644,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 45/001.webp"
   },
   {
    "num": "44",
@@ -5564,7 +5688,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 44/001.webp"
   },
   {
    "num": "43",
@@ -5607,7 +5732,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 43/001.webp"
   },
   {
    "num": "42",
@@ -5640,7 +5766,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 42/001.webp"
   },
   {
    "num": "41.5",
@@ -5688,7 +5815,8 @@ window.CHAPTERS = {
     "039.webp",
     "040.webp",
     "041.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 41.5/001.webp"
   },
   {
    "num": "41",
@@ -5731,7 +5859,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 41/001.webp"
   },
   {
    "num": "40",
@@ -5774,7 +5903,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 40/001.webp"
   },
   {
    "num": "39",
@@ -5817,7 +5947,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 39/001.webp"
   },
   {
    "num": "38",
@@ -5868,7 +5999,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 38/001.webp"
   },
   {
    "num": "37",
@@ -5919,7 +6051,8 @@ window.CHAPTERS = {
     "042.webp",
     "043.webp",
     "044.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 37/001.webp"
   },
   {
    "num": "36",
@@ -5962,7 +6095,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 36/001.webp"
   },
   {
    "num": "35",
@@ -6001,7 +6135,8 @@ window.CHAPTERS = {
     "030.webp",
     "031.webp",
     "032.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 35/001.webp"
   },
   {
    "num": "34",
@@ -6044,7 +6179,8 @@ window.CHAPTERS = {
     "034.webp",
     "035.webp",
     "036.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 34/001.webp"
   },
   {
    "num": "33",
@@ -6093,7 +6229,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 33/001.webp"
   },
   {
    "num": "32",
@@ -6155,7 +6292,8 @@ window.CHAPTERS = {
     "053.webp",
     "054.webp",
     "055.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 32/001.webp"
   },
   {
    "num": "31",
@@ -6196,7 +6334,8 @@ window.CHAPTERS = {
     "032.webp",
     "033.webp",
     "034.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 31/001.webp"
   },
   {
    "num": "30",
@@ -6241,7 +6380,8 @@ window.CHAPTERS = {
     "036.webp",
     "037.webp",
     "038.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 30/001.webp"
   },
   {
    "num": "29",
@@ -6274,7 +6414,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 29/001.webp"
   },
   {
    "num": "28",
@@ -6313,7 +6454,8 @@ window.CHAPTERS = {
     "030.webp",
     "031.webp",
     "032.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 28/001.webp"
   },
   {
    "num": "27",
@@ -6373,7 +6515,8 @@ window.CHAPTERS = {
     "051.webp",
     "052.webp",
     "053.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 27/001.webp"
   },
   {
    "num": "26",
@@ -6422,7 +6565,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 26/001.webp"
   },
   {
    "num": "25",
@@ -6471,7 +6615,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 25/001.webp"
   },
   {
    "num": "24",
@@ -6526,7 +6671,8 @@ window.CHAPTERS = {
     "046.webp",
     "047.webp",
     "048.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 24/001.webp"
   },
   {
    "num": "23.35",
@@ -6549,7 +6695,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 23.35/001.webp"
   },
   {
    "num": "23.25",
@@ -6590,7 +6737,8 @@ window.CHAPTERS = {
     "032.webp",
     "033.webp",
     "034.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 23.25/001.webp"
   },
   {
    "num": "23",
@@ -6629,7 +6777,8 @@ window.CHAPTERS = {
     "030.webp",
     "031.webp",
     "032.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 23/001.webp"
   },
   {
    "num": "22",
@@ -6666,7 +6815,8 @@ window.CHAPTERS = {
     "028.webp",
     "029.webp",
     "030.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 22/001.webp"
   },
   {
    "num": "21",
@@ -6708,7 +6858,8 @@ window.CHAPTERS = {
     "033.webp",
     "034.webp",
     "035.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 21/001.webp"
   },
   {
    "num": "20",
@@ -6762,7 +6913,8 @@ window.CHAPTERS = {
     "045.webp",
     "046.webp",
     "047.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 20/001.webp"
   },
   {
    "num": "19",
@@ -6815,7 +6967,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 19/001.webp"
   },
   {
    "num": "18",
@@ -6868,7 +7021,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 18/001.webp"
   },
   {
    "num": "17",
@@ -6921,7 +7075,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 17/001.webp"
   },
   {
    "num": "16",
@@ -6982,7 +7137,8 @@ window.CHAPTERS = {
     "052.webp",
     "053.webp",
     "054.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 16/001.webp"
   },
   {
    "num": "15",
@@ -7040,7 +7196,8 @@ window.CHAPTERS = {
     "049.webp",
     "050.webp",
     "051.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 15/001.webp"
   },
   {
    "num": "14",
@@ -7089,7 +7246,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 14/001.webp"
   },
   {
    "num": "13",
@@ -7142,7 +7300,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 13/001.webp"
   },
   {
    "num": "12",
@@ -7203,7 +7362,8 @@ window.CHAPTERS = {
     "052.webp",
     "053.webp",
     "054.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 12/001.webp"
   },
   {
    "num": "11",
@@ -7269,7 +7429,8 @@ window.CHAPTERS = {
     "057.webp",
     "058.webp",
     "059.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 11/001.webp"
   },
   {
    "num": "10",
@@ -7318,7 +7479,8 @@ window.CHAPTERS = {
     "040.webp",
     "041.webp",
     "042.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 10/001.webp"
   },
   {
    "num": "9",
@@ -7371,7 +7533,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 09/001.webp"
   },
   {
    "num": "8",
@@ -7432,7 +7595,8 @@ window.CHAPTERS = {
     "052.webp",
     "053.webp",
     "054.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 08/001.webp"
   },
   {
    "num": "7",
@@ -7496,7 +7660,8 @@ window.CHAPTERS = {
     "055.webp",
     "056.webp",
     "057.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 07/001.webp"
   },
   {
    "num": "6",
@@ -7551,7 +7716,8 @@ window.CHAPTERS = {
     "046.webp",
     "047.webp",
     "048.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 06/001.webp"
   },
   {
    "num": "5",
@@ -7604,7 +7770,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 05/001.webp"
   },
   {
    "num": "4",
@@ -7661,7 +7828,8 @@ window.CHAPTERS = {
     "048.webp",
     "049.webp",
     "050.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 04/001.webp"
   },
   {
    "num": "3",
@@ -7730,7 +7898,8 @@ window.CHAPTERS = {
     "060.webp",
     "061.webp",
     "062.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 03/001.webp"
   },
   {
    "num": "2",
@@ -7795,7 +7964,8 @@ window.CHAPTERS = {
     "056.webp",
     "057.webp",
     "058.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 02/001.webp"
   },
   {
    "num": "1",
@@ -7874,7 +8044,8 @@ window.CHAPTERS = {
     "070.webp",
     "071.webp",
     "072.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Ao No Exorcist/Chapitre 01/001.webp"
   }
  ],
  "Catenaccio": [
@@ -7901,7 +8072,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 56/001.webp"
   },
   {
    "num": "55",
@@ -7926,7 +8098,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 55/001.webp"
   },
   {
    "num": "54",
@@ -7951,7 +8124,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 54/001.webp"
   },
   {
    "num": "53",
@@ -7975,7 +8149,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 53/001.webp"
   },
   {
    "num": "52",
@@ -8000,7 +8175,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 52/001.webp"
   },
   {
    "num": "51",
@@ -8025,7 +8201,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 51/001.webp"
   },
   {
    "num": "50",
@@ -8050,7 +8227,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 50/001.webp"
   },
   {
    "num": "49",
@@ -8074,7 +8252,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 49/001.webp"
   },
   {
    "num": "48",
@@ -8099,7 +8278,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 48/001.webp"
   },
   {
    "num": "47",
@@ -8124,7 +8304,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/Chapitre 47/001.webp"
   },
   {
    "num": "46",
@@ -8148,7 +8329,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/46/001.webp"
   },
   {
    "num": "45",
@@ -8173,7 +8355,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/45/001.webp"
   },
   {
    "num": "44",
@@ -8198,7 +8381,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/44/001.webp"
   },
   {
    "num": "43",
@@ -8224,7 +8408,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/43/001.webp"
   },
   {
    "num": "42",
@@ -8248,7 +8433,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/42/001.webp"
   },
   {
    "num": "41",
@@ -8273,7 +8459,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/41/001.webp"
   },
   {
    "num": "40",
@@ -8298,7 +8485,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/40/001.webp"
   },
   {
    "num": "39",
@@ -8322,7 +8510,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/39/001.webp"
   },
   {
    "num": "38",
@@ -8347,7 +8536,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/38/001.webp"
   },
   {
    "num": "37",
@@ -8372,7 +8562,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/37/001.webp"
   },
   {
    "num": "36",
@@ -8397,7 +8588,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/36/001.webp"
   },
   {
    "num": "35",
@@ -8421,7 +8613,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/35/001.webp"
   },
   {
    "num": "34",
@@ -8446,7 +8639,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/34/001.webp"
   },
   {
    "num": "33",
@@ -8471,7 +8665,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/33/001.webp"
   },
   {
    "num": "32",
@@ -8496,7 +8691,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/32/001.webp"
   },
   {
    "num": "31",
@@ -8521,7 +8717,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/31/001.webp"
   },
   {
    "num": "30",
@@ -8546,7 +8743,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/30/001.webp"
   },
   {
    "num": "29",
@@ -8570,7 +8768,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/29/001.webp"
   },
   {
    "num": "28",
@@ -8595,7 +8794,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/28/001.webp"
   },
   {
    "num": "27",
@@ -8619,7 +8819,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/27/001.webp"
   },
   {
    "num": "26",
@@ -8645,7 +8846,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/26/001.webp"
   },
   {
    "num": "25",
@@ -8670,7 +8872,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/25/001.webp"
   },
   {
    "num": "24",
@@ -8694,7 +8897,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/24/001.webp"
   },
   {
    "num": "23",
@@ -8719,7 +8923,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/23/001.webp"
   },
   {
    "num": "22",
@@ -8744,7 +8949,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/22/001.webp"
   },
   {
    "num": "21",
@@ -8768,7 +8974,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/21/001.webp"
   },
   {
    "num": "20",
@@ -8793,7 +9000,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/20/001.webp"
   },
   {
    "num": "19",
@@ -8817,7 +9025,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/19/001.webp"
   },
   {
    "num": "18",
@@ -8842,7 +9051,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/18/001.webp"
   },
   {
    "num": "17",
@@ -8868,7 +9078,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/17/001.webp"
   },
   {
    "num": "16",
@@ -8893,7 +9104,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/16/001.webp"
   },
   {
    "num": "15",
@@ -8918,7 +9130,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/15/001.webp"
   },
   {
    "num": "14",
@@ -8942,7 +9155,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/14/001.webp"
   },
   {
    "num": "13",
@@ -8967,7 +9181,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/13/001.webp"
   },
   {
    "num": "12",
@@ -8991,7 +9206,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/12/001.webp"
   },
   {
    "num": "11",
@@ -9015,7 +9231,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/11/001.webp"
   },
   {
    "num": "10",
@@ -9040,7 +9257,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/10/001.webp"
   },
   {
    "num": "9",
@@ -9065,7 +9283,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/9/001.webp"
   },
   {
    "num": "8",
@@ -9089,7 +9308,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/8/001.webp"
   },
   {
    "num": "7",
@@ -9114,7 +9334,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/7/001.webp"
   },
   {
    "num": "6",
@@ -9139,7 +9360,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/6/001.webp"
   },
   {
    "num": "5",
@@ -9164,7 +9386,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/5/001.webp"
   },
   {
    "num": "4",
@@ -9189,7 +9412,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/4/001.webp"
   },
   {
    "num": "3",
@@ -9242,7 +9466,8 @@ window.CHAPTERS = {
     "044.webp",
     "045.webp",
     "046.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/3/001.webp"
   },
   {
    "num": "2",
@@ -9282,7 +9507,8 @@ window.CHAPTERS = {
     "031.webp",
     "032.webp",
     "033.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/2/001.webp"
   },
   {
    "num": "1",
@@ -9347,7 +9573,8 @@ window.CHAPTERS = {
     "056.webp",
     "057.webp",
     "058.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Catenaccio/1/001.webp"
   }
  ],
  "Countdown": [
@@ -9396,7 +9623,8 @@ window.CHAPTERS = {
     "038.webp",
     "039.webp",
     "040.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Countdown/Oneshot/001.webp"
   }
  ],
  "Gestation of Kalavinka": [
@@ -9427,7 +9655,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Gestation of Kalavinka/Oneshot/001.webp"
   }
  ],
  "In the White": [
@@ -9452,7 +9681,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/In the White/Oneshot/001.webp"
   }
  ],
  "Sake to Sakana": [
@@ -9493,7 +9723,8 @@ window.CHAPTERS = {
     "030.webp",
     "031.webp",
     "032.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Sake to Sakana/Oneshot/001.webp"
   }
  ],
  "Satsudou": [
@@ -9519,7 +9750,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 18/001.webp"
   },
   {
    "num": "17",
@@ -9544,7 +9776,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 17/001.webp"
   },
   {
    "num": "16",
@@ -9569,7 +9802,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 16/001.webp"
   },
   {
    "num": "15",
@@ -9594,7 +9828,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 15/001.webp"
   },
   {
    "num": "14",
@@ -9619,7 +9854,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 14/001.webp"
   },
   {
    "num": "13",
@@ -9644,7 +9880,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 13/001.webp"
   },
   {
    "num": "12",
@@ -9669,7 +9906,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 12/001.webp"
   },
   {
    "num": "11",
@@ -9694,7 +9932,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 11/001.webp"
   },
   {
    "num": "10",
@@ -9720,7 +9959,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 10/001.webp"
   },
   {
    "num": "9",
@@ -9745,7 +9985,8 @@ window.CHAPTERS = {
     "16.webp",
     "17.webp",
     "18.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 09/01.webp"
   },
   {
    "num": "8",
@@ -9770,7 +10011,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 08/001.webp"
   },
   {
    "num": "7",
@@ -9794,7 +10036,8 @@ window.CHAPTERS = {
     "15.webp",
     "16.webp",
     "17.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 07/01.webp"
   },
   {
    "num": "6",
@@ -9823,7 +10066,8 @@ window.CHAPTERS = {
     "20.webp",
     "21.webp",
     "22.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 06/01.webp"
   },
   {
    "num": "5",
@@ -9847,7 +10091,8 @@ window.CHAPTERS = {
     "15.webp",
     "16.webp",
     "17.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 05/01.webp"
   },
   {
    "num": "4",
@@ -9872,7 +10117,8 @@ window.CHAPTERS = {
     "16.webp",
     "17.webp",
     "18.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 04/01.webp"
   },
   {
    "num": "3",
@@ -9909,7 +10155,8 @@ window.CHAPTERS = {
     "28.webp",
     "29.webp",
     "30.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 03/01.webp"
   },
   {
    "num": "2",
@@ -9959,7 +10206,8 @@ window.CHAPTERS = {
     "41.webp",
     "42.webp",
     "43.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 02/01.webp"
   },
   {
    "num": "1",
@@ -10014,7 +10262,8 @@ window.CHAPTERS = {
     "046.webp",
     "047.webp",
     "048.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Satsudou/Chapitre 01/001.webp"
   }
  ],
  "Second Coming": [
@@ -10092,7 +10341,8 @@ window.CHAPTERS = {
     "067.webp",
     "068.webp",
     "069.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Second Coming/Oneshot/001.webp"
   }
  ],
  "Tokyo Underworld": [
@@ -10103,7 +10353,8 @@ window.CHAPTERS = {
    "files": [
     "001.webp",
     "002.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/Chapitre 38.5/001.webp"
   },
   {
    "num": "38",
@@ -10131,7 +10382,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/Chapitre 38/001.webp"
   },
   {
    "num": "37",
@@ -10159,7 +10411,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/Chapitre 37/001.webp"
   },
   {
    "num": "36",
@@ -10188,7 +10441,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/Chapitre 36/001.webp"
   },
   {
    "num": "35.5",
@@ -10197,7 +10451,8 @@ window.CHAPTERS = {
    "files": [
     "001.webp",
     "002.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/Chapitre 35.5/001.webp"
   },
   {
    "num": "35",
@@ -10225,7 +10480,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/Chapitre 35/001.webp"
   },
   {
    "num": "34",
@@ -10253,7 +10509,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/34/001.webp"
   },
   {
    "num": "33",
@@ -10281,7 +10538,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/33/001.webp"
   },
   {
    "num": "32.5",
@@ -10290,7 +10548,8 @@ window.CHAPTERS = {
    "files": [
     "001.webp",
     "002.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/32.5/001.webp"
   },
   {
    "num": "32",
@@ -10320,7 +10579,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/32/001.webp"
   },
   {
    "num": "31",
@@ -10350,7 +10610,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/31/001.webp"
   },
   {
    "num": "30",
@@ -10378,7 +10639,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/30/001.webp"
   },
   {
    "num": "29.5",
@@ -10387,7 +10649,8 @@ window.CHAPTERS = {
    "files": [
     "001.webp",
     "002.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/29.5/001.webp"
   },
   {
    "num": "29",
@@ -10414,7 +10677,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/29/001.webp"
   },
   {
    "num": "28",
@@ -10442,7 +10706,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/28/001.webp"
   },
   {
    "num": "27",
@@ -10472,7 +10737,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/27/001.webp"
   },
   {
    "num": "26.5",
@@ -10481,7 +10747,8 @@ window.CHAPTERS = {
    "files": [
     "001.webp",
     "002.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/26.5/001.webp"
   },
   {
    "num": "26",
@@ -10511,7 +10778,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/26/001.webp"
   },
   {
    "num": "25",
@@ -10541,7 +10809,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/25/001.webp"
   },
   {
    "num": "24.5",
@@ -10550,7 +10819,8 @@ window.CHAPTERS = {
    "files": [
     "001.webp",
     "002.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/24.5/001.webp"
   },
   {
    "num": "24",
@@ -10578,7 +10848,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/24/001.webp"
   },
   {
    "num": "23",
@@ -10606,7 +10877,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/23/001.webp"
   },
   {
    "num": "22",
@@ -10634,7 +10906,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/22/001.webp"
   },
   {
    "num": "21",
@@ -10664,7 +10937,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/21/001.webp"
   },
   {
    "num": "20",
@@ -10694,7 +10968,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/20/001.webp"
   },
   {
    "num": "19",
@@ -10724,7 +10999,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/19/001.webp"
   },
   {
    "num": "18",
@@ -10752,7 +11028,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/18/001.webp"
   },
   {
    "num": "17",
@@ -10782,7 +11059,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/17/001.webp"
   },
   {
    "num": "16",
@@ -10811,7 +11089,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/16/001.webp"
   },
   {
    "num": "15",
@@ -10841,7 +11120,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/15/001.webp"
   },
   {
    "num": "14",
@@ -10871,7 +11151,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/14/001.webp"
   },
   {
    "num": "13",
@@ -10901,7 +11182,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/13/001.webp"
   },
   {
    "num": "12",
@@ -10929,7 +11211,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/12/001.webp"
   },
   {
    "num": "11",
@@ -10958,7 +11241,8 @@ window.CHAPTERS = {
     "20.webp",
     "21.webp",
     "22.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/11/01.webp"
   },
   {
    "num": "10",
@@ -10986,7 +11270,8 @@ window.CHAPTERS = {
     "19.webp",
     "20.webp",
     "21.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/10/01.webp"
   },
   {
    "num": "9",
@@ -11014,7 +11299,8 @@ window.CHAPTERS = {
     "19.webp",
     "20.webp",
     "21.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/09/01.webp"
   },
   {
    "num": "8",
@@ -11044,7 +11330,8 @@ window.CHAPTERS = {
     "21.webp",
     "22.webp",
     "23.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/08/01.webp"
   },
   {
    "num": "7",
@@ -11078,7 +11365,8 @@ window.CHAPTERS = {
     "25.webp",
     "26.webp",
     "27.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/07/01.webp"
   },
   {
    "num": "6",
@@ -11111,7 +11399,8 @@ window.CHAPTERS = {
     "24.webp",
     "25.webp",
     "26.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/06/01.webp"
   },
   {
    "num": "5",
@@ -11142,7 +11431,8 @@ window.CHAPTERS = {
     "22.webp",
     "23.webp",
     "24.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/05/01.webp"
   },
   {
    "num": "4",
@@ -11173,7 +11463,8 @@ window.CHAPTERS = {
     "22.webp",
     "23.webp",
     "24.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/04/01.webp"
   },
   {
    "num": "3",
@@ -11210,7 +11501,8 @@ window.CHAPTERS = {
     "28.webp",
     "29.webp",
     "30.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/03/01.webp"
   },
   {
    "num": "2",
@@ -11253,7 +11545,8 @@ window.CHAPTERS = {
     "34.webp",
     "35.webp",
     "36.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/02/01.webp"
   },
   {
    "num": "1",
@@ -11312,7 +11605,8 @@ window.CHAPTERS = {
     "50.webp",
     "51.webp",
     "52.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tokyo Underworld/01/01.webp"
   }
  ],
  "Tougen Anki": [
@@ -11331,7 +11625,8 @@ window.CHAPTERS = {
     "008.webp",
     "009.webp",
     "010.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 246.5/001.webp"
   },
   {
    "num": "246",
@@ -11354,7 +11649,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 246/001.webp"
   },
   {
    "num": "245",
@@ -11380,7 +11676,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 245/001.webp"
   },
   {
    "num": "244",
@@ -11406,7 +11703,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 244/001.webp"
   },
   {
    "num": "243",
@@ -11433,7 +11731,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 243/001.webp"
   },
   {
    "num": "242",
@@ -11459,7 +11758,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 242/001.webp"
   },
   {
    "num": "241",
@@ -11485,7 +11785,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 241/001.webp"
   },
   {
    "num": "240",
@@ -11512,7 +11813,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 240/001.webp"
   },
   {
    "num": "239",
@@ -11537,7 +11839,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 239/001.webp"
   },
   {
    "num": "238",
@@ -11563,7 +11866,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 238/001.webp"
   },
   {
    "num": "237",
@@ -11590,7 +11894,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 237/001.webp"
   },
   {
    "num": "236",
@@ -11612,7 +11917,8 @@ window.CHAPTERS = {
     "013.webp",
     "014.webp",
     "015.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 236/001.webp"
   },
   {
    "num": "235",
@@ -11638,7 +11944,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 235/001.webp"
   },
   {
    "num": "234",
@@ -11663,7 +11970,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 234/001.webp"
   },
   {
    "num": "233",
@@ -11689,7 +11997,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 233/001.webp"
   },
   {
    "num": "232",
@@ -11713,7 +12022,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 232/001.webp"
   },
   {
    "num": "231",
@@ -11740,7 +12050,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 231/001.webp"
   },
   {
    "num": "230",
@@ -11765,7 +12076,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 230/001.webp"
   },
   {
    "num": "229",
@@ -11790,7 +12102,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 229/001.webp"
   },
   {
    "num": "228",
@@ -11813,7 +12126,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 228/001.webp"
   },
   {
    "num": "227",
@@ -11840,7 +12154,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 227/001.webp"
   },
   {
    "num": "226",
@@ -11865,7 +12180,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 226/001.webp"
   },
   {
    "num": "225",
@@ -11892,7 +12208,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 225/001.webp"
   },
   {
    "num": "224",
@@ -11920,7 +12237,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 224/001.webp"
   },
   {
    "num": "223",
@@ -11944,7 +12262,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 223/001.webp"
   },
   {
    "num": "222",
@@ -11969,7 +12288,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 222/001.webp"
   },
   {
    "num": "221",
@@ -11997,7 +12317,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 221/001.webp"
   },
   {
    "num": "220",
@@ -12023,7 +12344,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 220/001.webp"
   },
   {
    "num": "219",
@@ -12051,7 +12373,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 219/001.webp"
   },
   {
    "num": "218",
@@ -12077,7 +12400,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 218/001.webp"
   },
   {
    "num": "217",
@@ -12103,7 +12427,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 217/001.webp"
   },
   {
    "num": "216",
@@ -12128,7 +12453,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 216/001.webp"
   },
   {
    "num": "215",
@@ -12153,7 +12479,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 215/001.webp"
   },
   {
    "num": "214",
@@ -12177,7 +12504,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 214/001.webp"
   },
   {
    "num": "213",
@@ -12205,7 +12533,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 213/001.webp"
   },
   {
    "num": "212",
@@ -12231,7 +12560,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 212/001.webp"
   },
   {
    "num": "211",
@@ -12255,7 +12585,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 211/001.webp"
   },
   {
    "num": "210",
@@ -12279,7 +12610,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 210/001.webp"
   },
   {
    "num": "209",
@@ -12304,7 +12636,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 209/001.webp"
   },
   {
    "num": "208",
@@ -12331,7 +12664,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 208/001.webp"
   },
   {
    "num": "207",
@@ -12358,7 +12692,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 207/001.webp"
   },
   {
    "num": "206",
@@ -12384,7 +12719,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 206/001.webp"
   },
   {
    "num": "205",
@@ -12412,7 +12748,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 205/001.webp"
   },
   {
    "num": "204",
@@ -12437,7 +12774,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 204/001.webp"
   },
   {
    "num": "203",
@@ -12463,7 +12801,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 203/001.webp"
   },
   {
    "num": "202",
@@ -12489,7 +12828,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 202/001.webp"
   },
   {
    "num": "201",
@@ -12515,7 +12855,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 201/001.webp"
   },
   {
    "num": "200",
@@ -12541,7 +12882,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 200/001.webp"
   },
   {
    "num": "199",
@@ -12567,7 +12909,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 199/001.webp"
   },
   {
    "num": "198",
@@ -12591,7 +12934,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 198/001.webp"
   },
   {
    "num": "197",
@@ -12616,7 +12960,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 197/001.webp"
   },
   {
    "num": "196",
@@ -12641,7 +12986,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 196/001.webp"
   },
   {
    "num": "195",
@@ -12665,7 +13011,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 195/001.webp"
   },
   {
    "num": "194",
@@ -12691,7 +13038,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 194/001.webp"
   },
   {
    "num": "193",
@@ -12718,7 +13066,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 193/001.webp"
   },
   {
    "num": "192",
@@ -12744,7 +13093,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 192/001.webp"
   },
   {
    "num": "191",
@@ -12770,7 +13120,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 191/001.webp"
   },
   {
    "num": "190",
@@ -12795,7 +13146,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 190/001.webp"
   },
   {
    "num": "189",
@@ -12819,7 +13171,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 189/001.webp"
   },
   {
    "num": "188",
@@ -12844,7 +13197,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 188/001.webp"
   },
   {
    "num": "187",
@@ -12870,7 +13224,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 187/001.webp"
   },
   {
    "num": "186",
@@ -12895,7 +13250,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 186/001.webp"
   },
   {
    "num": "185",
@@ -12922,7 +13278,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 185/001.webp"
   },
   {
    "num": "184",
@@ -12947,7 +13304,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 184/001.webp"
   },
   {
    "num": "183",
@@ -12976,7 +13334,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 183/001.webp"
   },
   {
    "num": "182",
@@ -13003,7 +13362,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 182/001.webp"
   },
   {
    "num": "181.6",
@@ -13019,7 +13379,8 @@ window.CHAPTERS = {
     "007.webp",
     "008.webp",
     "009.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 181.6/001.webp"
   },
   {
    "num": "181.5",
@@ -13036,7 +13397,8 @@ window.CHAPTERS = {
     "008.webp",
     "009.webp",
     "010.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 181.5/001.webp"
   },
   {
    "num": "181",
@@ -13060,7 +13422,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 181/001.webp"
   },
   {
    "num": "180",
@@ -13084,7 +13447,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 180/001.webp"
   },
   {
    "num": "179",
@@ -13110,7 +13474,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 179/001.webp"
   },
   {
    "num": "178",
@@ -13137,7 +13502,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 178/001.webp"
   },
   {
    "num": "177",
@@ -13164,7 +13530,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 177/001.webp"
   },
   {
    "num": "176",
@@ -13191,7 +13558,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 176/001.webp"
   },
   {
    "num": "175",
@@ -13218,7 +13586,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 175/001.webp"
   },
   {
    "num": "174",
@@ -13243,7 +13612,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 174/001.webp"
   },
   {
    "num": "173",
@@ -13270,7 +13640,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 173/001.webp"
   },
   {
    "num": "172",
@@ -13296,7 +13667,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 172/001.webp"
   },
   {
    "num": "171",
@@ -13323,7 +13695,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 171/001.webp"
   },
   {
    "num": "170",
@@ -13350,7 +13723,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 170/001.webp"
   },
   {
    "num": "169",
@@ -13376,7 +13750,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 169/001.webp"
   },
   {
    "num": "168",
@@ -13403,7 +13778,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 168/001.webp"
   },
   {
    "num": "167",
@@ -13430,7 +13806,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 167/001.webp"
   },
   {
    "num": "166",
@@ -13457,7 +13834,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 166/001.webp"
   },
   {
    "num": "165",
@@ -13484,7 +13862,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 165/001.webp"
   },
   {
    "num": "164",
@@ -13512,7 +13891,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 164/001.webp"
   },
   {
    "num": "163",
@@ -13540,7 +13920,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 163/001.webp"
   },
   {
    "num": "162",
@@ -13566,7 +13947,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 162/001.webp"
   },
   {
    "num": "161",
@@ -13592,7 +13974,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 161/001.webp"
   },
   {
    "num": "160",
@@ -13617,7 +14000,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 160/001.webp"
   },
   {
    "num": "159",
@@ -13645,7 +14029,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 159/001.webp"
   },
   {
    "num": "158",
@@ -13671,7 +14056,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 158/001.webp"
   },
   {
    "num": "157",
@@ -13697,7 +14083,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 157/001.webp"
   },
   {
    "num": "156",
@@ -13721,7 +14108,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 156/001.webp"
   },
   {
    "num": "155",
@@ -13748,7 +14136,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 155/001.webp"
   },
   {
    "num": "154",
@@ -13772,7 +14161,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 154/001.webp"
   },
   {
    "num": "153",
@@ -13799,7 +14189,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 153/001.webp"
   },
   {
    "num": "152",
@@ -13825,7 +14216,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 152/001.webp"
   },
   {
    "num": "151",
@@ -13852,7 +14244,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 151/001.webp"
   },
   {
    "num": "150",
@@ -13877,7 +14270,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 150/001.webp"
   },
   {
    "num": "149",
@@ -13903,7 +14297,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 149/001.webp"
   },
   {
    "num": "148",
@@ -13928,7 +14323,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 148/001.webp"
   },
   {
    "num": "147",
@@ -13954,7 +14350,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 147/001.webp"
   },
   {
    "num": "146",
@@ -13979,7 +14376,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 146/001.webp"
   },
   {
    "num": "145",
@@ -14004,7 +14402,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 145/001.webp"
   },
   {
    "num": "144",
@@ -14028,7 +14427,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 144/001.webp"
   },
   {
    "num": "143",
@@ -14052,7 +14452,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 143/001.webp"
   },
   {
    "num": "142",
@@ -14078,7 +14479,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 142/001.webp"
   },
   {
    "num": "141",
@@ -14104,7 +14506,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 141/001.webp"
   },
   {
    "num": "140",
@@ -14129,7 +14532,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 140/001.webp"
   },
   {
    "num": "139",
@@ -14155,7 +14559,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 139/001.webp"
   },
   {
    "num": "138",
@@ -14181,7 +14586,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 138/001.webp"
   },
   {
    "num": "137",
@@ -14207,7 +14613,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 137/001.webp"
   },
   {
    "num": "136",
@@ -14234,7 +14641,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 136/001.webp"
   },
   {
    "num": "135",
@@ -14261,7 +14669,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 135/001.webp"
   },
   {
    "num": "134",
@@ -14287,7 +14696,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 134/001.webp"
   },
   {
    "num": "133",
@@ -14313,7 +14723,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 133/001.webp"
   },
   {
    "num": "132",
@@ -14339,7 +14750,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 132/001.webp"
   },
   {
    "num": "131",
@@ -14365,7 +14777,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 131/001.webp"
   },
   {
    "num": "130",
@@ -14392,7 +14805,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 130/001.webp"
   },
   {
    "num": "129",
@@ -14418,7 +14832,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 129/001.webp"
   },
   {
    "num": "128",
@@ -14443,7 +14858,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 128/001.webp"
   },
   {
    "num": "127",
@@ -14468,7 +14884,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 127/001.webp"
   },
   {
    "num": "126",
@@ -14493,7 +14910,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 126/001.webp"
   },
   {
    "num": "125",
@@ -14520,7 +14938,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 125/001.webp"
   },
   {
    "num": "124",
@@ -14546,7 +14965,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 124/001.webp"
   },
   {
    "num": "123",
@@ -14573,7 +14993,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 123/001.webp"
   },
   {
    "num": "122",
@@ -14599,7 +15020,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 122/001.webp"
   },
   {
    "num": "121",
@@ -14626,7 +15048,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 121/001.webp"
   },
   {
    "num": "120",
@@ -14651,7 +15074,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 120/001.webp"
   },
   {
    "num": "119",
@@ -14679,7 +15103,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 119/001.webp"
   },
   {
    "num": "118",
@@ -14704,7 +15129,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 118/001.webp"
   },
   {
    "num": "117",
@@ -14730,7 +15156,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 117/001.webp"
   },
   {
    "num": "116",
@@ -14757,7 +15184,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 116/001.webp"
   },
   {
    "num": "115",
@@ -14783,7 +15211,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 115/001.webp"
   },
   {
    "num": "114",
@@ -14810,7 +15239,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 114/001.webp"
   },
   {
    "num": "113",
@@ -14837,7 +15267,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 113/001.webp"
   },
   {
    "num": "112",
@@ -14863,7 +15294,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 112/001.webp"
   },
   {
    "num": "111",
@@ -14890,7 +15322,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 111/001.webp"
   },
   {
    "num": "110",
@@ -14916,7 +15349,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 110/001.webp"
   },
   {
    "num": "109",
@@ -14943,7 +15377,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 109/001.webp"
   },
   {
    "num": "108",
@@ -14969,7 +15404,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 108/001.webp"
   },
   {
    "num": "107",
@@ -14994,7 +15430,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 107/001.webp"
   },
   {
    "num": "106",
@@ -15017,7 +15454,8 @@ window.CHAPTERS = {
     "014.webp",
     "015.webp",
     "016.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 106/001.webp"
   },
   {
    "num": "105",
@@ -15043,7 +15481,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 105/001.webp"
   },
   {
    "num": "104",
@@ -15069,7 +15508,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 104/001.webp"
   },
   {
    "num": "103",
@@ -15096,7 +15536,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 103/001.webp"
   },
   {
    "num": "102",
@@ -15121,7 +15562,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 102/001.webp"
   },
   {
    "num": "101",
@@ -15148,7 +15590,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 101/001.webp"
   },
   {
    "num": "100",
@@ -15174,7 +15617,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 100/001.webp"
   },
   {
    "num": "99",
@@ -15199,7 +15643,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 99/001.webp"
   },
   {
    "num": "98",
@@ -15226,7 +15671,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 98/001.webp"
   },
   {
    "num": "97",
@@ -15252,7 +15698,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 97/001.webp"
   },
   {
    "num": "96",
@@ -15279,7 +15726,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 96/001.webp"
   },
   {
    "num": "95",
@@ -15305,7 +15753,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 95/001.webp"
   },
   {
    "num": "94",
@@ -15331,7 +15780,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 94/001.webp"
   },
   {
    "num": "93",
@@ -15358,7 +15808,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 93/001.webp"
   },
   {
    "num": "92",
@@ -15384,7 +15835,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 92/001.webp"
   },
   {
    "num": "91",
@@ -15410,7 +15862,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 91/001.webp"
   },
   {
    "num": "90",
@@ -15434,7 +15887,8 @@ window.CHAPTERS = {
     "015.webp",
     "016.webp",
     "017.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 90/001.webp"
   },
   {
    "num": "89",
@@ -15462,7 +15916,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 89/001.webp"
   },
   {
    "num": "88",
@@ -15489,7 +15944,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 88/001.webp"
   },
   {
    "num": "87",
@@ -15516,7 +15972,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 87/001.webp"
   },
   {
    "num": "86",
@@ -15542,7 +15999,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 86/001.webp"
   },
   {
    "num": "85",
@@ -15568,7 +16026,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 85/001.webp"
   },
   {
    "num": "84",
@@ -15595,7 +16054,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 84/001.webp"
   },
   {
    "num": "83",
@@ -15622,7 +16082,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 83/001.webp"
   },
   {
    "num": "82",
@@ -15649,7 +16110,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 82/001.webp"
   },
   {
    "num": "81",
@@ -15678,7 +16140,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 81/001.webp"
   },
   {
    "num": "80",
@@ -15704,7 +16167,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 80/001.webp"
   },
   {
    "num": "79",
@@ -15736,7 +16200,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 79/001.webp"
   },
   {
    "num": "78",
@@ -15768,7 +16233,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 78/001.webp"
   },
   {
    "num": "77",
@@ -15795,7 +16261,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 77/001.webp"
   },
   {
    "num": "76",
@@ -15821,7 +16288,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 76/001.webp"
   },
   {
    "num": "75",
@@ -15848,7 +16316,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 75/001.webp"
   },
   {
    "num": "74",
@@ -15875,7 +16344,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 74/001.webp"
   },
   {
    "num": "73",
@@ -15901,7 +16371,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 73/001.webp"
   },
   {
    "num": "72",
@@ -15926,7 +16397,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 72/001.webp"
   },
   {
    "num": "71",
@@ -15953,7 +16425,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 71/001.webp"
   },
   {
    "num": "70",
@@ -15985,7 +16458,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 70/001.webp"
   },
   {
    "num": "69",
@@ -16011,7 +16485,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 69/001.webp"
   },
   {
    "num": "68",
@@ -16037,7 +16512,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 68/001.webp"
   },
   {
    "num": "67",
@@ -16063,7 +16539,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 67/001.webp"
   },
   {
    "num": "66",
@@ -16090,7 +16567,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 66/001.webp"
   },
   {
    "num": "65",
@@ -16116,7 +16594,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 65/001.webp"
   },
   {
    "num": "64",
@@ -16142,7 +16621,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 64/001.webp"
   },
   {
    "num": "63",
@@ -16167,7 +16647,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 63/001.webp"
   },
   {
    "num": "62",
@@ -16193,7 +16674,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 62/001.webp"
   },
   {
    "num": "61",
@@ -16225,7 +16707,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 61/001.webp"
   },
   {
    "num": "60",
@@ -16255,7 +16738,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 60/001.webp"
   },
   {
    "num": "59",
@@ -16280,7 +16764,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 59/001.webp"
   },
   {
    "num": "58",
@@ -16305,7 +16790,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 58/001.webp"
   },
   {
    "num": "57",
@@ -16332,7 +16818,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 57/001.webp"
   },
   {
    "num": "56",
@@ -16358,7 +16845,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 56/001.webp"
   },
   {
    "num": "55",
@@ -16383,7 +16871,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 55/001.webp"
   },
   {
    "num": "54",
@@ -16410,7 +16899,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 54/001.webp"
   },
   {
    "num": "53",
@@ -16435,7 +16925,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 53/001.webp"
   },
   {
    "num": "52",
@@ -16468,7 +16959,8 @@ window.CHAPTERS = {
     "024.webp",
     "025.webp",
     "026.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 52/001.webp"
   },
   {
    "num": "51",
@@ -16496,7 +16988,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 51/001.webp"
   },
   {
    "num": "50",
@@ -16522,7 +17015,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 50/001.webp"
   },
   {
    "num": "49",
@@ -16549,7 +17043,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 49/001.webp"
   },
   {
    "num": "48",
@@ -16575,7 +17070,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 48/001.webp"
   },
   {
    "num": "47",
@@ -16605,7 +17101,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 47/001.webp"
   },
   {
    "num": "46",
@@ -16631,7 +17128,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 46/001.webp"
   },
   {
    "num": "45",
@@ -16657,7 +17155,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 45/001.webp"
   },
   {
    "num": "44",
@@ -16684,7 +17183,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 44/001.webp"
   },
   {
    "num": "43",
@@ -16716,7 +17216,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 43/001.webp"
   },
   {
    "num": "42",
@@ -16744,7 +17245,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 42/001.webp"
   },
   {
    "num": "41",
@@ -16770,7 +17272,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 41/001.webp"
   },
   {
    "num": "40",
@@ -16796,7 +17299,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 40/001.webp"
   },
   {
    "num": "39",
@@ -16823,7 +17327,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 39/001.webp"
   },
   {
    "num": "38",
@@ -16850,7 +17355,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 38/001.webp"
   },
   {
    "num": "37",
@@ -16879,7 +17385,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 37/001.webp"
   },
   {
    "num": "36",
@@ -16906,7 +17413,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 36/001.webp"
   },
   {
    "num": "35",
@@ -16931,7 +17439,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 35/001.webp"
   },
   {
    "num": "34",
@@ -16961,7 +17470,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 34/001.webp"
   },
   {
    "num": "33",
@@ -16990,7 +17500,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 33/001.webp"
   },
   {
    "num": "32",
@@ -17016,7 +17527,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 32/001.webp"
   },
   {
    "num": "31",
@@ -17043,7 +17555,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 31/001.webp"
   },
   {
    "num": "30",
@@ -17070,7 +17583,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 30/001.webp"
   },
   {
    "num": "29",
@@ -17098,7 +17612,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 29/001.webp"
   },
   {
    "num": "28",
@@ -17125,7 +17640,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 28/001.webp"
   },
   {
    "num": "27",
@@ -17150,7 +17666,8 @@ window.CHAPTERS = {
     "016.webp",
     "017.webp",
     "018.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 27/001.webp"
   },
   {
    "num": "26",
@@ -17176,7 +17693,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 26/001.webp"
   },
   {
    "num": "25",
@@ -17207,7 +17725,8 @@ window.CHAPTERS = {
     "022.webp",
     "023.webp",
     "024.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 25/001.webp"
   },
   {
    "num": "24",
@@ -17235,7 +17754,8 @@ window.CHAPTERS = {
     "019.webp",
     "020.webp",
     "021.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 24/001.webp"
   },
   {
    "num": "23",
@@ -17262,7 +17782,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 23/001.webp"
   },
   {
    "num": "22",
@@ -17289,7 +17810,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 22/001.webp"
   },
   {
    "num": "21",
@@ -17315,7 +17837,8 @@ window.CHAPTERS = {
     "017.webp",
     "018.webp",
     "019.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 21/001.webp"
   },
   {
    "num": "20",
@@ -17342,7 +17865,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 20/001.webp"
   },
   {
    "num": "19",
@@ -17369,7 +17893,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 19/001.webp"
   },
   {
    "num": "18",
@@ -17396,7 +17921,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 18/001.webp"
   },
   {
    "num": "17",
@@ -17425,7 +17951,8 @@ window.CHAPTERS = {
     "020.webp",
     "021.webp",
     "022.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 17/001.webp"
   },
   {
    "num": "16",
@@ -17459,7 +17986,8 @@ window.CHAPTERS = {
     "025.webp",
     "026.webp",
     "027.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 16/001.webp"
   },
   {
    "num": "15",
@@ -17491,7 +18019,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 15/001.webp"
   },
   {
    "num": "14",
@@ -17528,7 +18057,8 @@ window.CHAPTERS = {
     "028.webp",
     "029.webp",
     "030.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 14/001.webp"
   },
   {
    "num": "13",
@@ -17555,7 +18085,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 13/001.webp"
   },
   {
    "num": "12",
@@ -17582,7 +18113,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 12/001.webp"
   },
   {
    "num": "11",
@@ -17609,7 +18141,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 11/001.webp"
   },
   {
    "num": "10",
@@ -17636,7 +18169,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 10/001.webp"
   },
   {
    "num": "9",
@@ -17663,7 +18197,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 09/001.webp"
   },
   {
    "num": "8",
@@ -17690,7 +18225,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 08/001.webp"
   },
   {
    "num": "7",
@@ -17722,7 +18258,8 @@ window.CHAPTERS = {
     "023.webp",
     "024.webp",
     "025.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 07/001.webp"
   },
   {
    "num": "6",
@@ -17752,7 +18289,8 @@ window.CHAPTERS = {
     "021.webp",
     "022.webp",
     "023.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 06/001.webp"
   },
   {
    "num": "5",
@@ -17779,7 +18317,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 05/001.webp"
   },
   {
    "num": "4",
@@ -17806,7 +18345,8 @@ window.CHAPTERS = {
     "018.webp",
     "019.webp",
     "020.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 04/001.webp"
   },
   {
    "num": "3",
@@ -17837,7 +18377,8 @@ window.CHAPTERS = {
     "022.webp",
     "023.webp",
     "024.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 03/001.webp"
   },
   {
    "num": "2",
@@ -17878,7 +18419,8 @@ window.CHAPTERS = {
     "032.webp",
     "033.webp",
     "034.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 02/001.webp"
   },
   {
    "num": "1",
@@ -17956,7 +18498,8 @@ window.CHAPTERS = {
     "069.webp",
     "070.webp",
     "071.webp"
-   ]
+   ],
+   "thumb": "Manga/preview/Tougen Anki/Chapitre 01/001.webp"
   }
  ]
 };

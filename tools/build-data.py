@@ -6,7 +6,13 @@ LanorTrad - Generateur du manifeste de chapitres.
 Scanne F:\\LanorTrad\\Site\\Manga\\<Serie>\\Chapitres\\Chapitre NN\\*.jpg
 et produit js/data/chapters.js (window.CHAPTERS) consomme par le lecteur.
 
+Genere aussi les vignettes d'apercu de la page 1 de chaque chapitre
+(tools/build-previews.py -> Manga/preview/<Serie>/<Chapitre>/) et pose le
+chemin dans le champ "thumb" du manifeste : les apercus du site suivent donc
+automatiquement les chapitres ajoutes.
+
 Usage : py tools/build-data.py
+        py tools/build-data.py --no-previews    (manifeste seul, plus rapide)
 Relancer apres avoir copie de nouveaux chapitres pour les rendre disponibles.
 """
 import os, re, json, sys
@@ -115,17 +121,39 @@ def write_js(path, varname, data, label):
     print(f"OK -> {path} ({label})")
 
 
+def build_previews(skip):
+    """Vignettes de la page 1 (apercu au survol dans la liste des chapitres).
+    Si Pillow manque ou si --no-previews est passe, on se contente d'indexer
+    celles deja presentes : le site ne perd pas ses apercus."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import importlib
+        prev = importlib.import_module("build-previews")
+    except ImportError:
+        print("  [apercus] tools/build-previews.py introuvable - ignore")
+        return {}
+    return prev.collect_existing() if skip else prev.build()
+
+
 def main():
+    skip_prev = "--no-previews" in sys.argv
+    previews = build_previews(skip_prev)
+
     data = {}
     if not os.path.isdir(MANGA_DIR):
         print("Aucun dossier Manga trouve :", MANGA_DIR)
     else:
         for serie in sorted(os.listdir(MANGA_DIR)):
             spath = os.path.join(MANGA_DIR, serie)
-            if not os.path.isdir(spath):
+            # Manga/preview/ contient les vignettes d'apercu, pas une serie
+            if not os.path.isdir(spath) or serie.lower() == "preview":
                 continue
             chapters = scan_series(spath)
             if chapters:
+                thumbs = previews.get(serie, {})
+                for c in chapters:
+                    if c["num"] in thumbs:
+                        c["thumb"] = thumbs[c["num"]]
                 data[serie] = chapters
                 print(f"  {serie}: {len(chapters)} chapitres")
 

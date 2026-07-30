@@ -1,0 +1,112 @@
+/* =========================================================================
+   LanorTrad — Aperçu de la première page (bouton œil, bulle, fenêtre)
+   Piloté par js/preview.js. Les vignettes viennent de Manga/preview/.
+   ========================================================================= */
+
+/* ----------------------------- bouton œil ----------------------------- */
+.peek-btn {
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  width: 34px; align-self: stretch; padding: 0;
+  color: var(--txt-mut); background: var(--glass); border: 1px solid var(--line);
+  cursor: pointer; transition: color .25s, background .25s, border-color .25s, transform .25s var(--ease);
+}
+.peek-btn:hover, .peek-btn:focus-visible { color: #fff; background: var(--glass-2); border-color: color-mix(in srgb, var(--accent, #a855f7) 55%, transparent); }
+.peek-btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+/* Liste des chapitres : l'œil est collé à la carte (un seul bloc segmenté).
+   Colonnes un peu plus larges (162 px) : la carte garde une seule ligne
+   « Ch. 246.5 · 10 p. » une fois les 30 px du bouton retirés, et on reste à
+   2 colonnes sur téléphone. */
+.chap-list { grid-template-columns: repeat(auto-fill, minmax(162px, 1fr)); }
+.chap-cell { display: flex; position: relative; }
+.chap-cell .chap-item { flex: 1; min-width: 0; gap: 6px; padding-left: 13px; padding-right: 11px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+.chap-cell .chap-item .n, .chap-cell .chap-item .pages { white-space: nowrap; }
+.chap-cell .peek-btn { width: 30px; border-radius: 0 12px 12px 0; }
+.chap-cell:hover .chap-item,
+.chap-cell:hover .peek-btn { transform: translateY(-3px); }
+.chap-cell:hover .chap-item { border-color: rgba(168,85,247,.5); background: var(--glass-2); }
+
+/* Planning / accueil : l'œil se pose en surimpression sur la carte */
+.peek-over {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 9px; align-self: auto;
+  background: rgba(10,10,20,.6); backdrop-filter: blur(6px); z-index: 2;
+}
+.peek-over:hover, .peek-over:focus-visible { transform: translateY(-50%) scale(1.08); }
+
+/* La place n'est réservée que si un aperçu existe vraiment (has-peek) */
+.pl-cell { position: relative; }
+.pl-cell.has-peek .pl-item { padding-right: 40px; }
+.tl-row .peek-over { right: 12px; }
+.tl-row.has-peek .tl-card { padding-right: 46px; }
+.rel-cell { position: relative; display: flex; }
+.rel-cell > .rel { flex: 1; min-width: 0; }
+.rel-cell.has-peek > .rel { padding-right: 48px; }
+
+/* --------------------------- bulle d'aperçu --------------------------- */
+.peek-pop {
+  position: fixed; z-index: 350; width: 208px; pointer-events: none;
+  background: var(--glass-2); border: 1px solid var(--line-strong); border-radius: 16px;
+  box-shadow: 0 24px 60px -24px rgba(0,0,0,.9), 0 0 0 1px color-mix(in srgb, var(--accent, #a855f7) 22%, transparent);
+  backdrop-filter: blur(14px); overflow: hidden;
+  opacity: 0; transform: translateY(6px) scale(.97);
+  transition: opacity .18s, transform .18s var(--ease);
+}
+.peek-pop.open { opacity: 1; transform: none; }
+.peek-cap { padding: 9px 12px 11px; display: grid; gap: 2px; }
+.peek-cap b { font-family: var(--font-display); font-size: .86rem; }
+.peek-cap span { font-size: .74rem; color: var(--txt-mut); }
+
+/* image (bulle + fenêtre) */
+.peek-shot { position: relative; overflow: hidden; background: var(--bg-2); min-height: 60px; }
+.peek-pop .peek-shot { aspect-ratio: 3/4; }
+.peek-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; opacity: 0; transition: opacity .3s; }
+.peek-shot img.in { opacity: 1; }
+.peek-shot.err { display: grid; place-items: center; min-height: 90px; }
+.peek-err { font-size: .78rem; color: var(--txt-mut); }
+
+/* ---------------------------- fenêtre ---------------------------- */
+.peek-modal {
+  position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 24px;
+  background: rgba(4,4,10,.88); backdrop-filter: blur(8px);
+  opacity: 0; transition: opacity .22s;
+}
+.peek-modal.open { opacity: 1; }
+.peek-card {
+  position: relative; width: min(420px, 100%);
+  background: var(--glass-2); border: 1px solid var(--line-strong); border-radius: var(--radius);
+  box-shadow: 0 40px 90px -30px rgba(0,0,0,.95); overflow: hidden;
+  transform: translateY(12px) scale(.97); transition: transform .28s var(--ease-back);
+}
+.peek-modal.open .peek-card { transform: none; }
+.peek-x {
+  position: absolute; right: 10px; top: 10px; z-index: 2; width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(10,10,20,.65); border: 1px solid var(--line); color: #fff; font-size: 1.3rem; line-height: 1;
+  cursor: pointer; display: grid; place-items: center; transition: background .25s, transform .25s var(--ease);
+}
+.peek-x:hover { background: rgba(30,30,55,.9); transform: scale(1.06); }
+.peek-head { padding: 14px 52px 12px 18px; display: grid; gap: 2px; }
+.peek-head b { font-family: var(--font-display); font-size: 1rem; }
+.peek-head span { font-size: .8rem; color: var(--txt-mut); }
+/* Fenêtre : la page entière, sans déformation ni recadrage (mat sombre autour) */
+.peek-card .peek-shot { display: grid; place-items: center; min-height: 260px; background: #07070f; }
+.peek-card .peek-shot img { width: 100%; height: auto; max-height: 58vh; object-fit: contain; }
+.peek-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; flex-wrap: wrap; }
+.peek-note { font-size: .76rem; color: var(--txt-mut); }
+.peek-go { padding: 9px 16px; font-size: .86rem; }
+
+/* Tactile : pas de survol, la bulle ne sert à rien — l'œil reste visible et
+   ouvre directement la fenêtre. */
+@media (hover: none) {
+  .peek-pop { display: none; }
+}
+@media (max-width: 540px) {
+  .peek-card { width: 100%; }
+  .peek-foot { justify-content: center; }
+}
+
+/* Mode léger : on garde l'aperçu (utile) mais sans flou ni animation lourde */
+html[data-perf="lite"] .peek-pop,
+html[data-perf="lite"] .peek-modal { transition: opacity .12s; }
+html[data-perf="lite"] .peek-pop { transform: none; }
+html[data-perf="lite"] .peek-card { transition: none; transform: none; }

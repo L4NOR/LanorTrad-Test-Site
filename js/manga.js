@@ -139,14 +139,26 @@
       }
       if (order.value === "asc") data = data.slice().reverse();
 
+      const oneshot = s.type === "oneshot";
       list.innerHTML = data.map(c => {
         if (c.locked) return `<div class="chap-item locked"><span class="n">Ch. ${c.num}</span><span class="pages">🔒</span></div>`;
         const isRead = progress && parseFloat(c.num) < parseFloat(progress.chapter);
         const isCur = progress && c.num === progress.chapter;
-        return `<a class="chap-item ${isRead ? "read" : ""}" href="reader.html?manga=${enc(s.id)}&chapter=${c.num}">
+        const href = `reader.html?manga=${enc(s.id)}&chapter=${c.num}`;
+        const item = `<a class="chap-item ${isRead ? "read" : ""}" href="${href}">
             <span class="n">Ch. ${c.num}</span>
             ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.pages} p.</span>`}
           </a>`;
+        // Aperçu de la première page (vignette légère, chargée au survol/tap)
+        if (!c.thumb || !window.LTpreview) return item;
+        return `<div class="chap-cell">${item}${window.LTpreview.btn({
+          src: c.thumb,
+          title: oneshot ? s.title : `Chapitre ${c.num}`,
+          sub: `${c.pages} page${c.pages > 1 ? "s" : ""}`,
+          href, cta: oneshot ? "Lire le oneshot" : `Lire le chapitre ${c.num}`,
+          accent: s.accent,
+          label: oneshot ? `Aperçu de la première page de ${s.title}` : `Aperçu de la première page du chapitre ${c.num}`
+        })}</div>`;
       }).join("");
       document.dispatchEvent(new Event("lt:cards"));
     }

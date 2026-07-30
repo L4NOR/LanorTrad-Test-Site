@@ -23,9 +23,13 @@
         const list = (byDay[dow] || []);
         const items = list.length ? list.map(s => {
           const next = (C[s.id] ? parseFloat(C[s.id][0].num) + 1 : s.chapters + 1);
-          return `<a class="pl-item" href="${s.url}" style="--accent:${s.accent}" data-colorize data-cover="${s.cover}">
+          // Aperçu : le chapitre à venir n'a pas encore de pages, on montre
+          // donc la première page du dernier chapitre paru (libellé explicite).
+          const peek = window.LTpreview ? window.LTpreview.btnFor(s, next) : "";
+          return `<div class="pl-cell${peek ? " has-peek" : ""}" style="--accent:${s.accent}">
+            <a class="pl-item" href="${s.url}" style="--accent:${s.accent}" data-colorize data-cover="${s.cover}">
             <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
-            <div><div class="t">${s.title}</div><div class="c">Ch. ${next} à venir</div></div></a>`;
+            <div><div class="t">${s.title}</div><div class="c">Ch. ${next} à venir</div></div></a>${peek}</div>`;
         }).join("") : `<div class="empty-d">Pas de sortie prévue</div>`;
         return `<div class="day ${dow === todayDow ? "today" : ""}">
           <div class="dh"><span class="name">${DAYS[dow]}</span>${dow === todayDow ? `<span class="tag">Aujourd'hui</span>` : ""}</div>
@@ -41,11 +45,12 @@
       tl.innerHTML = rows.map(s => {
         const last = C[s.id] ? C[s.id][0].num : s.chapters;
         const href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${last}` : s.url;
-        return `<div class="tl-row" style="--accent:${s.accent}" data-reveal="left">
+        const peek = window.LTpreview ? window.LTpreview.btnFor(s, last) : "";
+        return `<div class="tl-row${peek ? " has-peek" : ""}" style="--accent:${s.accent}" data-reveal="left">
           <a class="tl-card" href="${href}" data-colorize data-cover="${s.cover}">
             <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
             <div class="ti"><h4>${s.title}</h4><div class="ch">Chapitre ${last}</div><div class="dt">${frDate(s.lastUpdate)} · ${window.LT.timeAgo(s.lastUpdate)}</div></div>
-          </a></div>`;
+          </a>${peek}</div>`;
       }).join("");
     }
 

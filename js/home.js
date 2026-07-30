@@ -63,14 +63,18 @@
           const lbl = dateLabel(d, today);
           const stCls = r.status === "Confirmé" ? "ok" : r.status === "Reporté" ? "late" : "est";
           const href = window.LT.playable(s) ? `manga.html?id=${encodeURIComponent(s.id)}` : s.url;
-          return `<a class="rel" href="${href}" style="--accent:${s.accent}" data-colorize data-cover="${s.cover}">
+          // Aperçu : première page du chapitre annoncé s'il est déjà sorti,
+          // sinon celle du dernier paru.
+          const peek = window.LTpreview ? window.LTpreview.btnFor(s, r.chapters) : "";
+          return `<div class="rel-cell${peek ? " has-peek" : ""}">
+            <a class="rel" href="${href}" style="--accent:${s.accent}" data-colorize data-cover="${s.cover}">
             <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
             <div class="ri">
               <h4>${s.title}</h4>
               <div class="meta"><span class="ch">Ch. ${r.chapters}</span><span>·</span><span class="when ${lbl.soon ? "soon" : ""}">${lbl.text}</span></div>
             </div>
             <span class="badge-st ${stCls}">${r.status}</span>
-          </a>`;
+          </a>${peek}</div>`;
         }).join("");
       }
     }

@@ -41,15 +41,17 @@ classement.html    Classement XP / gamification
 equipe.html        Équipe (membres réels)
 
 css/    base, components, animations, home, catalogue, manga, reader, pages,
-        extras, forum, classement, planning, perf, ambiance, tour
+        extras, forum, classement, planning, preview, perf, ambiance, tour
 js/     core (shell), cards, tilt, hero, home, catalogue, manga, reader,
-        forum, classement, xp, views, perf, store, palette, tour, offline
+        preview, forum, classement, xp, views, perf, store, palette, tour, offline
 offline.html          ← page de repli hors ligne (avec le mini-jeu)
 js/data/series.js     ← métadonnées des séries (à la main OU via Modifier-Series.bat)
-js/data/chapters.js   ← pages par chapitre (GÉNÉRÉ, ne pas éditer)
+js/data/chapters.js   ← pages par chapitre + aperçus (GÉNÉRÉ, ne pas éditer)
 images/ couvertures, logos, icônes
 Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
+Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
 tools/build-data.py         ← scanner qui régénère chapters.js
+tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data.py)
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
 supabase/*.sql              ← schémas Supabase (forum + gamification)
@@ -101,6 +103,7 @@ glissant simplement les images. Aucune ligne de commande, aucun code.
    - y range les pages renommées `001`, `002`, …,
    - les **convertit automatiquement en WebP** (qualité 85) avec, si la case est
      cochée, l'amélioration du rendu — puis supprime les JPG/PNG sources,
+   - fabrique la **vignette d'aperçu** de la page 1 (voir plus bas),
    - régénère `js/data/chapters.js` (le catalogue lu par le lecteur).
    La conversion peut prendre 1 à 2 minutes selon le nombre de pages.
 
@@ -131,14 +134,45 @@ L'onglet **🛠️ Gérer** permet de modifier un chapitre existant :
    trait, sans jamais toucher aux tons), `--delete-src` (supprime les sources
    après conversion), `--include-png`, `--quality N` (défaut 80).
 3. Régénérer le manifeste : `py tools/build-data.py`
+   (génère aussi les vignettes d'aperçu — voir juste en dessous).
 4. C'est tout — le lecteur et les fiches se mettent à jour automatiquement.
+
+### Aperçus de la première page
+
+Sur la fiche d'une série, chaque chapitre a un petit **œil** : survole-le à la
+souris pour voir la première page en bulle, clique/tape dessus pour l'ouvrir en
+grand avec un bouton de lecture. Même chose sur le **planning** (calendrier
+hebdo + dernières sorties) et sur les **prochaines sorties** de l'accueil.
+
+- Une page pèse 1,2 Mo en moyenne (jusqu'à 8,9 Mo) : on ne l'affiche jamais
+  telle quelle. `tools/build-previews.py` fabrique une vignette de ~35 Ko par
+  chapitre, rangée comme le chapitre lui-même — un dossier par chapitre, une
+  page dedans : `Manga/preview/<Série>/<Chapitre NN>/001.webp` (et
+  `Manga/preview/<Série>/Oneshot/001.webp` pour les oneshots). Elle n'est
+  chargée qu'au survol/tap. Total : 19 Mo pour 543 chapitres.
+- **Rien à faire à la main** : `py tools/build-data.py` (et l'interface
+  `Ajouter-Chapitre.bat`) la génèrent pour chaque nouveau chapitre, oneshots
+  compris, et posent le chemin dans le champ `thumb` de `chapters.js`. Les
+  vignettes des chapitres supprimés sont nettoyées automatiquement.
+- Commandes utiles :
+  - `py tools/build-previews.py "Tougen Anki"` — une seule série ;
+  - `py tools/build-previews.py --force` — tout régénérer (après un changement
+    de réglage : largeur 360 px, qualité 68, haut de planche gardé pour les
+    webtoons) ;
+  - `Manga/preview/` n'est jamais vu comme une série : les scanners
+    (`build-data.py`, `upload-server.js`, `series-server.js`) l'ignorent ;
+  - `py tools/build-data.py --no-previews` — manifeste seul, plus rapide.
+- Un chapitre **annoncé mais pas encore sorti** n'a évidemment pas de pages :
+  le planning montre alors la première page du **dernier chapitre paru**, avec
+  la mention correspondante. Dès que le chapitre sort, l'aperçu devient le sien.
 
 ### Voir le résultat
 
 - **En local** : recharge le site, le chapitre est lisible.
 - **En ligne** (pour les visiteurs) : envoie les nouveaux fichiers sur ton
-  hébergeur (les images de `Manga/…` **et** `js/data/chapters.js`). Avec Netlify +
-  GitHub, un `git add . && git commit && git push` suffit.
+  hébergeur (les images de `Manga/…`, aperçus de `Manga/preview/…` compris,
+  **et** `js/data/chapters.js`). Avec Netlify + GitHub, un
+  `git add . && git commit && git push` suffit.
 
 ---
 
