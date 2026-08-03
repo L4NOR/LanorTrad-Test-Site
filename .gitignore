@@ -15,3 +15,6 @@ node_modules/
 .claude/
 .netlify/
 .tmp_frames/
+
+# Cache des dimensions de pages (regenere par tools/build-data.py)
+tools/.dims-cache.json

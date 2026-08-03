@@ -46,11 +46,14 @@ js/     core (shell), cards, tilt, hero, home, catalogue, manga, reader,
         preview, forum, classement, xp, views, perf, store, palette, tour, offline
 offline.html          ← page de repli hors ligne (avec le mini-jeu)
 js/data/series.js     ← métadonnées des séries (à la main OU via Modifier-Series.bat)
-js/data/chapters.js   ← pages par chapitre + aperçus (GÉNÉRÉ, ne pas éditer)
+js/data/chapters.js   ← INDEX des chapitres + dimensions (GÉNÉRÉ, ne pas éditer)
+js/data/pages/<Série>.js ← liste des pages, chargée par le lecteur (GÉNÉRÉ)
+js/data/covers.js     ← variantes responsives des couvertures (GÉNÉRÉ)
 images/ couvertures, logos, icônes
 Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
-tools/build-data.py         ← scanner qui régénère chapters.js
+tools/build-data.py         ← scanner : chapters.js + js/data/pages/
+tools/build-covers.py       ← variantes légères des couvertures (images/Cover/rs/)
 tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data.py)
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
@@ -161,18 +164,38 @@ hebdo + dernières sorties) et sur les **prochaines sorties** de l'accueil.
     webtoons) ;
   - `Manga/preview/` n'est jamais vu comme une série : les scanners
     (`build-data.py`, `upload-server.js`, `series-server.js`) l'ignorent ;
-  - `py tools/build-data.py --no-previews` — manifeste seul, plus rapide.
+  - `py tools/build-data.py --no-previews` — manifeste seul, plus rapide ;
+  - `py tools/build-data.py --no-dims` — saute la mesure des pages.
 - Un chapitre **annoncé mais pas encore sorti** n'a évidemment pas de pages :
   le planning montre alors la première page du **dernier chapitre paru**, avec
   la mention correspondante. Dès que le chapitre sort, l'aperçu devient le sien.
+
+### Ce que `build-data.py` écrit (et pourquoi deux fichiers)
+
+- **`js/data/chapters.js`** — l'**index** : pour chaque chapitre, son numéro,
+  son dossier, son nombre de pages, sa vignette et les **dimensions** des
+  planches. Chargé sur toutes les pages du site, donc gardé léger (~70 Ko).
+- **`js/data/pages/<Série>.js`** — la **liste des fichiers** de chaque page.
+  C'est la partie lourde, et seul le lecteur en a besoin : il ne charge que le
+  fichier de la série ouverte. Avant, tout était dans `chapters.js` (305 Ko
+  chargés jusque sur l'accueil et le forum).
+
+Les **dimensions** servent au lecteur à réserver la place de chaque planche
+avant qu'elle n'arrive. Sans elles, en mode webtoon, le scroll sautait sous les
+doigts à chaque image chargée (score CLS mesuré : 4,49 → 0,002).
+
+Elles sont mises en cache dans `tools/.dims-cache.json`, donc seules les pages
+**nouvelles** sont mesurées : le premier passage prend quelques minutes (14 000
+pages), les suivants sont instantanés. `--no-dims` saute complètement l'étape —
+le lecteur retombe alors sur son ancien comportement, sans rien casser.
 
 ### Voir le résultat
 
 - **En local** : recharge le site, le chapitre est lisible.
 - **En ligne** (pour les visiteurs) : envoie les nouveaux fichiers sur ton
   hébergeur (les images de `Manga/…`, aperçus de `Manga/preview/…` compris,
-  **et** `js/data/chapters.js`). Avec Netlify + GitHub, un
-  `git add . && git commit && git push` suffit.
+  **et** `js/data/chapters.js` ainsi que `js/data/pages/`). Avec Netlify +
+  GitHub, un `git add . && git commit && git push` suffit.
 
 ---
 

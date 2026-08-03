@@ -1,0 +1,3 @@
+// Genere automatiquement par tools/build-data.py - NE PAS EDITER A LA MAIN
+window.CHAPTER_FILES = window.CHAPTER_FILES || {};
+window.CHAPTER_FILES["Countdown"] = {"1":{"f":["001.webp","002.webp","003.webp","004.webp","005.webp","006.webp","007.webp","008.webp","009.webp","010.webp","011.webp","012.webp","013.webp","014.webp","015.webp","016.webp","017.webp","018.webp","019.webp","020.webp","021.webp","022.webp","023.webp","024.webp","025.webp","026.webp","027.webp","028.webp","029.webp","030.webp","031.webp","032.webp","033.webp","034.webp","035.webp","036.webp","037.webp","038.webp","039.webp","040.webp"]}};

@@ -4,6 +4,11 @@ const CACHE = "lanortrad-v38";
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */
 const IMG_CACHE = "lanortrad-img-v1";
+/* Listes de pages par serie (js/data/pages/<Serie>.js), chargees a la demande
+   par le lecteur. Meme logique que les images : ce cache SURVIT aux montees de
+   version du shell, sinon une mise a jour du site rendrait illisibles les
+   chapitres deja telecharges pour le hors connexion. */
+const DATA_CACHE = "lanortrad-data-v1";
 /* Page servie quand une navigation échoue hors ligne (elle embarque le
    mini-jeu). Précachée en priorité : sans réseau, impossible d'aller la
    chercher au moment où on en a besoin. */
@@ -30,7 +35,8 @@ self.addEventListener("install", e => {
 });
 
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== IMG_CACHE).map(k => caches.delete(k)))));
+  e.waitUntil(caches.keys().then(keys => Promise.all(
+    keys.filter(k => k !== CACHE && k !== IMG_CACHE && k !== DATA_CACHE).map(k => caches.delete(k)))));
   self.clients.claim();
 });
 
@@ -50,6 +56,16 @@ self.addEventListener("fetch", e => {
       try { const res = await fetch(req); if (res.ok) c.put(req, res.clone()); return res; }
       catch { return hit || Response.error(); }
     }));
+    return;
+  }
+
+  // Listes de pages : réseau d'abord (pour voir les nouveaux chapitres), mais
+  // conservées dans un cache qui survit aux mises à jour du site.
+  if (url.pathname.includes("/js/data/pages/")) {
+    e.respondWith(fetch(req).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(DATA_CACHE).then(c => c.put(req, copy)); }
+      return res;
+    }).catch(async () => (await caches.match(req)) || Response.error()));
     return;
   }
 

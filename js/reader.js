@@ -82,8 +82,38 @@
           : `On travaille sur les chapitres de « ${A.S.title} ». Encore un peu de patience !`);
       return;
     }
+
+    A.pages = await loadPages(A.manga);
+    if (!A.pages) {
+      $("rd-viewer").innerHTML = emptyHTML(
+        "La liste des pages n'a pas pu être chargée. Vérifie ta connexion : au rechargement, tout devrait revenir.");
+      return;
+    }
     loadChapter();
   }
+
+  /* ---------- Liste des pages, chargée à la demande ----------
+     js/data/chapters.js ne contient que l'index (numéros, dossiers, tailles) :
+     il est chargé sur toutes les pages du site, donc il doit rester léger. La
+     liste des fichiers de chaque page vit dans js/data/pages/<Série>.js, qu'on
+     ne charge qu'ici, et seulement pour la série ouverte.
+     Voir tools/build-data.py, qui génère les deux. */
+  function loadPages(manga) {
+    const already = (window.CHAPTER_FILES || {})[manga];
+    if (already) return Promise.resolve(already);
+    const src = (window.CHAPTER_PAGES || {})[manga];
+    if (!src) return Promise.resolve(null);
+    return new Promise(resolve => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = () => resolve((window.CHAPTER_FILES || {})[manga] || null);
+      s.onerror = () => resolve(null);
+      document.head.appendChild(s);
+    });
+  }
+
+  // Fichiers d'un chapitre de la serie ouverte (liste vide si pas encore chargee).
+  const filesOf = c => (((A.pages || {})[c && c.num] || {}).f || []);
 
   /* ========================================================================
      SQUELETTE HTML
@@ -219,12 +249,21 @@
     const track = $("rd-track");
 
     // URLs des pages (publiques : Manga/…)
+    const pg = (A.pages || {})[A.chap.num] || {};
     const base = `Manga/${A.manga}/${A.chap.folder}/`;
-    const urls = (A.chap.files || []).map(f => encodeURI(base + f));
+    const urls = (pg.f || []).map(f => encodeURI(base + f));
     A.total = urls.length || A.chap.pages;
+
+    // Dimensions : taille dominante du chapitre + exceptions (doubles pages).
+    // Posées en attributs width/height pour que le navigateur réserve la place
+    // AVANT le chargement : sans ça, en mode webtoon, le scroll saute sous les
+    // doigts du lecteur à chaque page qui arrive.
+    const defDim = A.chap.w ? [A.chap.w, A.chap.h] : null;
 
     A.imgs = urls.map((src, i) => {
       const im = document.createElement("img");
+      const dim = (pg.odd && pg.odd[i]) || defDim;
+      if (dim) { im.setAttribute("width", dim[0]); im.setAttribute("height", dim[1]); }
       im.src = src;
       im.alt = `${A.S.title} — Chapitre ${A.chap.num} — page ${i + 1}`;
       im.loading = i < 2 ? "eager" : "lazy";
@@ -449,7 +488,7 @@
     if (!next || A.prefetched === next.num) return;
     A.prefetched = next.num;
     const base = `Manga/${A.manga}/${next.folder}/`;
-    (next.files || []).slice(0, 6).forEach(f => {
+    filesOf(next).slice(0, 6).forEach(f => {
       const l = document.createElement("link");
       l.rel = "prefetch"; l.as = "image"; l.href = encodeURI(base + f);
       document.head.appendChild(l);
@@ -797,7 +836,7 @@
     const zip = new JSZip();
     const base = `Manga/${A.manga}/${A.chap.folder}/`;
     try {
-      await Promise.all((A.chap.files || []).map(async f => {
+      await Promise.all(filesOf(A.chap).map(async f => {
         const res = await fetch(encodeURI(base + f));
         zip.file(f, await res.blob());
       }));
@@ -839,7 +878,7 @@
     const b = $("rd-off"); if (b) b.classList.add("busy");
     window.LT.toast("On met le chapitre au chaud…");
     const base = `Manga/${A.manga}/${A.chap.folder}/`;
-    const urls = (A.chap.files || []).map(f => encodeURI(base + f));
+    const urls = filesOf(A.chap).map(f => encodeURI(base + f));
     let ok = 0;
     try {
       // Par petits paquets : le service worker met chaque page en cache au passage.
