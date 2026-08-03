@@ -132,16 +132,8 @@
 .rel .badge-st.late { background: rgba(244,63,94,.14); color: #fb7185; border: 1px solid rgba(244,63,94,.32); }
 @media (max-width: 680px) { .releases { grid-template-columns: 1fr; } }
 
-/* — CTA Discord — */
-.cta {
-  position: relative; overflow: hidden; border-radius: var(--radius-lg);
-  padding: clamp(40px, 7vw, 80px); text-align: center;
-  background: linear-gradient(135deg, rgba(99,102,241,.18), rgba(217,70,239,.18));
-  border: 1px solid var(--line-strong);
-}
-.cta::before { content: ""; position: absolute; inset: 0; background: radial-gradient(600px circle at 50% 0%, rgba(168,85,247,.3), transparent 60%); }
-.cta h2 { font-size: clamp(1.8rem, 4vw, 3rem); position: relative; }
-.cta p { color: var(--txt-soft); max-width: 50ch; margin: 14px auto 28px; position: relative; }
+/* Le bloc .cta a demenage dans components.css : equipe.html l'utilise aussi
+   (« On recrute ! ») sans charger home.css. */
 
 /* — Le mot de la team (accueil) — */
 .team-word {

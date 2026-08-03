@@ -1,10 +1,10 @@
 /* =========================================================================
    LanorTrad — Catalogue
    ========================================================================= */
-.page-head { padding-top: calc(var(--nav-h) + 48px); padding-bottom: 10px; }
-.page-head .eyebrow { display: block; margin-bottom: 12px; }
-.page-head h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); }
-.page-head p { color: var(--txt-soft); margin-top: 10px; max-width: 60ch; }
+/* .page-head et .cta ont demenage dans components.css : ce sont des
+   composants partages par presque toutes les pages, or catalogue.css n'est
+   pas charge partout (classement.html ne l'avait pas, et se retrouvait donc
+   sans aucune mise en page d'en-tete). */
 
 .filters {
   position: sticky; top: calc(var(--nav-h) - 6px); z-index: 40;
