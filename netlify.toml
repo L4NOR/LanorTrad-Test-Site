@@ -12,9 +12,15 @@
 [build.environment]
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
 
-# Edge function : injecte les balises OpenGraph par série sur la fiche manga
+# Edge function : pour les robots seulement, injecte les vraies balises
+# (titre, description, canonical, OpenGraph, JSON-LD) et un pré-rendu du
+# contenu sur la fiche série ET sur chaque page de chapitre.
 [[edge_functions]]
   path = "/manga.html"
+  function = "og"
+
+[[edge_functions]]
+  path = "/reader.html"
   function = "og"
 
 # Sécurité de base

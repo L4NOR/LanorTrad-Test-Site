@@ -71,9 +71,14 @@ function buildSitemap(series, chapters) {
     `  <url><loc>${esc(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}<changefreq>${freq}</changefreq><priority>${prio}</priority></url>`;
 
   const rows = [];
+  // L'accueil est servi sur « / » : c'est cette URL-là qui est canonique,
+  // pas /index.html (sinon Google voit deux fois la même page).
+  rows.push(url(SITE + "/", "daily", "1.0"));
   const pages = [
-    ["index.html", "daily", "1.0"], ["catalogue.html", "daily", "0.9"],
-    ["planning.html", "daily", "0.8"], ["bibliotheque.html", "weekly", "0.5"],
+    // bibliotheque.html n'est pas listée : elle est en noindex (contenu
+    // purement personnel, vide pour un robot).
+    ["catalogue.html", "daily", "0.9"],
+    ["planning.html", "daily", "0.8"],
     ["equipe.html", "monthly", "0.6"], ["forum.html", "daily", "0.7"],
     ["classement.html", "weekly", "0.6"],
   ];
@@ -96,8 +101,12 @@ ${rows.join("\n")}
   console.log(`[seo] sitemap.xml — ${rows.length} URLs`);
 }
 
-/* --------------------------- og-meta.json --------------------------- */
-function buildOgMeta(series) {
+/* --------------------------- og-meta.json ---------------------------
+   Lu par l'edge function OG (netlify/edge-functions/og.js) pour les fiches
+   séries ET les pages de chapitre. La liste `chapters` (numéro + nb de pages,
+   du plus récent au plus ancien) sert à fabriquer un titre, une description et
+   des liens précédent/suivant propres pour chaque chapitre. */
+function buildOgMeta(series, chapters) {
   const map = {};
   series.forEach(s => {
     map[s.id] = {
@@ -107,10 +116,14 @@ function buildOgMeta(series) {
       genres: (s.genres || []).filter(g => g !== "LanorTrad" && g !== "Collaboration"),
       description: s.description,
       cover: s.cover,
+      updated: s.lastUpdate || "",
+      author: s.author || "",
+      chapters: (chapters[s.id] || []).map(c => ({ n: c.num, p: c.pages || 0 })),
     };
   });
+  const nbCh = Object.values(map).reduce((a, s) => a + s.chapters.length, 0);
   fs.writeFileSync(path.join(ROOT, "og-meta.json"), JSON.stringify(map), "utf8");
-  console.log(`[seo] og-meta.json — ${Object.keys(map).length} séries`);
+  console.log(`[seo] og-meta.json — ${Object.keys(map).length} séries, ${nbCh} chapitres`);
 }
 
 /* ------------------------------- main ------------------------------- */
@@ -123,6 +136,6 @@ function buildOgMeta(series) {
 
   buildFeed(series);
   buildSitemap(series, chapters);
-  buildOgMeta(series);
+  buildOgMeta(series, chapters);
   console.log(`[seo] terminé (site ${SITE})`);
 })();

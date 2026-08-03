@@ -51,7 +51,7 @@
     const root = $("reader-root");
     if (!A.S) { root.innerHTML = `<div class="rd">${emptyHTML("Cette série n'existe pas… ou pas encore chez nous.")}</div>`; window.LT._scanReveals?.(); return; }
 
-    document.title = `${A.S.title} — Lecture — LanorTrad`;
+    document.title = `${A.S.title} — Lecture — LanorTrad`;   // affiné par chapitre dans setCanonical()
     window.LTstore && window.LTstore.markSeen(A.manga);
     window.LTviews && window.LTviews.bump(A.manga);
 
@@ -994,11 +994,31 @@
     return A.sb;
   }
 
+  /* Titre, description et canonical PAR CHAPITRE.
+     Avant, les ~540 URLs de lecture du sitemap partageaient toutes le titre
+     « <Série> — Lecture — LanorTrad » : impossible pour un moteur de les
+     distinguer. Le pré-rendu servi aux robots (netlify/edge-functions/og.js)
+     utilise exactement les mêmes formulations. */
   function setCanonical() {
     if (!A.chap) return;
+    const oneshot = A.S.type === "oneshot";
+    const label = oneshot ? `${A.S.title} (oneshot)` : `${A.S.title} — Chapitre ${A.chap.num}`;
+    document.title = `${label} VF à lire en ligne | LanorTrad`;
+
+    const pages = A.chap.pages ? `${A.chap.pages} pages, ` : "";
+    setMeta("description", oneshot
+      ? `Lis ${A.S.title} en français, gratuitement, sur LanorTrad. ${pages}traduit et édité par la team.`
+      : `Lis le chapitre ${A.chap.num} de ${A.S.title} en français, gratuitement, sur LanorTrad. ${pages}traduites et éditées par la team.`);
+
+    const url = "https://lanortrad.com/reader.html?manga=" + encodeURIComponent(A.manga) + "&chapter=" + encodeURIComponent(A.chap.num);
     let l = document.querySelector('link[rel="canonical"]');
     if (!l) { l = document.createElement("link"); l.rel = "canonical"; document.head.appendChild(l); }
-    l.href = "https://lanortrad.com/reader.html?manga=" + encodeURIComponent(A.manga) + "&chapter=" + encodeURIComponent(A.chap.num);
+    l.href = url;
+  }
+  function setMeta(name, content) {
+    let m = document.querySelector(`meta[name="${name}"]`);
+    if (!m) { m = document.createElement("meta"); m.name = name; document.head.appendChild(m); }
+    m.content = content;
   }
   function comAvatar(p, size = 34) {
     const name = (p && p.username) || "?";
