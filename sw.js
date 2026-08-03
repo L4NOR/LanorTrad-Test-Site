@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v38";
+const CACHE = "lanortrad-v39";
 /* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */
@@ -16,6 +16,7 @@ const OFFLINE_PAGE = "offline.html";
 const SHELL = [
   "index.html", "catalogue.html", "manga.html", "reader.html",
   "bibliotheque.html", "planning.html", "equipe.html", "forum.html", "classement.html",
+  "mentions-legales.html", "confidentialite.html",
   OFFLINE_PAGE,
   "css/base.css", "css/components.css", "css/animations.css", "css/extras.css",
   "css/home.css", "css/catalogue.css", "css/manga.css", "css/reader.css", "css/pages.css",

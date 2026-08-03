@@ -81,6 +81,8 @@ function buildSitemap(series, chapters) {
     ["planning.html", "daily", "0.8"],
     ["equipe.html", "monthly", "0.6"], ["forum.html", "daily", "0.7"],
     ["classement.html", "weekly", "0.6"],
+    ["mentions-legales.html", "yearly", "0.2"],
+    ["confidentialite.html", "yearly", "0.2"],
   ];
   pages.forEach(([p, f, pr]) => rows.push(url(abs(p), f, pr)));
 

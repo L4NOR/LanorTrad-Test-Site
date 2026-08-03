@@ -410,3 +410,60 @@ img[data-fade].loaded { opacity: 1; }
   .btn:active, .icon-btn:active, .r-fab .fab:active, .r-dock-chap:active,
   .follow-btn:active, .tag:hover, .range-chip:hover { transform: none; }
 }
+
+/* ---------- Bandeau de consentement (mesure d'audience) ----------
+   Refuser est exactement aussi accessible qu'accepter : même taille, même
+   place, aucune case pré-cochée. Le bandeau ne bloque pas la lecture. */
+.lt-consent {
+  position: fixed; left: 50%; bottom: 0; z-index: 120;
+  width: min(760px, calc(100% - 24px));
+  transform: translate(-50%, 120%); opacity: 0;
+  transition: transform .38s var(--ease), opacity .38s var(--ease);
+}
+.lt-consent.in { transform: translate(-50%, 0); opacity: 1; }
+.lt-consent.gone { transform: translate(-50%, 120%); opacity: 0; }
+.lt-consent-in {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  /* Dégage le bouton de navigation flottant (.rn-toggle, fixé en bas-centre) :
+     le bandeau ne doit jamais recouvrir la navigation principale. */
+  margin-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  padding: 16px 18px; border-radius: var(--radius);
+  background: var(--glass-2); border: 1px solid var(--line-strong);
+  backdrop-filter: blur(14px); box-shadow: 0 24px 60px -28px rgba(0,0,0,.8);
+}
+.lt-consent p { margin: 0; flex: 1 1 300px; font-size: .92rem; color: var(--txt-soft); line-height: 1.5; }
+.lt-consent p a { color: var(--txt); text-decoration: underline; text-underline-offset: 2px; }
+.lt-consent-btns { display: flex; gap: 10px; flex: 0 0 auto; }
+.lt-consent-btns .btn { min-width: 104px; justify-content: center; }
+/* Sous le bandeau, on laisse respirer le bouton de navigation flottant. */
+@media (max-width: 620px) {
+  .lt-consent { width: calc(100% - 16px); }
+  .lt-consent-btns { width: 100%; }
+  .lt-consent-btns .btn { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lt-consent { transition: none; }
+}
+
+/* ---------- Pages légales (mentions, confidentialité) ---------- */
+.legal { max-width: 74ch; margin: 0 auto; }
+.legal section { margin-top: 38px; }
+.legal h2 {
+  font-size: 1.25rem; margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.legal h3 { font-size: 1.02rem; margin: 22px 0 8px; color: var(--txt); }
+.legal p, .legal li { color: var(--txt-soft); line-height: 1.75; }
+.legal p + p { margin-top: 12px; }
+.legal ul { margin: 10px 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+.legal a { color: var(--txt); text-decoration: underline; text-underline-offset: 2px; }
+.legal .box {
+  margin-top: 16px; padding: 16px 18px; border-radius: var(--radius);
+  background: var(--glass); border: 1px solid var(--line);
+}
+.legal .box p:first-child { margin-top: 0; }
+.legal .updated { margin-top: 40px; font-size: .86rem; color: var(--txt-mut); }
+.legal dl { margin-top: 10px; display: grid; grid-template-columns: minmax(140px, auto) 1fr; gap: 8px 18px; }
+.legal dt { color: var(--txt); font-weight: 600; }
+.legal dd { color: var(--txt-soft); }
+@media (max-width: 560px) { .legal dl { grid-template-columns: 1fr; gap: 2px 0; } .legal dd { margin-bottom: 10px; } }

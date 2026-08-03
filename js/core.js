@@ -154,6 +154,15 @@
               <li><a href="${DISCORD}" target="_blank" rel="noopener">Signaler un problème</a></li>
             </ul>
           </div>
+          <div>
+            <h4>Le site</h4>
+            <ul>
+              <li><a href="mentions-legales.html">Mentions légales</a></li>
+              <li><a href="confidentialite.html">Confidentialité</a></li>
+              <li><a href="mentions-legales.html#signalement">Signaler un contenu</a></li>
+              <li><button type="button" class="link-btn" data-reopen-consent>Mesure d'audience</button></li>
+            </ul>
+          </div>
         </div>
         <div class="copy">© 2024–${yr} LanorTrad — traduit à la main, souvent tard le soir.</div>
       </footer>`);
@@ -475,6 +484,17 @@
   window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
+  // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
+  // téléphone via http://192.168.x.x:port). En local on désactive le service
+  // worker (sinon il sert un cache obsolète pendant le développement) et la
+  // mesure d'audience — y compris si on clique « Accepter » pour tester le
+  // bandeau.
+  function isProd() {
+    const host = location.hostname;
+    const local = /^(localhost|127\.|0\.0\.0\.0|\[?::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host) || /\.local$/.test(host);
+    return /^https?:/.test(location.protocol) && !local;
+  }
+
   function wireHead() {
     // Manifest + icône Apple (toujours)
     if (!document.querySelector('link[rel="manifest"]')) {
@@ -506,13 +526,7 @@
       e.type = "application/ld+json"; e.id = "ld-site"; e.textContent = JSON.stringify(ld);
       document.head.appendChild(e);
     }
-    // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
-    // téléphone via http://192.168.x.x:port). En local on désactive le service
-    // worker, sinon il sert un cache obsolète pendant le développement.
-    const host = location.hostname;
-    const isLocal = /^(localhost|127\.|0\.0\.0\.0|\[?::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host) || /\.local$/.test(host);
-    const isProd = /^https?:/.test(location.protocol) && !isLocal;
-    if (!isProd) {
+    if (!isProd()) {
       // Nettoyage : retire un éventuel service worker + caches résiduels d'une
       // visite précédente (sinon l'ancien CSS/JS reste servi depuis le cache).
       if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
@@ -523,17 +537,75 @@
     // Service worker (PWA + hors-ligne)
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
-    // Google Analytics
-    const ga = document.createElement("script"); ga.async = true; ga.src = "https://www.googletagmanager.com/gtag/js?id=G-2MZGH30P4J"; document.head.appendChild(ga);
+    // Mesure d'audience : chargée seulement si le visiteur a dit oui.
+    if (consentGet() === "yes") loadAnalytics();
+    else if (!consentGet()) showConsentBar();
+  }
+
+  /* ---------- Consentement (mesure d'audience) ----------
+     Google Analytics dépose des identifiants et transmet des données à un
+     tiers : en France, ça demande un consentement libre, éclairé et aussi
+     facile à refuser qu'à accepter. Tant que le visiteur n'a pas répondu,
+     AUCUN script de mesure n'est chargé. Le choix est révocable à tout
+     moment (lien « Cookies » en pied de page).
+     Le reste du site (thème, progression de lecture, séries suivies) vit
+     dans le stockage local du navigateur : ce sont des réglages strictement
+     nécessaires au service demandé, ils ne partent nulle part. */
+  const CONSENT_KEY = "lt-consent-v1";
+  const GA_ID = "G-2MZGH30P4J";
+
+  function consentGet() { try { return localStorage.getItem(CONSENT_KEY); } catch { return null; } }
+  function consentSet(v) {
+    try { localStorage.setItem(CONSENT_KEY, v); } catch {}
+    if (v === "yes") loadAnalytics();
+    toast(v === "yes" ? "Merci ! Mesure d'audience activée." : "C'est noté : aucune mesure d'audience.");
+  }
+
+  let gaLoaded = false;
+  function loadAnalytics() {
+    if (gaLoaded || !isProd()) return;
+    gaLoaded = true;
+    const ga = document.createElement("script");
+    ga.async = true; ga.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(ga);
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { dataLayer.push(arguments); };
-    gtag("js", new Date()); gtag("config", "G-2MZGH30P4J");
-
-    // AdSense
-    const ad = document.createElement("script"); ad.async = true; ad.crossOrigin = "anonymous";
-    ad.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5673170839903363";
-    document.head.appendChild(ad);
+    gtag("js", new Date());
+    gtag("config", GA_ID, { anonymize_ip: true });
   }
+
+  function showConsentBar() {
+    if ($(".lt-consent")) return;
+    const bar = el(`
+      <div class="lt-consent" role="dialog" aria-label="Mesure d'audience" aria-live="polite">
+        <div class="lt-consent-in">
+          <p>On aimerait mesurer la fréquentation du site (Google Analytics) pour savoir
+             ce qui vous plaît. C'est toi qui vois — le site marche pareil dans les deux cas.
+             <a href="confidentialite.html">En savoir plus</a></p>
+          <div class="lt-consent-btns">
+            <button type="button" class="btn btn-ghost btn-sm" data-consent="no">Refuser</button>
+            <button type="button" class="btn btn-primary btn-sm" data-consent="yes">Accepter</button>
+          </div>
+        </div>
+      </div>`);
+    bar.addEventListener("click", e => {
+      const b = e.target.closest("[data-consent]");
+      if (!b) return;
+      consentSet(b.dataset.consent);
+      bar.classList.add("gone");
+      setTimeout(() => bar.remove(), 320);
+    });
+    document.body.appendChild(bar);
+    requestAnimationFrame(() => bar.classList.add("in"));
+  }
+
+  // Rouvrir le choix depuis le pied de page.
+  function reopenConsent() {
+    try { localStorage.removeItem(CONSENT_KEY); } catch {}
+    gaLoaded = false;
+    showConsentBar();
+  }
+  window.LTconsent = { get: consentGet, set: consentSet, reopen: reopenConsent };
 
   /* ---------- Boot ---------- */
   function boot() {
@@ -543,6 +615,7 @@
     // Points d'entrée visibles vers la recherche (barre du héros, bouton global…)
     document.addEventListener("click", e => {
       if (e.target.closest("[data-open-search]")) { e.preventDefault(); openPalette(); }
+      if (e.target.closest("[data-reopen-consent]")) { e.preventDefault(); reopenConsent(); }
     });
     wireFollows();
     updateFollowBadge();

@@ -34,11 +34,14 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     # Coupe les API navigateur non utilisées par le site.
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), usb=(), payment=(), midi=()"
-    # CSP calibrée pour le site + Google Fonts, Supabase, CDN, Google Analytics et
-    # AdSense. 'unsafe-inline'/'unsafe-eval' sont requis par les scripts inline
-    # (404/bibliothèque) et par AdSense/GA. La protection forte reste sur
-    # connect-src (anti-exfiltration), object-src, base-uri et frame-ancestors.
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.googleadservices.com https://*.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://*.googlesyndication.com https://*.doubleclick.net https://pagead2.googlesyndication.com; frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com"
+    # CSP calibrée pour le site + Google Fonts, Supabase, CDN et Google Analytics.
+    # Les domaines publicitaires (AdSense, DoubleClick) ont été retirés en même
+    # temps que le script AdSense : plus aucune régie n'est autorisée, et
+    # frame-src est désormais vide (aucune iframe tierce possible).
+    # 'unsafe-inline'/'unsafe-eval' restent requis par les scripts inline
+    # (404/bibliothèque) et par gtag.js. La protection forte est sur connect-src
+    # (anti-exfiltration), object-src, base-uri et frame-ancestors.
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com"
 
 # Images de chapitres : cache long (immuables)
 [[headers]]
