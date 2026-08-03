@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v41";
+const CACHE = "lanortrad-v42";
 /* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */
@@ -21,15 +21,16 @@ const SHELL = [
   "css/base.css", "css/components.css", "css/animations.css", "css/extras.css",
   "css/home.css", "css/catalogue.css", "css/manga.css", "css/reader.css", "css/pages.css",
   "css/planning.css", "css/forum.css", "css/classement.css", "css/offline.css", "css/perf.css",
-  "css/preview.css", "css/fonts.css",
+  "css/preview.css", "css/fonts.css", "css/atelier.css",
   "fonts/inter-400-latin.woff2", "fonts/inter-500-latin.woff2",
   "fonts/inter-600-latin.woff2", "fonts/inter-700-latin.woff2",
   "fonts/sora-600-latin.woff2", "fonts/sora-700-latin.woff2", "fonts/sora-800-latin.woff2",
   "js/perf.js", "js/offline.js",
   "js/core.js", "js/store.js", "js/palette.js", "js/cards.js", "js/tilt.js",
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
-  "js/planning.js", "js/preview.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js", "js/pulse.js", "js/ratings.js", "js/sync.js",
+  "js/planning.js", "js/preview.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js", "js/pulse.js", "js/ratings.js", "js/sync.js", "js/atelier.js",
   "js/data/series.js", "js/data/covers.js", "js/data/chapters.js", "js/data/schedule.js", "js/data/gallery.js",
+  "js/data/atelier.js",
   "manifest.json"
 ];
 

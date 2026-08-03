@@ -67,6 +67,7 @@
           </div>
 
           <div class="tab-panel" id="panel-chapitres">
+            <div id="atelier-block"></div>
             <div class="chap-bar">
               <div class="f-search">
                 <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></span>
@@ -103,6 +104,11 @@
     } else {
       actions.innerHTML = `<a class="btn btn-ghost" href="https://discord.gg/md37S7nhkZ" target="_blank" rel="noopener">📢 Suivre les sorties sur Discord</a>`;
     }
+
+    // L'atelier : où en est le prochain chapitre (voir js/data/atelier.js).
+    // Rien à afficher tant qu'aucune fabrication n'est déclarée pour la série.
+    const atl = window.LTatelier && window.LTatelier.get(s.id);
+    if (atl) document.getElementById("atelier-block").innerHTML = window.LTatelier.card(atl);
 
     // Liste de chapitres (avec pagination par tranches si > 50)
     const search = document.getElementById("chap-search");

@@ -29,7 +29,7 @@
   <link rel="preload" href="fonts/sora-800-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/fonts.css">
   <script src="js/perf.js"></script><link rel="stylesheet" href="css/perf.css"><link rel="stylesheet" href="css/offline.css"><link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css">
-  <link rel="stylesheet" href="css/catalogue.css"><link rel="stylesheet" href="css/planning.css"><link rel="stylesheet" href="css/preview.css">
+  <link rel="stylesheet" href="css/catalogue.css"><link rel="stylesheet" href="css/planning.css"><link rel="stylesheet" href="css/preview.css"><link rel="stylesheet" href="css/atelier.css">
 </head>
 <body>
   <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
@@ -47,6 +47,14 @@
       </div>
     </section>
 
+    <section class="section" id="atelier-section" style="padding-top:0;display:none">
+      <div class="wrap">
+        <div class="section-head" data-reveal><div><span class="eyebrow">Dans les coulisses</span><h2>À l'atelier</h2></div></div>
+        <p class="atl-intro" data-reveal>Entre deux sorties, un chapitre passe entre nos mains une bonne dizaine d'heures. Voilà où en est chacun d'eux, en temps réel.</p>
+        <div class="atl-grid" id="atelier-grid" data-reveal data-delay="1"></div>
+      </div>
+    </section>
+
     <section class="section" style="padding-top:0">
       <div class="wrap">
         <div class="section-head" data-reveal><div><span class="eyebrow">Tout frais</span><h2>Dernières sorties</h2></div></div>
@@ -55,10 +63,12 @@
     </section>
   </main>
   <script src="js/data/series.js"></script><script src="js/data/covers.js"></script><script src="js/data/chapters.js"></script>
+  <script src="js/data/atelier.js"></script>
   <script src="js/store.js"></script><script src="js/palette.js"></script>
   <script src="js/core.js"></script>
   <script src="js/cards.js"></script>
   <script src="js/preview.js"></script>
+  <script src="js/atelier.js"></script>
   <script src="js/planning.js"></script>
   <script src="js/offline.js"></script>
 </body>

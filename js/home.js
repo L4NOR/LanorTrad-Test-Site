@@ -68,12 +68,16 @@
           // Aperçu : première page du chapitre annoncé s'il est déjà sorti,
           // sinon celle du dernier paru.
           const peek = window.LTpreview ? window.LTpreview.btnFor(s, r.chapters) : "";
+          // Avancement du chapitre en fabrication (atelier), s'il est déclaré.
+          const atl = window.LTatelier ? window.LTatelier.get(s.id) : null;
+          const gauge = atl && atl.chapter === String(r.chapters) ? window.LTatelier.mini(atl) : "";
           return `<div class="rel-cell${peek ? " has-peek" : ""}">
             <a class="rel" href="${href}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
             <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
             <div class="ri">
               <h4>${s.title}</h4>
               <div class="meta"><span class="ch">Ch. ${r.chapters}</span><span>·</span><span class="when ${lbl.soon ? "soon" : ""}">${lbl.text}</span></div>
+              ${gauge ? `<div class="rel-atl">${gauge}</div>` : ""}
             </div>
             <span class="badge-st ${stCls}">${r.status}</span>
           </a>${peek}</div>`;

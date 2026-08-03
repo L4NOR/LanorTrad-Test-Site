@@ -18,6 +18,7 @@ quel sur Netlify ou GitHub Pages.
 2. [Aperçu en local](#2-aperçu-en-local)
 3. [Ajouter / mettre à jour des chapitres](#3-ajouter--mettre-à-jour-des-chapitres)
 4. [Ajouter / modifier une série (fiches)](#4-ajouter--modifier-une-série-fiches)
+   · [4 bis. L'atelier — avancement du prochain chapitre](#4-bis-latelier--avancement-du-prochain-chapitre)
 5. [Forum — configuration (Supabase)](#5-forum--configuration-supabase)
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
@@ -42,14 +43,16 @@ equipe.html        Équipe (membres réels)
 
 fonts/  Inter + Sora auto-hébergées (woff2, licence SIL OFL)
 css/    base, fonts, components, animations, home, catalogue, manga, reader, pages,
-        extras, forum, classement, planning, preview, perf, ambiance, tour
+        extras, forum, classement, planning, preview, perf, ambiance, tour, atelier
 js/     core (shell), cards, tilt, hero, home, catalogue, manga, reader,
-        preview, forum, classement, xp, views, perf, store, palette, tour, offline
+        preview, atelier, forum, classement, xp, views, perf, store, palette, tour, offline
 offline.html          ← page de repli hors ligne (avec le mini-jeu)
 js/data/series.js     ← métadonnées des séries (à la main OU via Modifier-Series.bat)
 js/data/chapters.js   ← INDEX des chapitres + dimensions (GÉNÉRÉ, ne pas éditer)
 js/data/pages/<Série>.js ← liste des pages, chargée par le lecteur (GÉNÉRÉ)
 js/data/covers.js     ← variantes responsives des couvertures (GÉNÉRÉ)
+js/data/schedule.js   ← dates des prochaines sorties (à la main)
+js/data/atelier.js    ← avancement du chapitre en fabrication (à la main, § 4 bis)
 images/ couvertures, logos, icônes
 Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
@@ -58,6 +61,7 @@ tools/build-covers.py       ← variantes légères des couvertures (images/Cove
 tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data.py)
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
+tools/Modifier-Atelier.bat  ← interface web locale pour l'avancement des chapitres
 supabase/*.sql              ← schémas Supabase (forum + gamification)
 ```
 
@@ -213,8 +217,8 @@ chapitres, elles, se gèrent avec l'outil de la section 3.
    (ou en ligne de commande : `node tools/series-server.js`).
    Ton navigateur s'ouvre sur <http://localhost:4600>. Laisse la fenêtre noire
    ouverte tant que tu t'en sers ; ferme-la pour arrêter.
-   *Prérequis : Node.js. Les deux outils peuvent tourner en même temps
-   (ports 4599 et 4600).*
+   *Prérequis : Node.js. Les trois outils peuvent tourner en même temps
+   (ports 4599, 4600 et 4601 — voir aussi § 4 bis pour l'atelier).*
 2. La liste montre **toutes les fiches** dans l'ordre où elles apparaissent sur
    le site. Les flèches **↑ ↓** changent cet ordre, **✏️ Modifier** ouvre la
    fiche, **➕ Nouvelle fiche** en crée une.
@@ -281,6 +285,73 @@ carte de 230 px.
 > Ceci ne concerne que les couvertures, éléments d'interface affichés petit.
 > Les **pages de manga** restent converties par `tools/jpg-to-webp.py` en
 > lossless, sans aucun redimensionnement ni retouche.
+
+---
+
+## 4 bis. L'atelier — avancement du prochain chapitre
+
+Entre deux sorties, le lecteur ne voit rien bouger. « L'atelier » montre où en
+est le chapitre en cours de fabrication, en 6 étapes :
+
+**Pages trouvées → Clean → Traduction → Edit → Q-check → Sortie**
+
+### A. Sans coder (interface web locale) — recommandé
+
+Double-clic sur **`tools/Modifier-Atelier.bat`** (ou `node tools/atelier-server.js`),
+puis <http://localhost:4601>. Une ligne par série, les 6 étapes cliquables :
+
+- **un clic sur une étape** = c'est enregistré, et la date du jour est posée
+  automatiquement (c'est elle qui alimente « dernier point d'étape il y a 2 j ») ;
+- **« ▶ Étape suivante »** fait avancer d'un cran sans rien retaper, **« ◀ Reculer »**
+  corrige une fausse manip ;
+- **« ➕ Mettre à l'atelier »** part du numéro du chapitre suivant, deviné d'après
+  `js/data/chapters.js` ;
+- les champs *chapitre / sortie visée / note* se modifient sans changer la date ;
+- **« 🗑️ Retirer de l'atelier »** enlève la jauge du site.
+
+L'outil réécrit `js/data/atelier.js` proprement (même mise en forme qu'à la main,
+séries dans l'ordre de `series.js`), après une **copie de sécurité** dans
+`tools/.backups/` — et restaure l'ancien fichier si l'écriture produit quelque
+chose d'illisible. Comme les deux autres outils, il n'écoute que sur `127.0.0.1`.
+
+### B. À la main
+
+Tout se pilote depuis **`js/data/atelier.js`** — un fichier, une ligne par série,
+rien d'autre à toucher :
+
+```js
+window.ATELIER = {
+  "Tougen Anki": { chapter: "250", step: "trad", updated: "2026-08-01", eta: "2026-08-07" },
+  "Catenaccio":  { chapter: "57",  step: "pages", updated: "2026-07-28",
+                   note: "Chapitre double côté japonais, on prend le temps." }
+};
+```
+
+| Champ | Obligatoire | À quoi ça sert |
+|---|---|---|
+| clé | oui | l'`id` de la série, **exactement** comme dans `series.js` |
+| `chapter` | oui | numéro(s) en fabrication : `"250"` ou `"45-46"` |
+| `step` | oui | étape en cours : `pages`, `clean`, `trad`, `edit`, `qcheck`, `sortie` (ou 1 à 6) |
+| `updated` | oui | date du dernier changement d'étape → « dernier point d'étape il y a 2 j » |
+| `eta` | non | date de sortie visée → « visé pour demain », « visé pour le 7 août » |
+| `note` | non | une phrase libre (retard, galère de raw, chapitre double…) |
+
+Où ça s'affiche :
+
+- **Fiche série** (`manga.html`) : le bloc complet, au-dessus de la liste des
+  chapitres — c'est là que le lecteur se pose la question.
+- **Planning** : la section **« À l'atelier »** rassemble toutes les séries en
+  fabrication, et le calendrier hebdo affiche une mini-jauge sous chaque titre.
+- **Accueil** : la mini-jauge apparaît sur la carte « Prochaines sorties » quand
+  le chapitre annoncé dans `schedule.js` est **le même** que celui de l'atelier.
+
+Bon à savoir :
+
+- Une série **sans entrée** ici n'affiche simplement rien (aucun bloc vide).
+- Une entrée calée sur `"sortie"` passe en vert, propose « Lire maintenant » puis
+  **disparaît toute seule 3 jours** après sa date `updated`.
+- `schedule.js` (les *dates*) et `atelier.js` (l'*avancement*) sont indépendants :
+  tu peux n'utiliser que l'un des deux.
 
 ---
 
@@ -558,8 +629,10 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
 - **Toutes les séries + oneshots** sont convertis en WebP (~5,5 Go, ~14 000 pages)
   et lisibles.
 - Manifeste : **536 chapitres** sur 10 séries (régénéré par `tools/build-data.py`).
-- Pages **Planning** (calendrier hebdo + dernières sorties) et **Équipe** (membres
-  réels) complètes.
+- Pages **Planning** (calendrier hebdo + « À l'atelier » + dernières sorties) et
+  **Équipe** (membres réels) complètes.
+- **L'atelier** : avancement du prochain chapitre en 6 étapes (§ 4 bis), visible
+  sur la fiche série, le planning et l'accueil.
 - **Forum** + **Gamification (XP / classement / missions / cosmétiques)** branchés
   sur Supabase.
 - **Visite guidée** au premier passage (rejouable).
