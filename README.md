@@ -40,7 +40,8 @@ forum.html         Forum communautaire (comptes Supabase)
 classement.html    Classement XP / gamification
 equipe.html        Équipe (membres réels)
 
-css/    base, components, animations, home, catalogue, manga, reader, pages,
+fonts/  Inter + Sora auto-hébergées (woff2, licence SIL OFL)
+css/    base, fonts, components, animations, home, catalogue, manga, reader, pages,
         extras, forum, classement, planning, preview, perf, ambiance, tour
 js/     core (shell), cards, tilt, hero, home, catalogue, manga, reader,
         preview, forum, classement, xp, views, perf, store, palette, tour, offline
@@ -71,8 +72,9 @@ py serve.py
 ```
 
 puis ouvrez <http://localhost:8779/> (ou `py -m http.server 8779` pour un serveur
-minimal). En local, le service worker, Google Analytics et AdSense sont
-automatiquement désactivés.
+minimal). En local, le service worker et la mesure d'audience sont
+automatiquement désactivés (même si tu cliques « Accepter » pour tester le
+bandeau de consentement).
 
 ---
 

@@ -17,9 +17,12 @@
   <meta property="og:url" content="https://lanortrad.com/confidentialite.html">
   <meta property="og:image" content="https://lanortrad.com/images/og/lanortrad.jpg">
   <meta name="twitter:card" content="summary_large_image">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- Polices auto-hebergees (voir css/fonts.css) : plus aucune connexion
+       tierce avant le premier affichage. Les deux polices reellement
+       visibles au chargement sont prechargees. -->
+  <link rel="preload" href="fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/sora-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
   <script src="js/perf.js"></script><link rel="stylesheet" href="css/perf.css"><link rel="stylesheet" href="css/offline.css"><link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css">
   <link rel="stylesheet" href="css/catalogue.css"><link rel="stylesheet" href="css/pages.css">
 </head>
@@ -111,11 +114,12 @@
                alors ton adresse IP — c'est le fonctionnement normal du web :</p>
             <ul>
               <li><strong>Netlify</strong> — héberge le site et sert les pages.</li>
-              <li><strong>Google Fonts</strong> — fournit les deux polices du site (Inter et Sora).</li>
               <li><strong>Supabase</strong> — uniquement si tu utilises le forum ou un compte.</li>
               <li><strong>jsDelivr / cdnjs</strong> — fournissent deux bibliothèques techniques (connexion au forum, création des ZIP de chapitres).</li>
               <li><strong>Google Analytics</strong> — seulement si tu as accepté (voir ci-dessus).</li>
             </ul>
+            <p>Les polices du site sont hébergées par nos soins : contrairement à l'usage
+               le plus répandu, ton adresse IP n'est pas transmise à Google Fonts.</p>
             <p>Il n'y a <strong>ni régie publicitaire, ni bouton de réseau social traqueur,
                ni pixel de suivi</strong> sur ce site.</p>
           </section>

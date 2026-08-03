@@ -34,14 +34,16 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     # Coupe les API navigateur non utilisées par le site.
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), usb=(), payment=(), midi=()"
-    # CSP calibrée pour le site + Google Fonts, Supabase, CDN et Google Analytics.
+    # CSP calibrée pour le site + Supabase, CDN et Google Analytics.
     # Les domaines publicitaires (AdSense, DoubleClick) ont été retirés en même
     # temps que le script AdSense : plus aucune régie n'est autorisée, et
     # frame-src est désormais vide (aucune iframe tierce possible).
+    # Les polices étant auto-hébergées, style-src et font-src n'autorisent plus
+    # que 'self' : aucune feuille de style ni police tierce n'est chargeable.
     # 'unsafe-inline'/'unsafe-eval' restent requis par les scripts inline
     # (404/bibliothèque) et par gtag.js. La protection forte est sur connect-src
     # (anti-exfiltration), object-src, base-uri et frame-ancestors.
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com"
 
 # Images de chapitres : cache long (immuables)
 [[headers]]
@@ -60,6 +62,12 @@
 # stale-while-revalidate : le navigateur affiche immédiatement la version en
 # cache et va chercher la nouvelle en arrière-plan. Une mise à jour du site est
 # donc visible à la navigation suivante, sans jamais faire attendre personne.
+# Polices : contenu figé, nom de fichier figé -> cache d'un an.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 [[headers]]
   for = "/css/*"
   [headers.values]
