@@ -26,11 +26,13 @@
     if (q) fSearch.value = q;
 
     function apply() {
-      const term = fSearch.value.trim().toLowerCase();
+      // Meme normalisation que la palette (sans accent, sans ponctuation) :
+      // « comedie » doit trouver « Comédie », « ao-no » doit trouver « Ao No ».
+      const term = window.LT.norm(fSearch.value);
       const st = fStatus.value, ty = fType.value, ge = fGenre.value, so = fSort.value;
 
       let list = S.filter(s => {
-        if (term && !(s.title.toLowerCase().includes(term) || s.genres.join(" ").toLowerCase().includes(term))) return false;
+        if (term && !window.LT.matches(s, term)) return false;
         if (st && s.status !== st) return false;
         if (ty && s.type !== ty) return false;
         if (ge && !s.genres.includes(ge)) return false;

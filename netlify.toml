@@ -54,6 +54,29 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000"
 
+# Feuilles de style et scripts. Par défaut Netlify sert tout en max-age=0,
+# must-revalidate : chaque visite refaisait un aller-retour par fichier (10 CSS
+# + 17 JS) juste pour s'entendre dire « rien n'a changé ».
+# stale-while-revalidate : le navigateur affiche immédiatement la version en
+# cache et va chercher la nouvelle en arrière-plan. Une mise à jour du site est
+# donc visible à la navigation suivante, sans jamais faire attendre personne.
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300, stale-while-revalidate=604800"
+
+# Données (chapitres, couvertures, listes de pages) : cache court, pour qu'un
+# nouveau chapitre apparaisse sans attendre.
+[[headers]]
+  for = "/js/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=60, stale-while-revalidate=86400"
+
 # Le service worker doit pouvoir se mettre à jour
 [[headers]]
   for = "/sw.js"

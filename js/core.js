@@ -333,35 +333,97 @@
     rows.forEach((r, k) => r.classList.toggle("active", k === palActive));
     rows[palActive].scrollIntoView({ block: "nearest" });
   }
-  function choosePal(it) { window.LTstore.addRecent(it.title); closePalette(); location.href = it.url; }
+  function choosePal(it) { window.LTstore.addRecent(it.term || it.title); closePalette(); location.href = it.url; }
+
+  /* Normalisation pour la recherche : sans accent, sans ponctuation, en
+     minuscules. « Épouvante », « epouvante » et « EPOUVANTE » deviennent le
+     même texte, et « ao-no exorcist » retrouve « Ao No Exorcist ». */
+  const norm = s => String(s == null ? "" : s)
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+  /* « tougen 240 », « ao no exorcist chapitre 166 », « satsudou ch 5 » :
+     on isole le numéro de chapitre pour pouvoir proposer un lien direct. */
+  function splitChapter(term) {
+    const m = term.match(/^(.*?)(?:\s+(?:chapitres?|chap|ch|episode|ep|#))?\s+(\d+(?:\.\d+)?)$/i)
+           || term.match(/^(.*?)\s*(?:chapitres?|chap|ch|#)\s*(\d+(?:\.\d+)?)$/i);
+    if (!m || !m[1].trim()) return { base: term, num: null };
+    return { base: m[1].trim(), num: m[2] };
+  }
+
+  function matches(s, q) {
+    if (!q) return true;
+    const hay = norm([s.title, s.id, (s.genres || []).join(" "), s.author, s.artist].join(" "));
+    return q.split(" ").every(w => hay.includes(w));
+  }
+
   function renderPalette() {
-    const term = (palInput.value || "").trim().toLowerCase();
+    const raw = (palInput.value || "").trim();
     const S = window.SERIES || [];
-    palItems = !term ? [] : S.filter(s =>
-      s.title.toLowerCase().includes(term) || s.genres.join(" ").toLowerCase().includes(term) ||
-      (s.author || "").toLowerCase().includes(term) || (s.artist || "").toLowerCase().includes(term)
-    ).slice(0, 8);
     palActive = -1;
-    if (!term) {
+
+    if (!raw) {
       const rec = window.LTstore.recents();
       const trend = [...S].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+      palItems = trend.map(serieItem);
       palList.innerHTML =
         (rec.length ? `<div class="cmdk-sec">Récent</div><div style="padding:4px 8px">${rec.map(r => `<span class="cmdk-recent" data-term="${r}">${icon("clock")} ${r}</span>`).join("")}</div>` : "") +
-        `<div class="cmdk-sec">Tendances</div>` + trend.map(palRow).join("");
-      palItems = trend;
+        `<div class="cmdk-sec">Tendances</div>` + palItems.map(palRow).join("");
       $$(".cmdk-recent", palList).forEach(c => c.addEventListener("click", () => { palInput.value = c.dataset.term; renderPalette(); palInput.focus(); }));
-    } else if (!palItems.length) {
-      palList.innerHTML = `<div class="cmdk-empty">Rien pour « ${palInput.value} »… essaie un titre ou un genre.</div>`;
-    } else {
-      palList.innerHTML = `<div class="cmdk-sec">Séries</div>` + palItems.map(palRow).join("");
+      wirePalRows();
+      return;
     }
+
+    const { base, num } = splitChapter(norm(raw));
+    // Le numéro n'est retenu que s'il ne fait pas partie du titre lui-même
+    // (« Countdown 2 » ne doit pas perdre son « 2 » s'il existe une telle série).
+    const byFull = S.filter(s => matches(s, norm(raw)));
+    const byBase = num ? S.filter(s => matches(s, base)) : [];
+    const useChapter = num && !byFull.length && byBase.length;
+
+    const rows = [];
+    if (useChapter) {
+      byBase.slice(0, 3).forEach(s => {
+        const ch = ((window.CHAPTERS || {})[s.id] || []).find(c => String(c.num) === String(num));
+        if (ch) rows.push(chapterItem(s, ch, raw));
+      });
+    }
+    (byFull.length ? byFull : byBase).slice(0, 8).forEach(s => rows.push(serieItem(s)));
+
+    palItems = rows;
+    if (!rows.length) {
+      palList.innerHTML = `<div class="cmdk-empty">Rien pour « ${escAttr(raw)} »… essaie un titre, un genre ou un auteur.</div>`;
+      return;
+    }
+    let html = "", section = null;
+    rows.forEach(it => {
+      if (it.kind !== section) { section = it.kind; html += `<div class="cmdk-sec">${section === "chapitre" ? "Aller au chapitre" : "Séries"}</div>`; }
+      html += palRow(it);
+    });
+    palList.innerHTML = html;
+    wirePalRows();
+  }
+
+  function wirePalRows() {
     $$(".cmdk-item", palList).forEach((r, k) => {
       r.addEventListener("click", () => choosePal(palItems[k]));
       r.addEventListener("mousemove", () => setPalActive(k));
     });
   }
-  function palRow(s) {
-    return `<div class="cmdk-item"><img src="${cover(s.cover, 120)}" alt="" loading="lazy"><div><div class="ci-t">${s.title}</div><div class="ci-m">${s.status} · ${s.genres.slice(0,2).join(", ")}</div></div><span class="ci-go">↵</span></div>`;
+
+  const escAttr = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function serieItem(s) {
+    return { kind: "serie", title: s.title, url: s.url, cover: s.cover,
+             sub: `${s.status} · ${(s.genres || []).slice(0, 2).join(", ")}` };
+  }
+  function chapterItem(s, ch, term) {
+    return { kind: "chapitre", title: `${s.title} — chapitre ${ch.num}`, term,
+             url: `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${encodeURIComponent(ch.num)}`,
+             cover: s.cover, sub: `${ch.pages} pages · lire tout de suite` };
+  }
+  function palRow(it) {
+    return `<div class="cmdk-item"><img src="${cover(it.cover, 120)}" alt="" loading="lazy"><div><div class="ci-t">${escAttr(it.title)}</div><div class="ci-m">${escAttr(it.sub)}</div></div><span class="ci-go">↵</span></div>`;
   }
 
   /* ---------- Reveals ---------- */
@@ -481,7 +543,7 @@
   }
 
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, norm, matches, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
