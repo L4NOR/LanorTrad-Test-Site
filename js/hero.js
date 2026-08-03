@@ -20,7 +20,8 @@
       card.className = "deck-card";
       card.dataset.i = i;
       card.innerHTML = `
-        <img src="${s.cover}" alt="${s.title}" loading="${i < 2 ? "eager" : "lazy"}">
+        <img ${window.LT.coverAttrs(s.cover, "(max-width:900px) 60vw, 300px")} alt="${s.title}"
+             loading="${i < 2 ? "eager" : "lazy"}"${i === 0 ? ' fetchpriority="high"' : ""}>
         <span class="reflect"></span>
         <div class="glass-label"><h3>${s.title}</h3><p>${s.genres.slice(0,3).join(" · ")}</p></div>`;
       deck.appendChild(card);

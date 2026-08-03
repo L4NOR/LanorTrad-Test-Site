@@ -18,7 +18,7 @@
       const thumbsEl = g("sl-thumbs");
       let cur = 0, timer = null;
 
-      thumbsEl.innerHTML = feat.map((s, i) => `<button class="sl-thumb" data-i="${i}" aria-label="${s.title}"><img src="${s.cover}" alt="${s.title}" loading="lazy"></button>`).join("");
+      thumbsEl.innerHTML = feat.map((s, i) => `<button class="sl-thumb" data-i="${i}" aria-label="${s.title}"><img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" loading="lazy"></button>`).join("");
       const thumbs = [...thumbsEl.children];
       thumbs.forEach(b => b.addEventListener("click", () => { show(+b.dataset.i); restart(); }));
 
@@ -26,9 +26,11 @@
         cur = (i + feat.length) % feat.length;
         const s = feat[cur];
         spot.style.setProperty("--accent", s.accent);
-        g("sl-bg").style.backgroundImage = `url('${s.cover}')`;
+        // Fond flou : une petite variante suffit largement.
+        g("sl-bg").style.backgroundImage = `url('${window.LT.cover(s.cover, 240)}')`;
         const slImg = g("sl-img");
-        slImg.src = s.cover; slImg.alt = s.title;
+        window.LT.applyCover(slImg, s.cover, "(max-width:900px) 55vw, 330px");
+        slImg.alt = s.title;
         g("sl-cover").href = s.url; g("sl-more").href = s.url;
         g("sl-genres").innerHTML = s.genres.slice(0, 3).map(x => `<span>${x}</span>`).join("");
         g("sl-title").textContent = s.title;
@@ -39,7 +41,7 @@
         else { read.href = s.url; read.querySelector("span").textContent = "Voir l'œuvre"; }
         thumbs.forEach((b, k) => b.classList.toggle("on", k === cur));
         elInfo.classList.remove("swap"); void elInfo.offsetWidth; elInfo.classList.add("swap");
-        window.LTpalette.get(s.cover).then(hex => { if (hex && cur === i) spot.style.setProperty("--accent", hex); });
+        window.LTpalette.get(window.LT.cover(s.cover, 120)).then(hex => { if (hex && cur === i) spot.style.setProperty("--accent", hex); });
       }
       function restart() { clearInterval(timer); timer = setInterval(() => show(cur + 1), 6000); }
       spot.addEventListener("pointerenter", () => clearInterval(timer));
@@ -67,8 +69,8 @@
           // sinon celle du dernier paru.
           const peek = window.LTpreview ? window.LTpreview.btnFor(s, r.chapters) : "";
           return `<div class="rel-cell${peek ? " has-peek" : ""}">
-            <a class="rel" href="${href}" style="--accent:${s.accent}" data-colorize data-cover="${s.cover}">
-            <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
+            <a class="rel" href="${href}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
+            <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
             <div class="ri">
               <h4>${s.title}</h4>
               <div class="meta"><span class="ch">Ch. ${r.chapters}</span><span>·</span><span class="when ${lbl.soon ? "soon" : ""}">${lbl.text}</span></div>
@@ -92,8 +94,8 @@
           const ch = chs.find(c => c.num === p.chapter);
           const pct = ch && ch.pages ? Math.min(100, Math.round(((p.page || 0) / ch.pages) * 100)) : 0;
           const href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${p.chapter}` : s.url;
-          return `<a class="rc" href="${href}" data-colorize data-cover="${s.cover}" style="--accent:${s.accent}">
-            <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
+          return `<a class="rc" href="${href}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}" style="--accent:${s.accent}">
+            <img src="${window.LT.cover(s.cover, 240)}" alt="${s.title}" data-fade loading="lazy">
             <div class="info"><h4>${s.title}</h4><span class="ch">Chapitre ${p.chapter}</span><div class="pbar"><i style="width:${pct}%"></i></div></div>
             <span class="play">${playIcon()}</span>
           </a>`;
@@ -147,7 +149,7 @@
         const href = window.LT.playable(r.s) ? `reader.html?manga=${encodeURIComponent(r.s.id)}&chapter=${r.num}` : r.s.url;
         return `
         <a class="latest" href="${href}">
-          <img src="${r.s.cover}" alt="${r.s.title}" loading="lazy">
+          <img src="${window.LT.cover(r.s.cover, 120)}" alt="${r.s.title}" loading="lazy">
           <div class="info">
             <h4>${r.s.title}</h4>
             <span class="ch">Chapitre ${r.num}</span>

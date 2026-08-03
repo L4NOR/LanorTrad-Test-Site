@@ -91,7 +91,7 @@
     var loggedIn = !!(identity && identity.username);
     var displayName = loggedIn ? identity.username : (localPseudo || "Lecteur LanorTrad");
     var avatarUrl = identity && identity.avatarUrl;
-    var emblem = fav ? fav.cover : (avatarUrl || "images/icons/icon-192x192.png");
+    var emblem = fav ? (window.LT ? window.LT.cover(fav.cover, 240) : fav.cover) : (avatarUrl || "images/icons/icon-192x192.png");
     var sn = serial();
 
     // Données conservées pour l'export image

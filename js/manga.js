@@ -31,11 +31,11 @@
     // En-tête
     root.innerHTML = `
       <section class="series-hero" style="--accent:${s.accent}">
-        <div class="series-backdrop" style="background-image:url('${s.cover}')"></div>
+        <div class="series-backdrop" style="background-image:url('${window.LT.cover(s.cover, 480)}')"></div>
         <div class="wrap">
           <div class="series-top">
             <div class="series-cover m-card" data-reveal="left">
-              <div class="inner skeleton" style="view-transition-name:cover-active"><img src="${s.cover}" alt="${s.title}" data-fade></div>
+              <div class="inner skeleton" style="view-transition-name:cover-active"><img ${window.LT.coverAttrs(s.cover, "(max-width:900px) 60vw, 320px")} alt="${s.title}" data-fade fetchpriority="high"></div>
             </div>
             <div class="series-info" data-reveal="right">
               <span class="eyebrow">${s.type === "oneshot" ? "Oneshot" : "Série"} · ${s.status}${s.year ? " · " + s.year : ""}</span>
@@ -224,7 +224,7 @@
 
     // Accent extrait de la couverture (teinte le halo de la couverture, sans
     // toucher à l'ambiance globale qui reste calée sur la couleur d'univers).
-    window.LTpalette.get(s.cover).then(hex => { if (hex) document.querySelector(".series-hero").style.setProperty("--accent", hex); });
+    window.LTpalette.get(window.LT.cover(s.cover, 120)).then(hex => { if (hex) document.querySelector(".series-hero").style.setProperty("--accent", hex); });
 
     // Compteur de lectures (Supabase) sur la fiche
     if (window.LTviews) window.LTviews.ready(() => {

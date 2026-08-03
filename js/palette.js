@@ -19,7 +19,11 @@
       const cached = cacheGet(src);
       if (cached) return resolve(cached);
       const img = new Image();
-      img.crossOrigin = "anonymous";
+      // PAS de crossOrigin ici : les couvertures sont servies par le meme
+      // domaine, donc le canvas n'est jamais "tache". En revanche crossOrigin
+      // force une requete CORS, stockee dans une entree de cache DISTINCTE :
+      // chaque couverture etait telechargee deux fois (une pour l'affichage,
+      // une pour l'extraction de couleur).
       img.onload = () => {
         try {
           const W = 18, H = 26;

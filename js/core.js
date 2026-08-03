@@ -352,7 +352,7 @@
     });
   }
   function palRow(s) {
-    return `<div class="cmdk-item"><img src="${s.cover}" alt=""><div><div class="ci-t">${s.title}</div><div class="ci-m">${s.status} · ${s.genres.slice(0,2).join(", ")}</div></div><span class="ci-go">↵</span></div>`;
+    return `<div class="cmdk-item"><img src="${cover(s.cover, 120)}" alt="" loading="lazy"><div><div class="ci-t">${s.title}</div><div class="ci-m">${s.status} · ${s.genres.slice(0,2).join(", ")}</div></div><span class="ci-go">↵</span></div>`;
   }
 
   /* ---------- Reveals ---------- */
@@ -437,8 +437,42 @@
     return I[name] || "";
   }
 
+  /* ---------- Couvertures responsives ----------
+     Les variantes WebP sont generees par tools/build-covers.py, qui ecrit le
+     manifeste js/data/covers.js. Une couverture absente du manifeste retombe
+     sur son fichier d'origine : ajouter une serie sans relancer l'outil
+     n'affiche jamais d'image cassee, juste l'ancienne (grosse) version. */
+  function coverInfo(src) { return (window.COVERS || {})[src] || null; }
+
+  // URL de la plus petite variante au moins aussi large que `want`.
+  function cover(src, want) {
+    const c = coverInfo(src);
+    if (!c) return src;
+    return `${c.base}-${c.w.find(w => w >= want) || c.w[c.w.length - 1]}.webp`;
+  }
+
+  // Attributs src/srcset/sizes prets a coller dans un template d'<img>.
+  // `sizes` decrit la largeur d'affichage CSS (ex: "(max-width:700px) 45vw, 230px").
+  function coverAttrs(src, sizes) {
+    const c = coverInfo(src);
+    if (!c) return `src="${src}"`;
+    const set = c.w.map(w => `${c.base}-${w}.webp ${w}w`).join(", ");
+    // src = repli pour les (tres) vieux navigateurs qui ignorent srcset.
+    return `src="${cover(src, 480)}" srcset="${set}" sizes="${sizes}"`;
+  }
+
+  // Meme chose sur une <img> deja dans le DOM (carrousels qui changent d'image).
+  function applyCover(img, src, sizes) {
+    if (!img) return;
+    const c = coverInfo(src);
+    if (!c) { img.removeAttribute("srcset"); img.src = src; return; }
+    img.sizes = sizes;
+    img.srcset = c.w.map(w => `${c.base}-${w}.webp ${w}w`).join(", ");
+    img.src = cover(src, 480);
+  }
+
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   function wireHead() {

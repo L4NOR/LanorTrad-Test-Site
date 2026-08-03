@@ -233,6 +233,30 @@ Champs reconnus : `id`, `title`, `type` (`manga` / `oneshot`), `genres`,
 `artist` et `year` sont facultatifs : quand ils sont remplis, la fiche affiche
 « Dessin <artiste> » et l'année à côté du statut.
 
+### C. Nouvelle couverture → relancer `build-covers.py`
+
+Dépose la couverture dans `images/Cover/` (JPG ou PNG, pleine résolution), puis :
+
+```bash
+py tools/build-covers.py
+```
+
+L'outil écrit des variantes WebP légères dans `images/Cover/rs/` (120, 240, 480
+et 720 px) et met à jour le manifeste `js/data/covers.js`. Le site sert ensuite
+la bonne taille selon l'écran, au lieu d'envoyer une image de 2 Mo dans une
+carte de 230 px.
+
+- **Les originaux ne sont jamais modifiés ni supprimés** : ils restent la source
+  du partage social (`og:image`).
+- **Oublier de lancer l'outil ne casse rien** : une couverture absente du
+  manifeste est simplement servie en pleine résolution, comme avant.
+- À relancer aussi si tu **remplaces** une couverture existante (l'outil détecte
+  les fichiers plus récents ; `--force` régénère tout).
+
+> Ceci ne concerne que les couvertures, éléments d'interface affichés petit.
+> Les **pages de manga** restent converties par `tools/jpg-to-webp.py` en
+> lossless, sans aucun redimensionnement ni retouche.
+
 ---
 
 ## 5. Forum — configuration (Supabase)

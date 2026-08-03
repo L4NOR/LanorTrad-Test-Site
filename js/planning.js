@@ -27,8 +27,8 @@
           // donc la première page du dernier chapitre paru (libellé explicite).
           const peek = window.LTpreview ? window.LTpreview.btnFor(s, next) : "";
           return `<div class="pl-cell${peek ? " has-peek" : ""}" style="--accent:${s.accent}">
-            <a class="pl-item" href="${s.url}" style="--accent:${s.accent}" data-colorize data-cover="${s.cover}">
-            <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
+            <a class="pl-item" href="${s.url}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
+            <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
             <div><div class="t">${s.title}</div><div class="c">Ch. ${next} à venir</div></div></a>${peek}</div>`;
         }).join("") : `<div class="empty-d">Pas de sortie prévue</div>`;
         return `<div class="day ${dow === todayDow ? "today" : ""}">
@@ -47,8 +47,8 @@
         const href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${last}` : s.url;
         const peek = window.LTpreview ? window.LTpreview.btnFor(s, last) : "";
         return `<div class="tl-row${peek ? " has-peek" : ""}" style="--accent:${s.accent}" data-reveal="left">
-          <a class="tl-card" href="${href}" data-colorize data-cover="${s.cover}">
-            <img src="${s.cover}" alt="${s.title}" data-fade loading="lazy">
+          <a class="tl-card" href="${href}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
+            <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
             <div class="ti"><h4>${s.title}</h4><div class="ch">Chapitre ${last}</div><div class="dt">${frDate(s.lastUpdate)} · ${window.LT.timeAgo(s.lastUpdate)}</div></div>
           </a>${peek}</div>`;
       }).join("");
