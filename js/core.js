@@ -711,6 +711,13 @@
     window.gtag = function () { dataLayer.push(arguments); };
     gtag("js", new Date());
     gtag("config", GA_ID, { anonymize_ip: true });
+
+    // Mesure des Core Web Vitals réels (js/vitals.js). Chargée ici et nulle
+    // part ailleurs : elle voyage avec le consentement à la mesure d'audience,
+    // et qui refuse ne télécharge même pas le fichier.
+    const v = document.createElement("script");
+    v.defer = true; v.src = "js/vitals.js";
+    document.head.appendChild(v);
   }
 
   function showConsentBar() {

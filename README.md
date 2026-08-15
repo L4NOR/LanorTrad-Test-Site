@@ -726,7 +726,13 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   (ComicSeries / Chapter / BreadcrumbList) servies aux robots *sans* JS par
   l'edge function, vignettes de partage 1200×630, vrais 404 sur les URLs
   fantômes, et signalement **IndexNow** des nouveautés (voir ci-dessous).
-- **Analytics** : Google Analytics + AdSense (chargés uniquement en production).
+- **Analytics** : Google Analytics (chargé uniquement en production **et** après
+  consentement). Avec lui vient `js/vitals.js`, qui relève les **Core Web Vitals
+  réels** (LCP, CLS, INP) chez les vrais visiteurs et les envoie en un seul
+  événement `web_vitals` au départ de la page, avec le type de page et le tier
+  de fluidité. C'est ce que Lighthouse ne peut pas dire : ce que vit un lecteur
+  sur un vieux téléphone en 4G. Le fichier n'est pas téléchargé si le
+  consentement est refusé.
 - **Accessibilité / confort** : thèmes Sombre / OLED / Clair, mode **Fluidité**
   (léger) pour les appareils modestes, `prefers-reduced-motion` respecté.
 - **Préchargement spéculatif** (`js/core.js`, `wireSpeculation`) : au survol d'un
