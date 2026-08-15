@@ -52,8 +52,14 @@
     if (!A.S) { noindex(); root.innerHTML = `<div class="rd">${emptyHTML("Cette série n'existe pas… ou pas encore chez nous.")}</div>`; window.LT._scanReveals?.(); return; }
 
     document.title = `${A.S.title} — Lecture — LanorTrad`;   // affiné par chapitre dans setCanonical()
-    window.LTstore && window.LTstore.markSeen(A.manga);
-    window.LTviews && window.LTviews.bump(A.manga);
+    // Le lecteur n'est aujourd'hui que préchargé (prefetch), jamais pré-rendu :
+    // son JS ne tourne donc pas avant l'ouverture. On passe quand même par
+    // whenActive pour que compter une lecture reste juste si on venait à
+    // étendre le pré-rendu ici — c'est un compteur public, il doit être honnête.
+    window.LT.whenActive(() => {
+      window.LTstore && window.LTstore.markSeen(A.manga);
+      window.LTviews && window.LTviews.bump(A.manga);
+    });
 
     // Chapitre demandé : URL > reprise > plus ancien dispo (chapitre 1)
     let wantNum = p.get("chapter");

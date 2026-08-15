@@ -555,8 +555,21 @@
     return slug ? `images/og/series/${slug}.jpg` : "";
   }
 
+  /* ---------- Effets de bord et pré-rendu ----------
+     Pendant un prerender (voir wireSpeculation), la page est construite alors
+     que le visiteur n'a encore rien ouvert : il a juste survolé un lien. Tout
+     ce qui laisse une trace — marquer une série comme vue, compter une lecture,
+     accorder de l'XP — doit donc attendre que la page soit réellement affichée,
+     sinon on enregistre des visites qui n'ont jamais eu lieu.
+     Hors pré-rendu (cas normal, et tous les navigateurs sans l'API), le travail
+     est fait immédiatement : le comportement ne change pas. */
+  function whenActive(fn) {
+    if (!document.prerendering) return fn();
+    document.addEventListener("prerenderingchange", () => fn(), { once: true });
+  }
+
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, ogCard, norm, matches, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, ogCard, whenActive, norm, matches, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
@@ -568,6 +581,57 @@
     const host = location.hostname;
     const local = /^(localhost|127\.|0\.0\.0\.0|\[?::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host) || /\.local$/.test(host);
     return /^https?:/.test(location.protocol) && !local;
+  }
+
+  /* ---------- Préchargement spéculatif ----------
+     Le navigateur peut aller chercher la page suivante pendant que le visiteur
+     hésite encore sur le lien (`eagerness: moderate` = au survol). Au clic, la
+     page est déjà là.
+
+     Deux niveaux, et la différence compte :
+       • prefetch  — récupère le document, SANS exécuter son JavaScript.
+         Aucun effet de bord possible, donc c'est le réglage par défaut ici.
+       • prerender — construit la page entière en arrière-plan, JS compris.
+         Beaucoup plus impressionnant, mais tout ce que la page fait au
+         chargement se produit pour de bon. On ne l'autorise que sur la fiche
+         série, dont le seul effet (marquer la série comme vue) est justement
+         mis en attente d'activation — voir whenActive().
+
+     Le lecteur reste en prefetch : son ouverture compte une lecture (LTviews)
+     et alimente l'XP. Prérendre une page qu'on n'ouvrira peut-être jamais
+     fausserait les compteurs de toute la team. */
+  function wireSpeculation() {
+    // Chrome/Edge uniquement pour l'instant ; ailleurs, la balise est ignorée.
+    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports("speculationrules")) return;
+    // Mode Fluidité : machine modeste ou connexion limitée. On ne va pas
+    // dépenser sa bande passante et son CPU pour des pages non demandées.
+    if (document.documentElement.getAttribute("data-perf") === "lite") return;
+    if (navigator.connection && navigator.connection.saveData) return;
+
+    const rules = {
+      prerender: [{
+        where: { href_matches: "/manga.html?*" },
+        eagerness: "moderate"
+      }],
+      prefetch: [{
+        where: {
+          and: [
+            { href_matches: "/*" },
+            // Déjà couverte par la règle de prerender ci-dessus.
+            { not: { href_matches: "/manga.html?*" } },
+            // Page personnelle : rien à y gagner, et elle lit le stockage local.
+            { not: { href_matches: "/bibliotheque.html*" } },
+            { not: { selector_matches: "[rel~=nofollow]" } },
+            { not: { selector_matches: "[target=_blank]" } }
+          ]
+        },
+        eagerness: "moderate"
+      }]
+    };
+    const el = document.createElement("script");
+    el.type = "speculationrules";
+    el.textContent = JSON.stringify(rules);
+    document.head.appendChild(el);
   }
 
   function wireHead() {
@@ -685,6 +749,7 @@
   /* ---------- Boot ---------- */
   function boot() {
     wireHead();
+    wireSpeculation();
     buildShell();
     buildPalette();
     // Points d'entrée visibles vers la recherche (barre du héros, bouton global…)

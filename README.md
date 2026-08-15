@@ -729,3 +729,11 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
 - **Analytics** : Google Analytics + AdSense (chargés uniquement en production).
 - **Accessibilité / confort** : thèmes Sombre / OLED / Clair, mode **Fluidité**
   (léger) pour les appareils modestes, `prefers-reduced-motion` respecté.
+- **Préchargement spéculatif** (`js/core.js`, `wireSpeculation`) : au survol d'un
+  lien, le navigateur va chercher la page suivante. La fiche série est
+  **pré-rendue** (page construite entièrement), le reste est simplement
+  **préchargé** (document seul, sans exécuter son JS, donc sans effet de bord).
+  Désactivé en mode Fluidité et quand l'économiseur de données est actif.
+  Les actions qui laissent une trace (marquer une série vue, compter une
+  lecture) passent par `LT.whenActive()` et attendent l'ouverture réelle : un
+  survol ne doit jamais gonfler un compteur public.

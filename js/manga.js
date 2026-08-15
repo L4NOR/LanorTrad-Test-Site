@@ -24,7 +24,10 @@
     document.title = `${s.title} — LanorTrad`;
     setSeo(s);
     window.LTambiance && window.LTambiance.set(s.accent);   // le site adopte l'univers de la série
-    window.LTstore.markSeen(s.id);   // consulter la fiche « consomme » la nouveauté
+    // Consulter la fiche « consomme » la nouveauté — mais seulement une fois la
+    // page vraiment ouverte : cette page peut être pré-rendue sur un simple
+    // survol de lien, et un survol n'a jamais lu quoi que ce soit.
+    window.LT.whenActive(() => window.LTstore.markSeen(s.id));
     let chapters = (window.CHAPTERS || {})[s.id] || [];
     const progress = window.LTstore.progress(s.id);
     const gallery = (window.GALLERY || {})[s.id] || null;
