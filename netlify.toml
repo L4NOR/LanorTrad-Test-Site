@@ -43,16 +43,19 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     # Coupe les API navigateur non utilisées par le site.
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), usb=(), payment=(), midi=()"
-    # CSP calibrée pour le site + Supabase, CDN et Google Analytics.
+    # CSP calibrée pour le site + Supabase et Google Analytics.
     # Les domaines publicitaires (AdSense, DoubleClick) ont été retirés en même
     # temps que le script AdSense : plus aucune régie n'est autorisée, et
     # frame-src est désormais vide (aucune iframe tierce possible).
     # Les polices étant auto-hébergées, style-src et font-src n'autorisent plus
     # que 'self' : aucune feuille de style ni police tierce n'est chargeable.
+    # jsDelivr et cdnjs ont disparu de script-src : supabase-js et JSZip sont
+    # désormais servis depuis js/vendor/. Plus AUCUN script tiers n'est
+    # chargeable en dehors de gtag.js, qui n'arrive qu'après consentement.
     # 'unsafe-inline'/'unsafe-eval' restent requis par les scripts inline
     # (404/bibliothèque) et par gtag.js. La protection forte est sur connect-src
     # (anti-exfiltration), object-src, base-uri et frame-ancestors.
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com"
 
 # Images de chapitres : cache long (immuables)
 [[headers]]
@@ -86,6 +89,14 @@
   for = "/js/*"
   [headers.values]
     Cache-Control = "public, max-age=300, stale-while-revalidate=604800"
+
+# Bibliothèques tierces auto-hébergées. Le numéro de version est dans le nom du
+# fichier : un contenu donné ne change jamais d'URL, donc cache d'un an.
+# Mettre à jour = déposer un nouveau fichier et changer la référence.
+[[headers]]
+  for = "/js/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 # Données (chapitres, couvertures, listes de pages) : cache court, pour qu'un
 # nouveau chapitre apparaisse sans attendre.

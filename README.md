@@ -735,6 +735,16 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   consentement est refusé.
 - **Accessibilité / confort** : thèmes Sombre / OLED / Clair, mode **Fluidité**
   (léger) pour les appareils modestes, `prefers-reduced-motion` respecté.
+- **Aucun script tiers** : `supabase-js` et `JSZip` venaient de jsDelivr et
+  cdnjs, à qui le navigateur de chaque visiteur signalait donc sa visite. Ils
+  sont désormais dans **`js/vendor/`**, avec leur numéro de version dans le nom
+  du fichier (donc cache d'un an). `script-src` n'autorise plus que `'self'` et
+  `googletagmanager`, qui n'intervient qu'après consentement.
+  **Mettre à jour une bibliothèque** = déposer le nouveau fichier versionné dans
+  `js/vendor/`, puis changer la référence (les `<script>` des pages pour
+  supabase-js, `loadJSZip()` dans `js/reader.js` pour JSZip).
+  JSZip (95 Ko) n'est d'ailleurs plus chargé qu'**au clic** sur « Télécharger le
+  chapitre » : inutile de le faire payer à tous les lecteurs.
 - **Préchargement spéculatif** (`js/core.js`, `wireSpeculation`) : au survol d'un
   lien, le navigateur va chercher la page suivante. La fiche série est
   **pré-rendue** (page construite entièrement), le reste est simplement

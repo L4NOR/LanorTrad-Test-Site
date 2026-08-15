@@ -840,9 +840,33 @@
   /* ========================================================================
      TÉLÉCHARGEMENT ZIP
      ===================================================================== */
+  /* JSZip (95 Ko) ne sert QUE dans la fonction ci-dessous, et la grande
+     majorité des lecteurs ne télécharge jamais de chapitre. Le charger sur
+     chaque ouverture du lecteur, c'était faire payer à tout le monde une
+     fonctionnalité utilisée par quelques-uns. On va le chercher au clic.
+     La promesse est mémorisée : deux clics rapides ne téléchargent pas deux fois. */
+  let _jszip = null;
+  function loadJSZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    if (!_jszip) {
+      _jszip = new Promise((ok, ko) => {
+        const s = document.createElement("script");
+        s.src = "js/vendor/jszip-3.10.1.min.js";
+        s.onload = () => (window.JSZip ? ok(window.JSZip) : ko(new Error("JSZip absent")));
+        s.onerror = () => { _jszip = null; ko(new Error("chargement impossible")); };
+        document.head.appendChild(s);
+      });
+    }
+    return _jszip;
+  }
+
   async function downloadChapter() {
-    if (typeof JSZip === "undefined") return window.LT.toast("Téléchargement indisponible ici, désolé.");
+    // Le message part avant le chargement : sur une connexion lente, il ne
+    // faut pas laisser le bouton sans réaction.
     window.LT.toast("On te prépare le ZIP…");
+    let JSZip;
+    try { JSZip = await loadJSZip(); }
+    catch { return window.LT.toast("Téléchargement indisponible ici, désolé."); }
     const zip = new JSZip();
     const base = `Manga/${A.manga}/${A.chap.folder}/`;
     try {
