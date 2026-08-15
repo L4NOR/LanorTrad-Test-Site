@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v42";
+const CACHE = "lanortrad-v43";
 /* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */

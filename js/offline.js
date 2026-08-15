@@ -592,6 +592,8 @@
     best: function () { return num(BEST_KEY); }
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
+  // Voir js/core.js : avec des scripts en `defer`, readyState vaut déjà
+  // "interactive" ici. Seul "complete" prouve que DOMContentLoaded est passé.
+  if (document.readyState === "complete") boot();
+  else document.addEventListener("DOMContentLoaded", boot);
 })();

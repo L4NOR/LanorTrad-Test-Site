@@ -32,7 +32,12 @@ check("titre contient le numero de chapitre", /Chapitre 240/.test(p.title));
 // &amp; est l'echappement HTML correct de & dans un attribut : le navigateur
 // et les crawlers le relisent comme &.
 check("canonical par chapitre", html.includes('rel="canonical" href="https://lanortrad.com/reader.html?manga=Tougen%20Anki&amp;chapter=240"'));
-check("og:image absolue", /og:image" content="https:\/\/lanortrad\.com\/images\/Cover\//.test(html));
+// og:image doit etre la carte de partage 1200x630, pas la couverture portrait
+// (que les reseaux sociaux recadreraient au centre).
+check("og:image absolue", /og:image" content="https:\/\/lanortrad\.com\/images\//.test(html));
+check("og:image = carte de partage paysage",
+  !s.og || html.includes(`og:image" content="https://lanortrad.com/${s.og}"`),
+  s.og ? "" : "vignette non generee : lance py tools/build-og.py");
 check("twitter:card present", html.includes('name="twitter:card"'));
 check("lien prev", html.includes('rel="prev"'));
 check("lien next", html.includes('rel="next"'));
@@ -86,6 +91,34 @@ check("titre de fiche", /Tougen Anki — Scan VF/.test(ps.title));
 check("liste des chapitres pre-rendue", (hs.match(/<li><a href/g) || []).length > 100);
 check("canonical de fiche", hs.includes('rel="canonical" href="https://lanortrad.com/manga.html?id=Tougen%20Anki"'));
 check("prerendu injecte dans series-root", /<main id="series-root"><article>/.test(hs));
+const lds = hs.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+check("JSON-LD de fiche present", !!lds);
+if (lds) {
+  const g = JSON.parse(lds[1].replace(/\\u003c/g, "<"))["@graph"];
+  check("oeuvre ComicSeries en tete du graphe", g[0]["@type"] === "ComicSeries");
+  check("auteur present", g[0].author && g[0].author.name === s.author);
+  check("nombre de chapitres present", g[0].numberOfEpisodes > 0);
+  check("editeur present", g[0].publisher.name === "LanorTrad");
+  // Le JSON-LD doit porter la COUVERTURE, pas la carte de partage.
+  check("image du JSON-LD = couverture", /\/images\/Cover\//.test(g[0].image));
+  check("fil d'Ariane conserve", g[1]["@type"] === "BreadcrumbList");
+  // Les etoiles ne doivent apparaitre QUE s'il existe de vraies notes.
+  check(
+    s.rating ? "aggregateRating pose (vraies notes)" : "aggregateRating absent (pas de votes) — attendu",
+    s.rating ? !!g[0].aggregateRating : !g[0].aggregateRating
+  );
+}
+/* Une note editoriale ne doit jamais devenir un aggregateRating : seul le
+   champ `rating` (instantane des votes) y donne droit. */
+const gNoted = JSON.parse(
+  inject(shellSeries, _seriesPage({ ...s, rating: { s: 4.7, v: 38 } }, "Tougen Anki", SITE))
+    .match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1].replace(/\\u003c/g, "<")
+)["@graph"][0];
+check("avec de vraies notes -> aggregateRating complet",
+  gNoted.aggregateRating.ratingValue === 4.7 && gNoted.aggregateRating.ratingCount === 38);
+check("une seule voix ne suffit pas",
+  !JSON.parse(inject(shellSeries, _seriesPage({ ...s, rating: { s: 5, v: 1 } }, "Tougen Anki", SITE))
+    .match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1].replace(/\\u003c/g, "<"))["@graph"][0].aggregateRating);
 
 /* ---- echappement ---- */
 console.log("\n== Securite ==");

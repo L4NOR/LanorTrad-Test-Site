@@ -18,3 +18,8 @@ node_modules/
 
 # Cache des dimensions de pages (regenere par tools/build-data.py)
 tools/.dims-cache.json
+
+# Fichier de verification IndexNow : ecrit au build a partir de INDEXNOW_KEY
+# (scripts/build-seo.js). Le committer melangerait d'anciennes cles a la bonne.
+/*.txt
+!robots.txt

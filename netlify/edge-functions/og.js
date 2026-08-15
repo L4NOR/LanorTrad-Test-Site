@@ -36,7 +36,7 @@ function ldTag(obj) {
   return `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, "\\u003c")}</script>`;
 }
 
-function metaTags({ title, desc, image, url, type }) {
+function metaTags({ title, desc, image, url, type, card }) {
   return `
   <meta name="description" content="${esc(desc)}">
   <link rel="canonical" href="${esc(url)}">
@@ -46,7 +46,10 @@ function metaTags({ title, desc, image, url, type }) {
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(desc)}">
   <meta property="og:image" content="${esc(image)}">
-  <meta property="og:url" content="${esc(url)}">
+` + (card ? `  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${esc(title)}">
+` : "") + `  <meta property="og:url" content="${esc(url)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(desc)}">
@@ -60,7 +63,11 @@ function seriesPage(s, id, site) {
   const genres = (s.genres || []).join(", ");
   const desc = cut(clean(`Lis ${s.title} en français, gratuitement. ${s.description || ""}`), 300);
   const url = `${site}/manga.html?id=${encodeURIComponent(id)}`;
-  const image = site + "/" + encodeURI(s.cover || "");
+  // Vignette de partage paysage si elle existe (tools/build-og.py) : les
+  // reseaux sociaux affichent un 1200x630 et recadrent brutalement une
+  // couverture portrait. Repli sur la couverture si la vignette manque.
+  const image = site + "/" + encodeURI(s.og || s.cover || "");
+  const cover = site + "/" + encodeURI(s.cover || "");
   const readUrl = `${site}/reader.html?manga=${encodeURIComponent(id)}`;
 
   const last = (s.chapters || [])[0];
@@ -78,8 +85,41 @@ function seriesPage(s, id, site) {
       : "")
     + `</article>`;
 
-  const ld = {
-    "@context": "https://schema.org",
+  /* Donnees structurees de l'oeuvre. Elles n'existaient que cote navigateur
+     (js/manga.js) : Googlebot, qui ne rend pas le JS au premier passage, ne
+     voyait qu'un fil d'Ariane. On reproduit ici le MEME objet, notes de
+     lecteurs comprises — c'est ce qui declenche les etoiles dans les
+     resultats de recherche.
+     L'aggregateRating n'est pose que s'il y a de vraies notes (instantane pris
+     au build, voir scripts/build-seo.js) : jamais la note editoriale de
+     series.js, qui n'est pas une moyenne de votes. */
+  const oneshot = s.type === "oneshot";
+  const work = {
+    "@type": oneshot ? "Book" : "ComicSeries",
+    name: s.title,
+    genre: s.genres || [],
+    inLanguage: "fr",
+    // Ici c'est bien la COUVERTURE : Google veut l'image de l'oeuvre, pas la
+    // carte de partage qui n'existe que pour les reseaux sociaux.
+    image: cover,
+    description: clean(s.description),
+    url,
+  };
+  if (s.author) work.author = { "@type": "Person", name: s.author };
+  if (s.artist && s.artist !== s.author) work.illustrator = { "@type": "Person", name: s.artist };
+  if (s.year) work.datePublished = String(s.year);
+  if (oneshot) work.bookFormat = "https://schema.org/GraphicNovel";
+  else if (s.count) work.numberOfEpisodes = s.count;
+  if (s.rating && s.rating.v >= 2) {
+    work.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: s.rating.s, bestRating: 5, worstRating: 1, ratingCount: s.rating.v,
+    };
+  }
+  if (last && s.updated) work.dateModified = s.updated;
+  work.publisher = { "@type": "Organization", name: "LanorTrad", url: site + "/" };
+
+  const crumbs = {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Accueil", item: site + "/" },
@@ -87,10 +127,11 @@ function seriesPage(s, id, site) {
       { "@type": "ListItem", position: 3, name: s.title, item: url },
     ],
   };
+  const ld = { "@context": "https://schema.org", "@graph": [work, crumbs] };
 
   return {
     title,
-    head: metaTags({ title, desc, image, url, type: "book" }) + "  " + ldTag(ld) + "\n",
+    head: metaTags({ title, desc, image, url, type: "book", card: !!s.og }) + "  " + ldTag(ld) + "\n",
     mountRe: /<main id="series-root">\s*<\/main>/i,
     body: `<main id="series-root">${body}</main>`,
     lastmod: last ? s.updated : s.updated,
@@ -118,7 +159,7 @@ function chapterPage(s, id, num, site) {
       : `Lis le chapitre ${c.n} de ${s.title} en français, gratuitement, sur LanorTrad. ${c.p ? c.p + " pages, " : ""}traduites et éditées par la team.`
   ), 300);
   const url = `${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(c.n)}`;
-  const image = site + "/" + encodeURI(s.cover || "");
+  const image = site + "/" + encodeURI(s.og || s.cover || "");
   const seriesUrl = `${site}/manga.html?id=${encodeURIComponent(id)}`;
   const chapUrl = n => `${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(n)}`;
 
@@ -132,7 +173,7 @@ function chapterPage(s, id, num, site) {
     + `</nav>`
     + `</article></div>`;
 
-  const head = metaTags({ title, desc, image, url, type: "article" })
+  const head = metaTags({ title, desc, image, url, type: "article", card: !!s.og })
     + (prev ? `  <link rel="prev" href="${esc(chapUrl(prev.n))}">\n` : "")
     + (next ? `  <link rel="next" href="${esc(chapUrl(next.n))}">\n` : "")
     + "  " + ldTag({
@@ -144,6 +185,10 @@ function chapterPage(s, id, num, site) {
           url,
           inLanguage: "fr",
           position: Number(c.n) || undefined,
+          // Date de sortie reelle, figee le jour ou le chapitre est apparu
+          // (tools/build-data.py). Absente pour l'historique anterieur : mieux
+          // vaut rien qu'une date inventee.
+          datePublished: c.d || undefined,
           isPartOf: { "@type": "Book", name: s.title, url: seriesUrl, inLanguage: "fr" },
           publisher: { "@type": "Organization", name: "LanorTrad", url: site + "/" },
         },
@@ -161,6 +206,30 @@ function chapterPage(s, id, num, site) {
   return { title, head, mountRe: /<div id="reader-root">\s*<\/div>/i, body };
 }
 
+/* ------------------------------ vrais 404 ------------------------------
+   /manga.html?id=NImporteQuoi répondait 200 avec une coquille vide : pour un
+   moteur, c'est un « soft 404 ». Google les détecte, les signale dans la Search
+   Console, et surtout il continue de recrawler ces URLs fantômes au lieu des
+   vraies pages. Un lien mort, un vieux partage, une série renommée en fabrique
+   sans arrêt.
+
+   Ici on renvoie un vrai 404, avec la page 404 du site comme corps. */
+async function notFound(origin) {
+  let body = "<!doctype html><html lang=fr><meta charset=utf-8>"
+    + "<title>Page introuvable — LanorTrad</title>"
+    + "<meta name=robots content=noindex>"
+    + "<h1>Page introuvable</h1>"
+    + '<p><a href="/catalogue.html">Voir le catalogue</a></p>';
+  try {
+    const res = await fetch(new URL("/404.html", origin));
+    if (res.ok) body = await res.text();
+  } catch (_) { /* la page 404 du site est inaccessible : le corps minimal suffit */ }
+  return new Response(body, {
+    status: 404,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=300" },
+  });
+}
+
 /* Exportés pour scripts/test-og.mjs (`node scripts/test-og.mjs`). */
 export { seriesPage as _seriesPage, chapterPage as _chapterPage, inject as _inject };
 
@@ -172,21 +241,24 @@ export default async (request, context) => {
   const url = new URL(request.url);
   const isReader = /\/reader\.html$/i.test(url.pathname);
   const id = url.searchParams.get(isReader ? "manga" : "id");
-  if (!id) return;
+  // Sans identifiant, la page n'a aucun contenu à montrer à un robot.
+  if (!id) return notFound(url.origin);
 
   try {
     const metaRes = await fetch(new URL("/og-meta.json", url.origin), {
       headers: { "cache-control": "max-age=300" },
     });
+    // Métadonnées injoignables : on ne sait pas si la série existe, donc on ne
+    // décrète surtout pas qu'elle est absente. La page d'origine est servie.
     if (!metaRes.ok) return;
     const s = (await metaRes.json())[id];
-    if (!s) return;
+    if (!s) return notFound(url.origin);             // série inconnue → 404
 
     const site = url.origin;
     const plan = isReader
       ? chapterPage(s, id, url.searchParams.get("chapter") || (s.chapters || [])[0]?.n, site)
       : seriesPage(s, id, site);
-    if (!plan) return;                               // chapitre inconnu → page d'origine
+    if (!plan) return notFound(url.origin);          // chapitre inconnu → 404
 
     const res = await context.next();
     if (!(res.headers.get("content-type") || "").includes("text/html")) return res;

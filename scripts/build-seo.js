@@ -28,6 +28,46 @@ const rfc822 = d => new Date(d + "T12:00:00Z").toUTCString();
 const enc = encodeURIComponent;
 const abs = p => SITE + "/" + String(p).replace(/^\/+/, "");
 
+/* --------------------------- notes lecteurs ---------------------------
+   Les etoiles dans les resultats Google viennent d'un aggregateRating. Il
+   n'existait que cote navigateur (js/manga.js), donc invisible au premier
+   passage de Googlebot, qui ne rend pas le JS. On prend ici un instantane des
+   VRAIES notes (vue publique series_rating_stats, lisible avec la cle anon) et
+   on l'embarque dans og-meta.json pour que l'edge function le serve.
+
+   On n'utilise JAMAIS le champ `rating` de series.js comme aggregateRating :
+   c'est une appreciation editoriale, pas une moyenne de votes. Le faire
+   passer pour tel, c'est de la fausse note d'avis — sanctionne par Google,
+   et malhonnete envers les lecteurs.
+
+   Toute panne (Supabase injoignable, vue absente, tables non deployees)
+   renvoie {} : on perd les etoiles, jamais le build. */
+async function fetchRatings() {
+  let cfg;
+  try { cfg = loadGlobal("js/supabase-config.js", "LT_SUPABASE"); }
+  catch { return {}; }
+  if (!cfg || !cfg.url || !cfg.anonKey || /VOTRE_|YOUR_/i.test(cfg.url + cfg.anonKey)) return {};
+  try {
+    const res = await fetch(`${cfg.url}/rest/v1/series_rating_stats?select=manga_id,score,votes`, {
+      headers: { apikey: cfg.anonKey, Authorization: "Bearer " + cfg.anonKey },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const map = {};
+    for (const r of await res.json()) {
+      const s = Number(r.score), v = Number(r.votes);
+      // Une seule voix ne fait pas une moyenne, et Google rejette les notes
+      // hors bornes.
+      if (v >= 2 && s > 0 && s <= 5) map[r.manga_id] = { s: Math.round(s * 10) / 10, v };
+    }
+    console.log(`[seo] notes lecteurs — ${Object.keys(map).length} série(s) avec assez de votes`);
+    return map;
+  } catch (e) {
+    console.log("[seo] notes lecteurs indisponibles (" + e.message + ") — pas d'aggregateRating");
+    return {};
+  }
+}
+
 /* ----------------------------- feed.xml ----------------------------- */
 function buildFeed(series) {
   const items = series
@@ -64,16 +104,44 @@ ${items}
   console.log(`[seo] feed.xml — ${(xml.match(/<item>/g) || []).length} entrées`);
 }
 
-/* ---------------------------- sitemap.xml --------------------------- */
+/* ---------------------------- sitemap.xml ---------------------------
+   sitemap.xml est un INDEX qui pointe vers un fichier par série, plus un
+   fichier pour les pages fixes. Un seul gros sitemap marche aussi, mais la
+   Search Console ne sait alors dire que « 562 URLs, 431 indexées » : impossible
+   de voir QUELLE série n'est pas indexée. Découpé, chaque série a sa propre
+   ligne de couverture.
+
+   Les fiches série portent aussi leur couverture en <image:image>, sans quoi
+   les couvertures n'ont aucune chance de remonter dans Google Images. Les pages
+   de chapitre, elles, n'exposent pas leurs planches : ce sont les images de
+   l'éditeur, on ne les pousse pas à l'indexation. */
+const slugFile = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .replace(/[^A-Za-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-|-$/g, "").toLowerCase() || "serie";
+
 function buildSitemap(series, chapters) {
   const today = new Date().toISOString().slice(0, 10);
-  const url = (loc, freq, prio, lastmod) =>
-    `  <url><loc>${esc(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}<changefreq>${freq}</changefreq><priority>${prio}</priority></url>`;
+  const url = (loc, freq, prio, lastmod, image) =>
+    `  <url><loc>${esc(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}` +
+    `<changefreq>${freq}</changefreq><priority>${prio}</priority>` +
+    (image ? `<image:image><image:loc>${esc(image)}</image:loc></image:image>` : "") +
+    `</url>`;
 
-  const rows = [];
+  const wrap = rows => `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${rows.join("\n")}
+</urlset>
+`;
+  const written = [];
+  const write = (name, rows, lastmod) => {
+    fs.writeFileSync(path.join(ROOT, name), wrap(rows), "utf8");
+    written.push({ name, lastmod, count: rows.length });
+  };
+
+  /* --- pages fixes --- */
+  const fixed = [];
   // L'accueil est servi sur « / » : c'est cette URL-là qui est canonique,
   // pas /index.html (sinon Google voit deux fois la même page).
-  rows.push(url(SITE + "/", "daily", "1.0"));
+  fixed.push(url(SITE + "/", "daily", "1.0"));
   const pages = [
     // bibliotheque.html n'est pas listée : elle est en noindex (contenu
     // purement personnel, vide pour un robot).
@@ -84,23 +152,48 @@ function buildSitemap(series, chapters) {
     ["mentions-legales.html", "yearly", "0.2"],
     ["confidentialite.html", "yearly", "0.2"],
   ];
-  pages.forEach(([p, f, pr]) => rows.push(url(abs(p), f, pr)));
+  pages.forEach(([p, f, pr]) => fixed.push(url(abs(p), f, pr)));
+  write("sitemap-pages.xml", fixed, today);
 
+  /* --- une série par fichier --- */
+  let total = fixed.length;
   series.forEach(s => {
-    rows.push(url(abs("manga.html?id=" + enc(s.id)), "weekly",
-      s.featured ? "0.9" : "0.6", s.lastUpdate || today));
-    (chapters[s.id] || []).forEach(c =>
+    // Pas de repli sur `today` : une série sans lastUpdate se redaterait à
+    // chaque déploiement, ce qui est exactement le bruit qu'on veut supprimer.
+    const rows = [
+      url(abs("manga.html?id=" + enc(s.id)), "weekly", s.featured ? "0.9" : "0.6",
+        s.lastUpdate || "", s.cover ? abs(encodeURI(s.cover)) : ""),
+    ];
+    // lastmod par chapitre. `c.d` est la date de sortie reelle, figee par
+    // tools/build-data.py le jour ou le chapitre apparait. Le chapitre le plus
+    // recent (index 0) peut retomber sur s.lastUpdate, qui designe justement sa
+    // date. Pour les autres, on prefere PAS de lastmod a un faux : dater tous
+    // les chapitres du jour du deploiement, c'est se faire ignorer par Google.
+    (chapters[s.id] || []).forEach((c, i) =>
       rows.push(url(abs(`reader.html?manga=${enc(s.id)}&chapter=${enc(c.num)}`),
-        "monthly", "0.5", s.lastUpdate || today)));
+        "monthly", "0.5", c.d || (i === 0 ? s.lastUpdate : ""))));
+    total += rows.length;
+    write(`sitemap-${slugFile(s.id)}.xml`, rows, s.lastUpdate || "");
   });
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${rows.join("\n")}
-</urlset>
+  /* --- l'index --- */
+  const index = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${written.map(w => `  <sitemap><loc>${abs(w.name)}</loc>${w.lastmod ? `<lastmod>${w.lastmod}</lastmod>` : ""}</sitemap>`).join("\n")}
+</sitemapindex>
 `;
-  fs.writeFileSync(path.join(ROOT, "sitemap.xml"), xml, "utf8");
-  console.log(`[seo] sitemap.xml — ${rows.length} URLs`);
+  fs.writeFileSync(path.join(ROOT, "sitemap.xml"), index, "utf8");
+
+  // Une série renommée ou supprimée laisserait son fichier derrière elle, et
+  // l'index n'y renvoyant plus, Google le garderait en mémoire un moment.
+  const keep = new Set(written.map(w => w.name));
+  for (const f of fs.readdirSync(ROOT)) {
+    if (/^sitemap-.*\.xml$/.test(f) && !keep.has(f)) {
+      fs.unlinkSync(path.join(ROOT, f));
+      console.log(`[seo] sitemap orphelin retiré : ${f}`);
+    }
+  }
+  console.log(`[seo] sitemap.xml — index de ${written.length} fichiers, ${total} URLs`);
 }
 
 /* --------------------------- og-meta.json ---------------------------
@@ -108,7 +201,15 @@ ${rows.join("\n")}
    séries ET les pages de chapitre. La liste `chapters` (numéro + nb de pages,
    du plus récent au plus ancien) sert à fabriquer un titre, une description et
    des liens précédent/suivant propres pour chaque chapitre. */
-function buildOgMeta(series, chapters) {
+/* Chemin de la vignette de partage d'une serie, si elle a ete generee.
+   Les reseaux sociaux affichent un rectangle 1200x630 : leur envoyer une
+   couverture portrait revient a partager une bande recadree au centre. */
+function ogCard(id) {
+  const rel = `images/og/series/${slugFile(id)}.jpg`;
+  return fs.existsSync(path.join(ROOT, rel)) ? rel : "";
+}
+
+function buildOgMeta(series, chapters, ratings) {
   const map = {};
   series.forEach(s => {
     map[s.id] = {
@@ -120,7 +221,17 @@ function buildOgMeta(series, chapters) {
       cover: s.cover,
       updated: s.lastUpdate || "",
       author: s.author || "",
-      chapters: (chapters[s.id] || []).map(c => ({ n: c.num, p: c.pages || 0 })),
+      artist: s.artist || "",
+      year: s.year || 0,
+      accent: s.accent || "",
+      // Vignette de partage 1200x630 (tools/build-og.py). Absente tant que la
+      // vignette n'a pas ete generee : on retombe alors sur la couverture.
+      og: ogCard(s.id),
+      // Nombre de chapitres de l'oeuvre (numberOfEpisodes du JSON-LD).
+      count: s.chapters || (chapters[s.id] || []).length,
+      // Instantane des vraies notes ; absent s'il n'y en a pas assez.
+      rating: ratings[s.id] || null,
+      chapters: (chapters[s.id] || []).map(c => ({ n: c.num, p: c.pages || 0, d: c.d || "" })),
     };
   });
   const nbCh = Object.values(map).reduce((a, s) => a + s.chapters.length, 0);
@@ -128,16 +239,77 @@ function buildOgMeta(series, chapters) {
   console.log(`[seo] og-meta.json — ${Object.keys(map).length} séries, ${nbCh} chapitres`);
 }
 
+/* ------------------------------ IndexNow ------------------------------
+   Un sitemap dit « voici mes URLs », il ne dit pas « celle-ci vient de
+   changer ». Bing, Yandex et quelques autres acceptent qu'on les prévienne
+   directement : la page est connue en minutes au lieu de jours. Google ne
+   participe pas au protocole ; pour lui, c'est le sitemap qui fait foi.
+
+   On ne pousse QUE les nouveautés du jour — les chapitres que build-data.py
+   vient de dater — plus les pages qui les listent. Envoyer les 562 URLs à
+   chaque déploiement serait du spam, et ça se retourne contre le site.
+
+   Sans la variable d'environnement INDEXNOW_KEY, l'étape est simplement
+   sautée : rien à casser, rien à configurer pour développer. */
+async function pingIndexNow(series, chapters) {
+  const key = (process.env.INDEXNOW_KEY || "").trim();
+  if (!key) return;
+  if (!/^[a-zA-Z0-9-]{8,128}$/.test(key)) {
+    console.log("[seo] INDEXNOW_KEY invalide (8 à 128 caractères alphanumériques) — ignorée");
+    return;
+  }
+  // Les déploiements de préversion ne doivent surtout pas être signalés.
+  if (process.env.CONTEXT && process.env.CONTEXT !== "production") {
+    console.log(`[seo] IndexNow ignoré (contexte « ${process.env.CONTEXT} »)`);
+    return;
+  }
+
+  // Le protocole exige que la clé soit vérifiable à la racine du site.
+  fs.writeFileSync(path.join(ROOT, `${key}.txt`), key, "utf8");
+
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = new Set();
+  series.forEach(s => {
+    const fresh = (chapters[s.id] || []).filter(c => c.d === today);
+    fresh.forEach(c => urls.add(abs(`reader.html?manga=${enc(s.id)}&chapter=${enc(c.num)}`)));
+    if (fresh.length) urls.add(abs("manga.html?id=" + enc(s.id)));
+  });
+  if (!urls.size) { console.log("[seo] IndexNow — aucune nouveauté aujourd'hui"); return; }
+  // Les pages qui listent les sorties ont changé elles aussi.
+  [SITE + "/", abs("catalogue.html"), abs("planning.html")].forEach(u => urls.add(u));
+
+  try {
+    const res = await fetch("https://api.indexnow.org/indexnow", {
+      method: "POST",
+      headers: { "content-type": "application/json; charset=utf-8" },
+      body: JSON.stringify({
+        host: new URL(SITE).host,
+        key,
+        keyLocation: abs(`${key}.txt`),
+        urlList: [...urls],
+      }),
+      signal: AbortSignal.timeout(10000),
+    });
+    // 200 = pris en compte, 202 = accepté, clé en cours de vérification.
+    console.log(`[seo] IndexNow — ${urls.size} URL(s) signalée(s), réponse ${res.status}`);
+  } catch (e) {
+    console.log("[seo] IndexNow injoignable (" + e.message + ") — sans conséquence");
+  }
+}
+
 /* ------------------------------- main ------------------------------- */
-(function main() {
+(async function main() {
   let series, chapters;
   try { series = loadGlobal("js/data/series.js", "SERIES") || []; }
   catch (e) { console.error("[seo] series.js illisible :", e.message); return; }
   try { chapters = loadGlobal("js/data/chapters.js", "CHAPTERS") || {}; }
   catch { chapters = {}; }
 
+  const ratings = await fetchRatings();
+
   buildFeed(series);
   buildSitemap(series, chapters);
-  buildOgMeta(series, chapters);
+  buildOgMeta(series, chapters, ratings);
+  await pingIndexNow(series, chapters);
   console.log(`[seo] terminé (site ${SITE})`);
 })();

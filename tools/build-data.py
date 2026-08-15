@@ -30,7 +30,7 @@ Usage : py tools/build-data.py
         py tools/build-data.py --no-dims        (saute la mesure des pages)
 Relancer apres avoir copie de nouveaux chapitres pour les rendre disponibles.
 """
-import os, re, json, sys
+import os, re, json, sys, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MANGA_DIR = os.path.join(ROOT, "Manga")
@@ -97,6 +97,64 @@ def image_size(path):
     _dims_dirty = True
     _dims_misses += 1
     return w, h
+
+
+def previous_index():
+    """Relit le chapters.js deja genere. Sert a savoir quels chapitres existaient
+    deja au passage precedent (voir stamp_dates)."""
+    try:
+        with open(OUT, encoding="utf-8") as f:
+            src = f.read()
+    except OSError:
+        return {}
+    i = src.find("window.CHAPTERS = ")
+    if i < 0:
+        return {}
+    try:
+        obj, _ = json.JSONDecoder().raw_decode(src, i + len("window.CHAPTERS = "))
+        return obj if isinstance(obj, dict) else {}
+    except ValueError:
+        return {}
+
+
+def stamp_dates(data, prev):
+    """Pose une date de sortie ("d") sur chaque chapitre, pour le lastmod du
+    sitemap et le flux RSS.
+
+    On ne DEVINE jamais une date : la date de dossier ne dit rien (tous les
+    dossiers portent la date de la conversion WebP), et dater 561 chapitres du
+    meme jour est exactement le probleme qu'on corrige - Google finit par
+    ignorer un lastmod qui bouge en bloc a chaque deploiement.
+
+    Regle :
+      - date deja connue (passage precedent) -> on la garde, definitivement ;
+      - chapitre ABSENT du passage precedent -> il vient d'etre ajoute,
+        donc il sort aujourd'hui ;
+      - chapitre deja la mais sans date (l'historique d'avant ce systeme)
+        -> pas de date, et le sitemap omettra simplement son lastmod.
+    """
+    today = datetime.date.today().isoformat()
+    kept = new = 0
+    for serie, chapters in data.items():
+        old = {c.get("num"): c for c in prev.get(serie, [])}
+        known = serie in prev
+        for c in chapters:
+            o = old.get(c["num"])
+            if o and o.get("d"):
+                c["d"] = o["d"]
+                kept += 1
+            elif not o and known:
+                # Serie deja indexee, chapitre inconnu au passage precedent :
+                # c'est une vraie nouveaute.
+                c["d"] = today
+                new += 1
+            elif not known:
+                # Serie entierement nouvelle : on ne sait pas si elle est
+                # publiee aujourd'hui ou rattrapee d'un coup. Pas de date.
+                pass
+    if new:
+        print(f"  [dates] {new} nouveau(x) chapitre(s) date(s) du {today}")
+    return kept, new
 
 
 def natural_chapter_number(folder_name):
@@ -262,6 +320,8 @@ def write_pages_files(data):
 def main():
     skip_prev = "--no-previews" in sys.argv
     with_dims = "--no-dims" not in sys.argv
+    # Relu AVANT d'ecraser chapters.js : c'est notre memoire des dates de sortie.
+    prev = previous_index()
     previews = build_previews(skip_prev)
     if with_dims:
         load_dims_cache()
@@ -283,6 +343,7 @@ def main():
                         c["thumb"] = thumbs[c["num"]]
                 data[serie] = chapters
                 print(f"  {serie}: {len(chapters)} chapitres")
+    stamp_dates(data, prev)
     save_dims_cache()
     if with_dims and _dims_misses:
         print(f"  [dims] {_dims_misses} page(s) mesuree(s) (les autres venaient du cache)")

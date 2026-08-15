@@ -542,8 +542,21 @@
     img.src = cover(src, 480);
   }
 
+  /* ---------- Vignette de partage (OpenGraph) ----------
+     Carte 1200x630 generee par tools/build-og.py. Les reseaux sociaux
+     affichent un rectangle paysage : leur donner la couverture, qui est
+     portrait, revient a partager une bande recadree au milieu.
+     Ce que voient reellement Discord, X ou Facebook vient de l'edge function
+     (netlify/edge-functions/og.js), qui lit le meme chemin dans og-meta.json ;
+     on le reproduit ici pour que la page soit coherente une fois le JS execute. */
+  function ogCard(id) {
+    const slug = String(id).normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^A-Za-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-|-$/g, "").toLowerCase();
+    return slug ? `images/og/series/${slug}.jpg` : "";
+  }
+
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, norm, matches, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, ogCard, norm, matches, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
@@ -695,6 +708,14 @@
     window.__ltReady = true;
     document.dispatchEvent(new Event("lt:ready"));
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
+  /* Les scripts du site sont chargés en `defer` : quand celui-ci s'exécute, le
+     document est déjà parsé et readyState vaut "interactive" — pas "loading".
+     Tester "loading" faisait donc démarrer le site TOUT DE SUITE, et lt:ready
+     partait avant que home.js, manga.js & co aient eu la moindre chance de s'y
+     abonner : l'accueil restait vide.
+     "complete" est le seul état qui garantit que DOMContentLoaded est déjà
+     passé ; dans tous les autres cas on l'attend, ce qui laisse les scripts
+     différés finir de s'enregistrer. */
+  if (document.readyState === "complete") boot();
+  else document.addEventListener("DOMContentLoaded", boot);
 })();

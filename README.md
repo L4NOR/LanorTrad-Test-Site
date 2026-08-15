@@ -58,6 +58,7 @@ Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
 tools/build-data.py         ← scanner : chapters.js + js/data/pages/
 tools/build-covers.py       ← variantes légères des couvertures (images/Cover/rs/)
+tools/build-og.py           ← vignettes de partage 1200x630 (images/og/series/)
 tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data.py)
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
@@ -276,11 +277,59 @@ la bonne taille selon l'écran, au lieu d'envoyer une image de 2 Mo dans une
 carte de 230 px.
 
 - **Les originaux ne sont jamais modifiés ni supprimés** : ils restent la source
-  du partage social (`og:image`).
+  des variantes et de la vignette de partage (voir D).
 - **Oublier de lancer l'outil ne casse rien** : une couverture absente du
   manifeste est simplement servie en pleine résolution, comme avant.
 - À relancer aussi si tu **remplaces** une couverture existante (l'outil détecte
   les fichiers plus récents ; `--force` régénère tout).
+
+### D. Vignettes de partage → `build-og.py`
+
+Quand un lien du site est collé sur Discord, X ou Facebook, ces plateformes
+affichent un rectangle **1200 × 630**. Leur envoyer la couverture, qui est
+portrait, revient à partager une bande recadrée au milieu — souvent illisible.
+Cet outil fabrique une vraie carte paysage par série (couverture entière à
+gauche, titre, genres et nombre de chapitres à droite, fond tiré de la
+couverture) :
+
+```bash
+node scripts/build-seo.js && py tools/build-og.py && node scripts/build-seo.js
+```
+
+Le double appel n'est pas une erreur : `build-seo.js` fabrique le `og-meta.json`
+dont l'outil a besoin, puis le relit pour **référencer** les vignettes créées.
+
+- Sortie : `images/og/series/<serie>.jpg`, à **committer** (Netlify ne lance pas
+  Python — comme pour `build-covers.py`).
+- Sans vignette, le site retombe tout seul sur la couverture : rien ne casse.
+- `--force` régénère tout. Modifier `build-og.py` suffit à périmer les cartes.
+- Pour la typo exacte du site, une fois : `py -m pip install fonttools brotli`
+  (les `.woff2` sont des polices variables, illisibles par Pillow sans ça).
+  Sans ces modules, l'outil bascule sur une police système et le dit.
+
+### E. IndexNow (facultatif) → prévenir Bing dès la sortie
+
+Un sitemap dit « voici mes URLs » ; il ne dit pas « celle-ci vient de sortir ».
+IndexNow le dit, et Bing/Yandex indexent alors en quelques minutes. Google ne
+participe pas au protocole : pour lui, c'est toujours le sitemap qui fait foi.
+
+Pour l'activer, une seule chose à faire : ajouter dans **Netlify → Site
+configuration → Environment variables** une variable `INDEXNOW_KEY` contenant
+une chaîne aléatoire de 8 à 128 caractères (lettres, chiffres, tirets). Par
+exemple :
+
+```bash
+node -e "console.log(require('crypto').randomUUID().replace(/-/g,''))"
+```
+
+Le build s'occupe du reste : il dépose le fichier de vérification à la racine et
+signale les nouveautés. Sans la variable, l'étape est simplement sautée.
+
+- Seuls sont signalés **les chapitres datés du jour** plus les pages qui les
+  listent (accueil, catalogue, planning) — jamais les 562 URLs, ce qui serait
+  du spam et se retournerait contre le site.
+- Les déploiements de préversion sont ignorés (`CONTEXT != production`).
+- Une panne d'IndexNow n'interrompt jamais le déploiement.
 
 > Ceci ne concerne que les couvertures, éléments d'interface affichés petit.
 > Les **pages de manga** restent converties par `tools/jpg-to-webp.py` en
@@ -642,7 +691,11 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   cache images persistant entre les versions). Bouton « Lire hors connexion » dans
   le rail du lecteur : pré-télécharge le chapitre entier dans ce cache.
   Installable.
-- **SEO** : `sitemap.xml`, `robots.txt`, données structurées JSON-LD (ComicSeries).
+- **SEO** : sitemap **index** (un fichier par série, couvertures déclarées en
+  `image:image`), `robots.txt`, flux RSS, données structurées JSON-LD
+  (ComicSeries / Chapter / BreadcrumbList) servies aux robots *sans* JS par
+  l'edge function, vignettes de partage 1200×630, vrais 404 sur les URLs
+  fantômes, et signalement **IndexNow** des nouveautés (voir ci-dessous).
 - **Analytics** : Google Analytics + AdSense (chargés uniquement en production).
 - **Accessibilité / confort** : thèmes Sombre / OLED / Clair, mode **Fluidité**
   (léger) pour les appareils modestes, `prefers-reduced-motion` respecté.

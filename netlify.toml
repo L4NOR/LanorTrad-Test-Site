@@ -117,9 +117,9 @@
     Content-Type = "text/xsl; charset=utf-8"
     Cache-Control = "public, max-age=3600"
 
-# Sitemap : cache court
+# Sitemaps : l'index + un fichier par série (voir scripts/build-seo.js). Cache court.
 [[headers]]
-  for = "/sitemap.xml"
+  for = "/sitemap*.xml"
   [headers.values]
     Content-Type = "application/xml; charset=utf-8"
     Cache-Control = "public, max-age=3600"

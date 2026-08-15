@@ -11,6 +11,11 @@
     if (!root) return;
 
     if (!s) {
+      // Les robots reçoivent un vrai 404 (netlify/edge-functions/og.js). Ceux
+      // qui exécutent le JS arrivent ici : on leur dit explicitement de ne pas
+      // indexer, sinon Google garde une page vide au chaud pour chaque vieux
+      // lien mort.
+      noindex();
       root.innerHTML = `<div class="wrap empty" style="padding-top:160px"><div class="big">📭</div><p>Cette série n'existe pas… ou pas encore chez nous.</p><a class="btn btn-primary" href="catalogue.html" style="margin-top:18px">Voir ce qu'on traduit</a></div>`;
       window.LT._scanReveals && window.LT._scanReveals();
       return;
@@ -456,7 +461,11 @@
 
   function setSeo(s) {
     const title = `${s.title} — LanorTrad`;
-    const img = new URL(s.cover, location.href).href;
+    // Deux images differentes, exprès : la carte paysage pour le partage
+    // social, la couverture pour les donnees structurees (Google veut l'image
+    // de l'oeuvre, pas notre habillage).
+    const img = new URL(window.LT.ogCard(s.id) || s.cover, location.href).href;
+    const coverImg = new URL(s.cover, location.href).href;
     const genres = s.genres.filter(g => g !== "LanorTrad" && g !== "Collaboration");
     // Canonique : URL propre sur le domaine de prod (identique au sitemap)
     setLink("canonical", "https://lanortrad.com/manga.html?id=" + encodeURIComponent(s.id));
@@ -481,7 +490,7 @@
       "@type": s.type === "oneshot" ? "Book" : "ComicSeries",
       name: s.title, genre: genres,
       author: { "@type": "Person", name: s.author }, inLanguage: "fr",
-      image: img, description: s.description, url: location.href
+      image: coverImg, description: s.description, url: location.href
     };
     if (s.artist && s.artist !== s.author) work.illustrator = { "@type": "Person", name: s.artist };
     if (s.year) work.datePublished = String(s.year);
@@ -512,6 +521,12 @@
     } catch {}
   }
   function setMeta(name, content) { let m = document.querySelector(`meta[name="${name}"]`); if (!m) { m = document.createElement("meta"); m.name = name; document.head.appendChild(m); } m.content = content; }
+  // Page sans contenu réel : on la retire de l'index et on coupe le canonical,
+  // qui pointerait sinon une URL inexistante.
+  function noindex() {
+    setMeta("robots", "noindex, follow");
+    document.querySelector('link[rel="canonical"]')?.remove();
+  }
   function setProp(prop, content) { let m = document.querySelector(`meta[property="${prop}"]`); if (!m) { m = document.createElement("meta"); m.setAttribute("property", prop); document.head.appendChild(m); } m.setAttribute("content", content); }
   function setLink(rel, href) { let l = document.querySelector(`link[rel="${rel}"]`); if (!l) { l = document.createElement("link"); l.rel = rel; document.head.appendChild(l); } l.href = href; }
 

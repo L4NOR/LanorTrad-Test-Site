@@ -49,7 +49,7 @@
     applyVars();
 
     const root = $("reader-root");
-    if (!A.S) { root.innerHTML = `<div class="rd">${emptyHTML("Cette série n'existe pas… ou pas encore chez nous.")}</div>`; window.LT._scanReveals?.(); return; }
+    if (!A.S) { noindex(); root.innerHTML = `<div class="rd">${emptyHTML("Cette série n'existe pas… ou pas encore chez nous.")}</div>`; window.LT._scanReveals?.(); return; }
 
     document.title = `${A.S.title} — Lecture — LanorTrad`;   // affiné par chapitre dans setCanonical()
     window.LTstore && window.LTstore.markSeen(A.manga);
@@ -76,6 +76,10 @@
     startMarathon();
 
     if (!A.chap) {
+      // Chapitre demandé inexistant : rien à indexer ici non plus. Les robots
+      // ont déjà reçu un 404 (netlify/edge-functions/og.js) ; ceci couvre ceux
+      // qui exécutent le JS.
+      noindex();
       $("rd-viewer").innerHTML = emptyHTML(
         A.chapters.length
           ? `Le chapitre ${wantNum || ""} n'est pas encore là. Il arrive, promis.`
@@ -1019,6 +1023,12 @@
     let m = document.querySelector(`meta[name="${name}"]`);
     if (!m) { m = document.createElement("meta"); m.name = name; document.head.appendChild(m); }
     m.content = content;
+  }
+  // Série ou chapitre inexistant : rien à indexer, et le canonical pointerait
+  // une URL qui n'existe pas.
+  function noindex() {
+    setMeta("robots", "noindex, follow");
+    document.querySelector('link[rel="canonical"]')?.remove();
   }
   function comAvatar(p, size = 34) {
     const name = (p && p.username) || "?";
