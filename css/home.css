@@ -18,8 +18,30 @@
 .swap-text.swap { animation: swapIn .65s var(--ease) both; }
 @keyframes swapIn { from { opacity: 0; transform: translateY(26px) rotateX(-55deg); transform-origin: bottom; } to { opacity: 1; transform: none; } }
 
-.hero-desc { color: var(--txt-soft); font-size: 1.08rem; max-width: 52ch; margin-bottom: 18px; min-height: 3.4em; transition: opacity .4s; }
-.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+/* Hauteurs figées du héros.
+   Le carrousel change de série toutes les 5,2 s, et les textes n'ont pas du
+   tout la même longueur d'une série à l'autre : en 1280 px, le titre passe de
+   74 à 147 px (« Tokyo Underworld » repasse à la ligne) et le synopsis de 138 à
+   276 px. Résultat, tout le bas du héros — bouton « Lire maintenant » compris —
+   se déplaçait à chaque rotation, en continu tant que la page restait ouverte.
+   Mesuré à 0,26 de CLS sur deux rotations, soit la zone rouge de Google.
+   L'ancien min-height de 3,4em ne couvrait que 2 lignes sur 10.
+
+   On réserve donc 2 lignes de titre, et on ramène le synopsis à un nombre de
+   lignes fixe : c'est une accroche, la version complète est sur la fiche.
+   Pour l'ajuster, il n'y a qu'un chiffre à changer (et la hauteur qui va avec,
+   à raison de 1.6 par ligne). */
+.hero-title { min-height: 1.96em; }        /* 2 lignes x line-height .98 */
+.hero-desc { color: var(--txt-soft); font-size: 1.08rem; max-width: 52ch; margin-bottom: 18px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 7;
+  overflow: hidden; height: 11.2em;        /* 7 lignes x 1.6 */
+  transition: opacity .4s; }
+/* min-height : les puces de genre sont injectees par hero.js, donc absentes au
+   premier rendu. Sans hauteur reservee, leur arrivee pousse d'un coup le bouton
+   « Lire maintenant », la recherche et les compteurs vers le bas — c'est la
+   principale source de decalage de la page (meme raison que le min-height de
+   .hero-desc juste au-dessus). */
+.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; min-height: 2.2em; }
 .hero-chip { padding: 6px 14px; border-radius: 999px; font-size: .82rem; font-weight: 600; background: var(--glass); border: 1px solid var(--line); color: var(--txt-soft); }
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
 
@@ -164,6 +186,11 @@
   .hero-copy { margin-inline: auto; }
   .hero-copy .eyebrow, .hero-actions, .hero-chips { justify-content: center; }
   .hero-actions { margin-bottom: 20px; }
+
+  /* Même principe qu'en haut du fichier, resserré : sur un téléphone le
+     synopsis atteignait 470 px (14 lignes), ce qui poussait à lui seul le
+     bouton « Lire maintenant » hors de l'écran. */
+  .hero-desc { -webkit-line-clamp: 5; height: 8em; }   /* 5 lignes x 1.6 */
   .hero-search { margin-inline: auto; }
   .hero-stats { justify-content: center; }
   .hero-3d { height: 460px; order: -1; }
