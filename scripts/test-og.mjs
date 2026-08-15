@@ -9,7 +9,7 @@
    Lancer    : node scripts/test-og.mjs
    ========================================================================= */
 import { readFileSync } from "node:fs";
-import { _seriesPage, _chapterPage, _inject as inject } from "../netlify/edge-functions/og.js";
+import { _seriesPage, _chapterPage, _genrePage, _inject as inject } from "../netlify/edge-functions/og.js";
 
 const meta = JSON.parse(readFileSync(new URL("../og-meta.json", import.meta.url), "utf8"));
 const SITE = "https://lanortrad.com";
@@ -119,6 +119,26 @@ check("avec de vraies notes -> aggregateRating complet",
 check("une seule voix ne suffit pas",
   !JSON.parse(inject(shellSeries, _seriesPage({ ...s, rating: { s: 5, v: 1 } }, "Tougen Anki", SITE))
     .match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1].replace(/\\u003c/g, "<"))["@graph"][0].aggregateRating);
+
+/* ---- catalogue par genre ---- */
+console.log("\n== Catalogue par genre ==");
+const shellCat = `<!DOCTYPE html><html lang="fr"><head><title>Catalogue — LanorTrad</title></head><body><main><section>filtres</section></main></body></html>`;
+const pg = _genrePage(meta, "Horreur", SITE);
+const hg = inject(shellCat, pg);
+console.log("titre :", pg.title);
+check("titre oriente requete", /Manga Horreur en français/.test(pg.title));
+check("h1 present", /<h1>Catalogue Horreur<\/h1>/.test(hg));
+check("les series du genre sont listees", (hg.match(/<li><a href/g) || []).length >= 2);
+check("canonical du genre", hg.includes('rel="canonical" href="https://lanortrad.com/catalogue.html?genre=Horreur"'));
+check("plus de titre generique", !hg.includes("<title>Catalogue — LanorTrad</title>"));
+const ldg = JSON.parse(hg.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1].replace(/\\u003c/g, "<"))["@graph"];
+check("JSON-LD CollectionPage", ldg[0]["@type"] === "CollectionPage");
+check("ItemList non vide", ldg[0].mainEntity.numberOfItems >= 2);
+check("fil d'Ariane a 3 niveaux", ldg[1].itemListElement.length === 3);
+// L'URL peut arriver sans accent ni majuscule (liens, partages, saisie manuelle).
+check("accents et casse tolerés", !!_genrePage(meta, "mystere", SITE));
+check("le libelle affiché reste le vrai", /Mystère/.test(_genrePage(meta, "mystere", SITE).title));
+check("genre inconnu -> null (page d'origine servie)", _genrePage(meta, "Cuisine", SITE) === null);
 
 /* ---- echappement ---- */
 console.log("\n== Securite ==");

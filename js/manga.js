@@ -56,7 +56,11 @@
                 <span>MàJ ${window.LT.timeAgo(s.lastUpdate) || "—"}</span>
                 <span class="dot" id="mv-vdot" hidden></span><span id="mv-views"></span>
               </div>
-              <div class="tag-row">${s.genres.map(g => `<a class="tag" href="catalogue.html?q=${encodeURIComponent(g)}">${g}</a>`).join("")}</div>
+              <!-- ?genre= et non ?q= : la recherche plein texte ramène aussi les
+                   séries dont le SYNOPSIS contient le mot, ce qui n'est pas ce
+                   qu'on promet en cliquant sur « Horreur ». Et c'est l'URL que
+                   le sitemap déclare. -->
+              <div class="tag-row">${s.genres.map(g => `<a class="tag" href="catalogue.html?genre=${encodeURIComponent(g)}">${g}</a>`).join("")}</div>
               <p class="series-desc">${s.description}</p>
               <div class="series-actions" id="series-actions"></div>
               <div id="rate-block"></div>

@@ -206,6 +206,74 @@ function chapterPage(s, id, num, site) {
   return { title, head, mountRe: /<div id="reader-root">\s*<\/div>/i, body };
 }
 
+/* --------------------------- catalogue par genre ---------------------------
+   /catalogue.html?genre=Horreur repond a une vraie requete (« manga d'horreur
+   en francais »). Mais la grille est remplie par JavaScript : sans pre-rendu,
+   un robot n'y voit qu'un formulaire de filtres et rien d'autre.
+   On lui sert donc le titre, la description et la LISTE des series du genre —
+   exactement ce que le visiteur voit une fois le JS execute. */
+function genrePage(meta, genre, site) {
+  // On retrouve le genre quelle que soit la casse ou les accents de l'URL.
+  const norm = x => String(x).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const cible = norm(genre);
+  const hits = [];
+  let libelle = null;
+  for (const [id, s] of Object.entries(meta)) {
+    const g = (s.genres || []).find(x => norm(x) === cible);
+    if (g) { libelle = libelle || g; hits.push([id, s]); }
+  }
+  if (!libelle || !hits.length) return null;
+
+  hits.sort((a, b) => String(b[1].updated || "").localeCompare(String(a[1].updated || "")));
+  const n = hits.length;
+  const title = `Manga ${libelle} en français — Catalogue LanorTrad`;
+  const desc = cut(clean(`${n} série${n > 1 ? "s" : ""} de manga ${libelle.toLowerCase()} traduite${n > 1 ? "s" : ""} en français par LanorTrad, à lire gratuitement en ligne : `
+    + hits.map(h => h[1].title).join(", ") + "."), 300);
+  const url = `${site}/catalogue.html?genre=${encodeURIComponent(libelle)}`;
+
+  const body = `<main><article><h1>Catalogue ${esc(libelle)}</h1>`
+    + `<p>${esc(desc)}</p><ul>`
+    + hits.map(([id, s]) =>
+        `<li><a href="${esc(`${site}/manga.html?id=${encodeURIComponent(id)}`)}">${esc(s.title)}</a>`
+        + (s.status ? ` — ${esc(s.status)}` : "")
+        + (s.chapters && s.chapters.length ? ` (${s.chapters.length} chapitres)` : "")
+        + `</li>`).join("")
+    + `</ul></article></main>`;
+
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage", name: title, url, inLanguage: "fr", description: desc,
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: n,
+          itemListElement: hits.map(([id, s], i) => ({
+            "@type": "ListItem", position: i + 1, name: s.title,
+            url: `${site}/manga.html?id=${encodeURIComponent(id)}`,
+          })),
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Accueil", item: site + "/" },
+          { "@type": "ListItem", position: 2, name: "Catalogue", item: site + "/catalogue.html" },
+          { "@type": "ListItem", position: 3, name: libelle, item: url },
+        ],
+      },
+    ],
+  };
+
+  return {
+    title,
+    head: metaTags({ title, desc, image: site + "/images/og/lanortrad.jpg", url, type: "website" })
+      + "  " + ldTag(ld) + "\n",
+    mountRe: /<main>[\s\S]*?<\/main>/i,
+    body,
+  };
+}
+
 /* ------------------------------ vrais 404 ------------------------------
    /manga.html?id=NImporteQuoi répondait 200 avec une coquille vide : pour un
    moteur, c'est un « soft 404 ». Google les détecte, les signale dans la Search
@@ -231,7 +299,7 @@ async function notFound(origin) {
 }
 
 /* Exportés pour scripts/test-og.mjs (`node scripts/test-og.mjs`). */
-export { seriesPage as _seriesPage, chapterPage as _chapterPage, inject as _inject };
+export { seriesPage as _seriesPage, chapterPage as _chapterPage, genrePage as _genrePage, inject as _inject };
 
 /* --------------------------------- main --------------------------------- */
 export default async (request, context) => {
@@ -239,10 +307,17 @@ export default async (request, context) => {
   if (!BOTS.test(ua)) return;                        // visiteur normal → page inchangée
 
   const url = new URL(request.url);
+  const isCatalogue = /\/catalogue\.html$/i.test(url.pathname);
   const isReader = /\/reader\.html$/i.test(url.pathname);
-  const id = url.searchParams.get(isReader ? "manga" : "id");
+
+  // Le catalogue sans filtre est une vraie page, deja servie telle quelle :
+  // on ne s'en mele que s'il y a un genre a mettre en avant.
+  const genre = isCatalogue ? url.searchParams.get("genre") : null;
+  if (isCatalogue && !genre) return;
+
+  const id = isCatalogue ? null : url.searchParams.get(isReader ? "manga" : "id");
   // Sans identifiant, la page n'a aucun contenu à montrer à un robot.
-  if (!id) return notFound(url.origin);
+  if (!isCatalogue && !id) return notFound(url.origin);
 
   try {
     const metaRes = await fetch(new URL("/og-meta.json", url.origin), {
@@ -251,14 +326,23 @@ export default async (request, context) => {
     // Métadonnées injoignables : on ne sait pas si la série existe, donc on ne
     // décrète surtout pas qu'elle est absente. La page d'origine est servie.
     if (!metaRes.ok) return;
-    const s = (await metaRes.json())[id];
-    if (!s) return notFound(url.origin);             // série inconnue → 404
-
+    const meta = await metaRes.json();
     const site = url.origin;
-    const plan = isReader
-      ? chapterPage(s, id, url.searchParams.get("chapter") || (s.chapters || [])[0]?.n, site)
-      : seriesPage(s, id, site);
-    if (!plan) return notFound(url.origin);          // chapitre inconnu → 404
+
+    let plan;
+    if (isCatalogue) {
+      plan = genrePage(meta, genre, site);
+      // Genre inexistant : le catalogue complet reste une reponse valable,
+      // on sert donc la page telle quelle plutot qu'un 404.
+      if (!plan) return;
+    } else {
+      const s = meta[id];
+      if (!s) return notFound(url.origin);           // série inconnue → 404
+      plan = isReader
+        ? chapterPage(s, id, url.searchParams.get("chapter") || (s.chapters || [])[0]?.n, site)
+        : seriesPage(s, id, site);
+      if (!plan) return notFound(url.origin);        // chapitre inconnu → 404
+    }
 
     const res = await context.next();
     if (!(res.headers.get("content-type") || "").includes("text/html")) return res;

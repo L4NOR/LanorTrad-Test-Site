@@ -153,7 +153,30 @@ ${rows.join("\n")}
     ["confidentialite.html", "yearly", "0.2"],
   ];
   pages.forEach(([p, f, pr]) => fixed.push(url(abs(p), f, pr)));
+
+  /* Vues par genre (catalogue.html?genre=X).
+     « manga d'horreur en français » est une requête réelle, et le filtre du
+     catalogue y répond déjà — il lui manquait juste une URL déclarée.
+
+     SEUIL DÉLIBÉRÉ : on n'inscrit que les genres portant au moins 2 séries.
+     Sur 20 genres, 12 n'en ont qu'une : les déclarer ferait autant de pages
+     quasi vides, que Google traite en « contenu pauvre » — ça dessert le site
+     au lieu de l'aider. Elles restent accessibles et se rempliront d'elles-mêmes
+     quand le catalogue grandira.
+     `LanorTrad` et `Collaboration` sont des étiquettes internes, pas des
+     genres : elles n'ont rien à faire dans un résultat de recherche. */
+  const INTERNES = new Set(["LanorTrad", "Collaboration"]);
+  const parGenre = {};
+  series.forEach(s => (s.genres || []).forEach(g => {
+    if (!INTERNES.has(g)) (parGenre[g] = parGenre[g] || []).push(s);
+  }));
+  const genresPublies = Object.keys(parGenre).filter(g => parGenre[g].length >= 2).sort();
+  genresPublies.forEach(g => fixed.push(url(abs("catalogue.html?genre=" + enc(g)), "weekly", "0.7")));
+
   write("sitemap-pages.xml", fixed, today);
+  const ecartes = Object.keys(parGenre).length - genresPublies.length;
+  console.log(`[seo] genres — ${genresPublies.length} déclaré(s) : ${genresPublies.join(", ")}`
+    + ` (${ecartes} écarté(s), moins de 2 séries)`);
 
   /* --- une série par fichier --- */
   let total = fixed.length;

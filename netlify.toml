@@ -32,6 +32,13 @@
   path = "/reader.html"
   function = "og"
 
+# Vues par genre (catalogue.html?genre=Horreur) : la grille est remplie par JS,
+# un robot n'y verrait qu'un formulaire de filtres. Sans genre, la page passe
+# inchangée.
+[[edge_functions]]
+  path = "/catalogue.html"
+  function = "og"
+
 # Sécurité de base
 [[headers]]
   for = "/*"

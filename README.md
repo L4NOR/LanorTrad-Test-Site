@@ -723,9 +723,18 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   Installable.
 - **SEO** : sitemap **index** (un fichier par série, couvertures déclarées en
   `image:image`), `robots.txt`, flux RSS, données structurées JSON-LD
-  (ComicSeries / Chapter / BreadcrumbList) servies aux robots *sans* JS par
-  l'edge function, vignettes de partage 1200×630, vrais 404 sur les URLs
-  fantômes, et signalement **IndexNow** des nouveautés (voir ci-dessous).
+  (ComicSeries / Chapter / CollectionPage / BreadcrumbList) servies aux robots
+  *sans* JS par l'edge function, vignettes de partage 1200×630, vrais 404 sur
+  les URLs fantômes, et signalement **IndexNow** des nouveautés (voir ci-dessous).
+- **Vues par genre** : `catalogue.html?genre=Horreur` est une page à part
+  entière — titre, description, `canonical` et liste pré-rendue pour les robots
+  — parce que « manga d'horreur en français » est une requête réelle. C'est le
+  filtre existant qui gagne une URL, pas une page de plus à maintenir.
+  Le sitemap ne déclare que les genres portant **au moins 2 séries** : en
+  déclarer un qui n'en a qu'une créerait une page quasi vide, que Google traite
+  en « contenu pauvre ». Le seuil est dans `scripts/build-seo.js`.
+  Les URL pardonnent accents et majuscules (`?genre=mystere` fonctionne) et le
+  `canonical` renvoie toujours vers la forme unique.
 - **Analytics** : Google Analytics (chargé uniquement en production **et** après
   consentement). Avec lui vient `js/vitals.js`, qui relève les **Core Web Vitals
   réels** (LCP, CLS, INP) chez les vrais visiteurs et les envoie en un seul

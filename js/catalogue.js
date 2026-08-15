@@ -21,9 +21,17 @@
     fGenre.innerHTML = `<option value="">Tous les genres</option>` +
       genres.map(g => `<option value="${g}">${g}</option>`).join("");
 
-    // Préremplir la recherche depuis ?q=
-    const q = new URLSearchParams(location.search).get("q");
+    // Préremplir depuis l'URL : ?q= (recherche) et ?genre= (filtre).
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
     if (q) fSearch.value = q;
+    // On accepte l'écriture sans accent ni casse (« mystere » -> « Mystère ») :
+    // ces URLs finissent dans des liens et des partages, elles doivent pardonner.
+    const gWanted = params.get("genre");
+    if (gWanted) {
+      const found = genres.find(g => window.LT.norm(g) === window.LT.norm(gWanted));
+      if (found) fGenre.value = found;
+    }
 
     function apply() {
       // Meme normalisation que la palette (sans accent, sans ponctuation) :
@@ -56,6 +64,50 @@
       }
       document.dispatchEvent(new Event("lt:cards"));
       window.LT && window.LT._scanReveals && window.LT._scanReveals();
+      syncUrl(ge, list.length);
+    }
+
+    /* ---- L'URL suit le filtre de genre ----
+       Deux raisons. D'abord un filtre qu'on ne peut pas partager ne sert qu'à
+       celui qui l'a cliqué. Ensuite et surtout, « manga d'horreur en français »
+       est une recherche courante, et sans URL propre il n'y a rien à indexer.
+       On donne donc à la vue filtrée son titre, sa description et son
+       canonical — pas une page de plus, la même page qui se décrit
+       correctement. replaceState : filtrer ne doit pas remplir l'historique,
+       sinon le bouton Retour oblige à défaire les filtres un par un. */
+    function syncUrl(genre, n) {
+      const url = new URL(location.href);
+      if (genre) url.searchParams.set("genre", genre);
+      else url.searchParams.delete("genre");
+      if (url.href !== location.href) history.replaceState(null, "", url);
+
+      const base = "https://lanortrad.com/catalogue.html";
+      if (genre) {
+        document.title = `Manga ${genre} en français — Catalogue LanorTrad`;
+        setMeta("description",
+          `${n} série${n > 1 ? "s" : ""} de manga ${genre.toLowerCase()} traduite${n > 1 ? "s" : ""} en français par LanorTrad, à lire gratuitement en ligne.`);
+        setCanonical(`${base}?genre=${encodeURIComponent(genre)}`);
+        setH1(`Catalogue ${genre}`);
+      } else {
+        document.title = "Catalogue — LanorTrad";
+        setMeta("description", "Parcourez tout le catalogue LanorTrad : mangas et oneshots traduits en français. Filtrez par genre, statut et popularité.");
+        setCanonical(base);
+        setH1("Catalogue");
+      }
+    }
+    function setMeta(name, content) {
+      let m = document.querySelector(`meta[name="${name}"]`);
+      if (!m) { m = document.createElement("meta"); m.name = name; document.head.appendChild(m); }
+      m.content = content;
+    }
+    function setCanonical(href) {
+      let l = document.querySelector('link[rel="canonical"]');
+      if (!l) { l = document.createElement("link"); l.rel = "canonical"; document.head.appendChild(l); }
+      l.href = href;
+    }
+    function setH1(text) {
+      const h = document.querySelector(".page-head h1");
+      if (h && h.textContent !== text) h.textContent = text;
     }
 
     [fSearch, fStatus, fType, fGenre, fSort].forEach(elm =>

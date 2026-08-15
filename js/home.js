@@ -174,7 +174,11 @@
     const mq = document.getElementById("genre-track");
     if (mq) {
       const genres = [...new Set(S.flatMap(s => s.genres))].filter(g => g !== "LanorTrad");
-      const pills = genres.map(g => `<span class="pill">${g}</span>`).join("");
+      // Des liens, pas des <span> : c'est le seul chemin qu'un robot a pour
+      // découvrir les vues par genre depuis l'accueil, et ça rend enfin le
+      // bandeau cliquable — il ne servait à rien jusqu'ici.
+      const pills = genres.map(g =>
+        `<a class="pill" href="catalogue.html?genre=${encodeURIComponent(g)}">${g}</a>`).join("");
       mq.innerHTML = pills + pills; // doublé pour boucle continue
     }
 
