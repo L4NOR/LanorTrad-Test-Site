@@ -181,7 +181,21 @@ hebdo + dernières sorties) et sur les **prochaines sorties** de l'accueil.
 
 - **`js/data/chapters.js`** — l'**index** : pour chaque chapitre, son numéro,
   son dossier, son nombre de pages, sa vignette et les **dimensions** des
-  planches. Chargé sur toutes les pages du site, donc gardé léger (~70 Ko).
+  planches. Chargé sur toutes les pages du site, donc gardé le plus léger
+  possible : **~15 Ko** (contre 70 Ko avant compactage).
+
+  Il est écrit sous forme **compacte**, avec une petite fonction d'expansion en
+  tête du fichier. 67 % de l'ancien poids était en effet devinable : la vignette
+  se déduit du dossier, le dossier suit un ou deux motifs par série
+  (`Chapitres/Chapitre 44` ou `Chapitres/44`), et les dimensions sont presque
+  toujours identiques d'un chapitre à l'autre. On ne stocke donc, par chapitre,
+  que le numéro, le nombre de pages et **ce qui s'écarte** des valeurs par
+  défaut de la série.
+
+  L'objet reconstruit à l'exécution est **exactement** l'ancien
+  (`{num, folder, pages, w, h, thumb, d}`) : aucun code lisant `window.CHAPTERS`
+  n'a eu à changer. Ce fichier est aussi la **mémoire des dates de sortie**
+  (champ `d`) — voir plus bas.
 - **`js/data/pages/<Série>.js`** — la **liste des fichiers** de chaque page.
   C'est la partie lourde, et seul le lecteur en a besoin : il ne charge que le
   fichier de la série ouverte. Avant, tout était dans `chapters.js` (305 Ko
@@ -195,6 +209,22 @@ Elles sont mises en cache dans `tools/.dims-cache.json`, donc seules les pages
 **nouvelles** sont mesurées : le premier passage prend quelques minutes (14 000
 pages), les suivants sont instantanés. `--no-dims` saute complètement l'étape —
 le lecteur retombe alors sur son ancien comportement, sans rien casser.
+
+### Les dates de sortie (champ `d`)
+
+Le sitemap a besoin de savoir **quand** chaque chapitre est sorti. Cette date ne
+se devine pas : les dates de dossier sont toutes groupées au jour de la
+conversion WebP, et dater 544 chapitres du même jour revient à se faire ignorer
+par Google. La règle est donc simple, et elle n'invente rien :
+
+- un chapitre **absent** du passage précédent vient d'arriver → il est daté
+  d'aujourd'hui, et cette date est **figée définitivement** ;
+- une date déjà connue est reconduite telle quelle ;
+- un chapitre antérieur à ce système reste **sans date**, et le sitemap omet
+  simplement son `lastmod`.
+
+`chapters.js` est la seule mémoire de ces dates. **Ne le supprime pas** pour
+« repartir propre » : tu perdrais l'historique, sans moyen de le reconstituer.
 
 ### Voir le résultat
 

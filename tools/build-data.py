@@ -100,18 +100,46 @@ def image_size(path):
 
 
 def previous_index():
-    """Relit le chapters.js deja genere. Sert a savoir quels chapitres existaient
-    deja au passage precedent (voir stamp_dates)."""
+    """Relit le chapters.js deja genere -> {serie: [{"num", "d"}]}.
+
+    C'est notre SEULE memoire des dates de sortie : ce fichier est la source de
+    verite, versionnee, et il survit aux changements de machine.
+
+    Deux formats sont acceptes : l'index compact actuel (`return expand({...})`,
+    ou les dates vivent dans les surcharges par chapitre) et l'ancien index
+    plein (`window.CHAPTERS = {...}`), pour qu'un retour en arriere ne perde
+    rien. En cas de doute, on renvoie {} : stamp_dates ne datera alors
+    personne, ce qui est le comportement sur."""
     try:
         with open(OUT, encoding="utf-8") as f:
             src = f.read()
     except OSError:
         return {}
+
+    dec = json.JSONDecoder()
+
+    # Format compact
+    i = src.find("return expand(")
+    if i >= 0:
+        try:
+            comp, _ = dec.raw_decode(src, i + len("return expand("))
+        except ValueError:
+            return {}
+        out = {}
+        for serie, d in (comp or {}).items():
+            rows = []
+            for c in d.get("c", []):
+                o = c[2] if len(c) > 2 else {}
+                rows.append({"num": c[0], "d": o.get("d")})
+            out[serie] = rows
+        return out
+
+    # Ancien format plein
     i = src.find("window.CHAPTERS = ")
     if i < 0:
         return {}
     try:
-        obj, _ = json.JSONDecoder().raw_decode(src, i + len("window.CHAPTERS = "))
+        obj, _ = dec.raw_decode(src, i + len("window.CHAPTERS = "))
         return obj if isinstance(obj, dict) else {}
     except ValueError:
         return {}
@@ -242,6 +270,105 @@ def scan_series(series_path, with_dims=True):
     return chapters
 
 
+# Fonction d'expansion embarquee en tete de chapters.js. Elle reconstruit
+# EXACTEMENT la forme historique ({num, folder, pages, w, h, thumb, d}), ce qui
+# evite de toucher la moindre ligne du code qui lit window.CHAPTERS.
+EXPANDER = """\
+// Index COMPACT. Le fichier plein faisait 70 Ko et se charge sur toutes les
+// pages du site (accueil et forum compris) alors que seuls la fiche serie et
+// le lecteur ont besoin du detail. Or 67 % de son poids etait devinable :
+// "thumb" se deduit du dossier, "folder" suit 1 ou 2 motifs par serie, et les
+// dimensions sont presque toujours les memes. On ne stocke donc que les
+// exceptions, et on redeplie ici.
+// La forme obtenue est identique a l'ancienne : rien d'autre ne change.
+window.CHAPTERS = (function () {
+  "use strict";
+  function expand(D) {
+    var out = {};
+    for (var s in D) {
+      var d = D[s], list = [];
+      for (var i = 0; i < d.c.length; i++) {
+        var c = d.c[i], o = c[2] || {};
+        var folder = o.f !== undefined ? o.f : (o.p !== undefined ? o.p : d.p) + c[0];
+        var e = { num: c[0], folder: folder, pages: c[1] };
+        var w = o.w !== undefined ? o.w : d.w;
+        var h = o.h !== undefined ? o.h : d.h;
+        if (w) { e.w = w; e.h = h; }
+        var t = o.t !== undefined ? o.t : d.t;
+        if (t) {
+          e.thumb = "Manga/preview/" + s + "/" +
+                    folder.slice(folder.lastIndexOf("/") + 1) + "/" + t;
+        }
+        if (o.d) e.d = o.d;
+        list.push(e);
+      }
+      out[s] = list;
+    }
+    return out;
+  }
+  return expand(__DATA__);
+})();
+"""
+
+
+def _most_common(values):
+    """Valeur la plus frequente d'une liste (None si vide)."""
+    counts = {}
+    for v in values:
+        if v is not None:
+            counts[v] = counts.get(v, 0) + 1
+    return max(counts.items(), key=lambda kv: kv[1])[0] if counts else None
+
+
+def compact_index(index):
+    """Index plein -> index compact (voir EXPANDER pour le format).
+
+    Par serie : un prefixe de dossier, un nom de vignette et des dimensions par
+    defaut ; chaque chapitre n'ecrit que ce qui s'en ecarte."""
+    out = {}
+    for serie, chapters in index.items():
+        # Prefixe : ce qui reste du dossier une fois le numero retire, quand le
+        # dossier se termine bien par ce numero (les oneshots, dossier
+        # "Oneshot", n'en ont pas et passeront en litteral).
+        prefixes = [c["folder"][:-len(c["num"])] if c["folder"].endswith(c["num"]) else None
+                    for c in chapters]
+        thumbs = [c["thumb"].rsplit("/", 1)[1] if c.get("thumb") else None for c in chapters]
+        dims = [(c["w"], c["h"]) if c.get("w") else None for c in chapters]
+
+        p = _most_common(prefixes) or ""
+        t = _most_common(thumbs)
+        wh = _most_common(dims)
+        w, h = wh if wh else (None, None)
+
+        rows = []
+        for c, pref in zip(chapters, prefixes):
+            o = {}
+            if pref != p:
+                # Prefixe different : on garde le plus court des deux ecritures.
+                if pref is not None and len(pref) <= len(c["folder"]):
+                    o["p"] = pref
+                else:
+                    o["f"] = c["folder"]
+            th = c["thumb"].rsplit("/", 1)[1] if c.get("thumb") else None
+            if th != t:
+                o["t"] = th if th is not None else ""
+            if c.get("w") and (c["w"], c["h"]) != (w, h):
+                o["w"], o["h"] = c["w"], c["h"]
+            elif not c.get("w") and w:
+                o["w"] = 0
+            if c.get("d"):
+                o["d"] = c["d"]
+            rows.append([c["num"], c["pages"]] + ([o] if o else []))
+
+        entry = {"p": p, "c": rows}
+        if t:
+            entry["t"] = t
+        if w:
+            entry["w"], entry["h"] = w, h
+        out[serie] = entry
+    return out
+
+
 def scan_galleries():
     """Scanne images/Galerie/<Serie>/{Tomes,Colors}/*.jpg -> manifeste galerie."""
     data = {}
@@ -358,11 +485,8 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         f.write("// Genere automatiquement par tools/build-data.py - NE PAS EDITER A LA MAIN\n")
         f.write("// Index des chapitres (sans la liste des pages : voir js/data/pages/).\n")
-        f.write("window.CHAPTERS = ")
-        # Compact : fichier genere, jamais relu a la main, et charge sur toutes
-        # les pages du site.
-        f.write(json.dumps(index, ensure_ascii=False, separators=(",", ":")))
-        f.write(";\n")
+        f.write(EXPANDER.replace("__DATA__", json.dumps(
+            compact_index(index), ensure_ascii=False, separators=(",", ":"))))
         f.write("// Ou trouver les pages de chaque serie (charge a la demande par le lecteur).\n")
         f.write("window.CHAPTER_PAGES = ")
         f.write(json.dumps(pages_index, ensure_ascii=False, indent=1))
