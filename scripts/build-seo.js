@@ -287,6 +287,43 @@ function buildOgMeta(series, chapters, ratings, notes) {
   console.log(`[seo] og-meta.json — ${Object.keys(map).length} séries, ${nbCh} chapitres`);
 }
 
+/* ---------------------------- robots.txt ----------------------------
+   Le fichier est GÉNÉRÉ, parce que la bonne réponse dépend du domaine servi.
+
+   Un déploiement de test est une copie quasi identique du site public, avec
+   ses propres canonical qui pointent vers lui-même. Laissé indexable, il
+   concurrence lanortrad.com sur ses propres pages — c'est du contenu dupliqué,
+   et Google n'a aucune raison de deviner lequel des deux compte.
+
+   La bascule se fait donc sur le domaine, et pas à la main : le jour où ce
+   dépôt sert lanortrad.com, l'indexation se rouvre toute seule. */
+const DOMAINE_PROD = /^(www\.)?lanortrad\.com$/i;
+
+function buildRobots() {
+  const host = new URL(SITE).host;
+  const prod = DOMAINE_PROD.test(host);
+  const txt = prod
+    ? `User-agent: *
+Allow: /
+
+Sitemap: ${abs("sitemap.xml")}
+`
+    : `# Généré par scripts/build-seo.js — ne pas éditer à la main.
+#
+# Ce déploiement (${host}) n'est pas le site public. C'en est une copie
+# quasi identique : laissée indexable, elle ferait concurrence à
+# lanortrad.com sur ses propres pages, avec en prime des canonical qui
+# pointent ici plutôt que là-bas.
+#
+# L'indexation se rouvrira d'elle-même le jour où ce dépôt servira le
+# domaine public : la règle porte sur le domaine, pas sur une case à cocher.
+User-agent: *
+Disallow: /
+`;
+  fs.writeFileSync(path.join(ROOT, "robots.txt"), txt, "utf8");
+  console.log(`[seo] robots.txt — ${prod ? "indexation autorisée" : "indexation BLOQUÉE (déploiement de test)"} — ${host}`);
+}
+
 /* ------------------------------ IndexNow ------------------------------
    Un sitemap dit « voici mes URLs », il ne dit pas « celle-ci vient de
    changer ». Bing, Yandex et quelques autres acceptent qu'on les prévienne
@@ -309,6 +346,14 @@ async function pingIndexNow(series, chapters) {
   // Les déploiements de préversion ne doivent surtout pas être signalés.
   if (process.env.CONTEXT && process.env.CONTEXT !== "production") {
     console.log(`[seo] IndexNow ignoré (contexte « ${process.env.CONTEXT} »)`);
+    return;
+  }
+  // Ni les déploiements de test : chez Netlify, un site de test est lui aussi
+  // en contexte « production ». Sans ce garde-fou, on demanderait à Bing
+  // d'indexer une copie du site — l'inverse exact du but recherché.
+  const host = new URL(SITE).host;
+  if (!DOMAINE_PROD.test(host)) {
+    console.log(`[seo] IndexNow ignoré (déploiement de test : ${host})`);
     return;
   }
 
@@ -363,6 +408,7 @@ async function pingIndexNow(series, chapters) {
 
   const ratings = await fetchRatings();
 
+  buildRobots();
   buildFeed(series);
   buildSitemap(series, chapters);
   buildOgMeta(series, chapters, ratings, notes);
