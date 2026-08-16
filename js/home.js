@@ -173,7 +173,7 @@
     /* — Marquee de genres — */
     const mq = document.getElementById("genre-track");
     if (mq) {
-      const genres = [...new Set(S.flatMap(s => s.genres))].filter(g => g !== "LanorTrad");
+      const genres = [...new Set(S.flatMap(window.LT.publicGenres))];
       // Des liens, pas des <span> : c'est le seul chemin qu'un robot a pour
       // découvrir les vues par genre depuis l'accueil, et ça rend enfin le
       // bandeau cliquable — il ne servait à rien jusqu'ici.
@@ -198,7 +198,7 @@
     if (!seeds.size) return [];
     const weight = {};
     S.filter(s => seeds.has(s.id)).forEach(s =>
-      s.genres.forEach(g => { if (g !== "LanorTrad") weight[g] = (weight[g] || 0) + 1; }));
+      window.LT.publicGenres(s).forEach(g => { weight[g] = (weight[g] || 0) + 1; }));
     return S.filter(s => !seeds.has(s.id))
       .map(s => ({ s, score: s.genres.reduce((n, g) => n + (weight[g] || 0), 0) }))
       .filter(x => x.score > 0)

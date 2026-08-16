@@ -568,8 +568,20 @@
     document.addEventListener("prerenderingchange", () => fn(), { once: true });
   }
 
+  /* ---------- Étiquettes internes ----------
+     Certaines entrées de `genres` ne sont pas des genres : elles servent à
+     nous, en interne. Elles n'ont donc rien à faire dans le bandeau de
+     l'accueil, dans les recommandations, ni dans un résultat de recherche.
+     « LanorTrad » en faisait partie et a été retirée des données ;
+     « Collaboration » reste.
+     Même liste côté build (scripts/build-seo.js, constante INTERNES) : les deux
+     doivent rester d'accord. */
+  const TAGS_INTERNES = new Set(["Collaboration"]);
+  const isGenre = g => !TAGS_INTERNES.has(g);
+  const publicGenres = s => (s.genres || []).filter(isGenre);
+
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, ogCard, whenActive, norm, matches, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un

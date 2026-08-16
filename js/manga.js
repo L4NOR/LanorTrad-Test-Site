@@ -266,7 +266,9 @@
     }
 
     // Séries similaires (≥ 1 genre commun)
-    const rel = (window.SERIES || []).filter(o => o.id !== s.id && o.genres.some(g => g !== "LanorTrad" && s.genres.includes(g)));
+    // Un genre commun, pas une étiquette interne : deux séries ne sont pas
+    // « similaires » au seul motif qu'elles sont toutes deux des collaborations.
+    const rel = (window.SERIES || []).filter(o => o.id !== s.id && window.LT.publicGenres(o).some(g => s.genres.includes(g)));
     if (rel.length) {
       document.getElementById("related-section").style.display = "";
       document.getElementById("related-grid").innerHTML = rel.slice(0, 6).map(LTcard).join("");
@@ -473,7 +475,7 @@
     // de l'oeuvre, pas notre habillage).
     const img = new URL(window.LT.ogCard(s.id) || s.cover, location.href).href;
     const coverImg = new URL(s.cover, location.href).href;
-    const genres = s.genres.filter(g => g !== "LanorTrad" && g !== "Collaboration");
+    const genres = window.LT.publicGenres(s);
     // Canonique : URL propre sur le domaine de prod (identique au sitemap)
     setLink("canonical", "https://lanortrad.com/manga.html?id=" + encodeURIComponent(s.id));
     setMeta("description", `Lis ${s.title} en français sur LanorTrad. ${s.description}`);

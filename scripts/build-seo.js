@@ -163,9 +163,11 @@ ${rows.join("\n")}
      quasi vides, que Google traite en « contenu pauvre » — ça dessert le site
      au lieu de l'aider. Elles restent accessibles et se rempliront d'elles-mêmes
      quand le catalogue grandira.
-     `LanorTrad` et `Collaboration` sont des étiquettes internes, pas des
-     genres : elles n'ont rien à faire dans un résultat de recherche. */
-  const INTERNES = new Set(["LanorTrad", "Collaboration"]);
+     `Collaboration` est une étiquette interne, pas un genre : elle n'a rien à
+     faire dans un résultat de recherche.
+     Même liste côté site (js/core.js, TAGS_INTERNES) : les deux doivent rester
+     d'accord. */
+  const INTERNES = new Set(["Collaboration"]);
   const parGenre = {};
   series.forEach(s => (s.genres || []).forEach(g => {
     if (!INTERNES.has(g)) (parGenre[g] = parGenre[g] || []).push(s);
@@ -255,7 +257,7 @@ function buildOgMeta(series, chapters, ratings, notes) {
       title: s.title,
       type: s.type === "oneshot" ? "oneshot" : "serie",
       status: s.status,
-      genres: (s.genres || []).filter(g => g !== "LanorTrad" && g !== "Collaboration"),
+      genres: (s.genres || []).filter(g => g !== "Collaboration"),
       description: s.description,
       cover: s.cover,
       updated: s.lastUpdate || "",
