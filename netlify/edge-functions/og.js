@@ -153,20 +153,39 @@ function chapterPage(s, id, num, site) {
 
   const label = oneshot ? `${s.title} (oneshot)` : `${s.title} — Chapitre ${c.n}`;
   const title = `${label} VF à lire en ligne | LanorTrad`;
+  /* Description : quand la team a laissé une note d'intro sur ce chapitre, on
+     la met en avant. Sans elle, les ~540 chapitres partagent une phrase
+     quasi identique ; avec, chaque chapitre a un extrait qui lui est propre —
+     c'est ce qui s'affiche sous le lien dans les résultats de recherche. */
   const desc = cut(clean(
-    oneshot
+    (oneshot
       ? `Lis ${s.title} en français, gratuitement, sur LanorTrad. ${c.p ? c.p + " pages, " : ""}traduit et édité par la team.`
-      : `Lis le chapitre ${c.n} de ${s.title} en français, gratuitement, sur LanorTrad. ${c.p ? c.p + " pages, " : ""}traduites et éditées par la team.`
+      : `Lis le chapitre ${c.n} de ${s.title} en français, gratuitement, sur LanorTrad. ${c.p ? c.p + " pages, " : ""}traduites et éditées par la team.`)
+    + (c.nt && c.nt.i ? " " + c.nt.i : "")
   ), 300);
   const url = `${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(c.n)}`;
   const image = site + "/" + encodeURI(s.og || s.cover || "");
   const seriesUrl = `${site}/manga.html?id=${encodeURIComponent(id)}`;
   const chapUrl = n => `${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(n)}`;
 
+  /* Notes de traduction. C'est le seul texte ORIGINAL d'une page de lecture :
+     tout le reste est une image. Un moteur n'a donc rien a se mettre sous la
+     dent sur les ~540 pages de chapitre, sauf ici. C'est aussi, litteralement,
+     ce que le lecteur voit en bas du chapitre. */
+  const nt = c.nt;
+  const notesHtml = nt
+    ? `<section><h2>Notes de traduction</h2>`
+      + (nt.i ? `<p>${esc(nt.i)}</p>` : "")
+      + `<ul>` + nt.n.map(x =>
+          `<li>${x.p ? `p. ${esc(x.p)} — ` : ""}${esc(x.t)}</li>`).join("") + `</ul>`
+      + `</section>`
+    : "";
+
   const body = `<div id="reader-root"><article>`
     + `<h1>${esc(label)}</h1>`
     + `<p>${esc(desc)}</p>`
     + `<p><a href="${esc(seriesUrl)}">Fiche de ${esc(s.title)}</a></p>`
+    + notesHtml
     + `<nav>`
     + (prev ? `<a rel="prev" href="${esc(chapUrl(prev.n))}">Chapitre ${esc(prev.n)}</a> ` : "")
     + (next ? `<a rel="next" href="${esc(chapUrl(next.n))}">Chapitre ${esc(next.n)}</a>` : "")

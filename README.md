@@ -337,7 +337,41 @@ dont l'outil a besoin, puis le relit pour **référencer** les vignettes créée
   (les `.woff2` sont des polices variables, illisibles par Pillow sans ça).
   Sans ces modules, l'outil bascule sur une police système et le dit.
 
-### E. IndexNow (facultatif) → prévenir Bing dès la sortie
+### E. Notes de traduction → `js/data/notes.js`
+
+Expliquer un jeu de mots intraduisible, une référence culturelle, un nom gardé
+en japonais. C'est ce que les lecteurs réclament le plus à une team — et c'est,
+accessoirement, **le seul texte original du site** : le reste, ce sont des
+images, que Google ne peut pas lire. Trois lignes écrites sur un chapitre valent
+plus, pour le référencement, que n'importe quel réglage technique.
+
+Le fichier s'édite **à la main**, aucun outil ni étape de build :
+
+```javascript
+window.NOTES = {
+  "Tougen Anki": {
+    "247": {
+      intro: "Un chapitre bavard, avec deux passages coriaces.",
+      notes: [
+        { page: 6, text: "« Oni » est gardé tel quel : « démon » renvoie à un imaginaire chrétien qui n'a rien à voir." },
+        "Une note peut aussi s'écrire en simple texte, sans numéro de page."
+      ]
+    }
+  }
+};
+```
+
+- La clé de série doit être **identique** à l'`id` dans `series.js`, et le
+  numéro de chapitre identique à celui affiché (`"247"`, `"246.5"`).
+- Les notes apparaissent **en bas du chapitre**, dans l'écran de fin. Un
+  chapitre sans notes n'affiche rien du tout — ni titre, ni « aucune note ».
+- Elles sont aussi servies aux robots (pré-rendu de l'edge function), et l'`intro`
+  enrichit la description du chapitre dans les résultats de recherche : sans
+  elle, les ~540 chapitres partagent une phrase quasi identique.
+- Après édition, relance `node scripts/build-seo.js` pour que les robots les
+  voient (le site, lui, les affiche immédiatement).
+
+### F. IndexNow (facultatif) → prévenir Bing dès la sortie
 
 Un sitemap dit « voici mes URLs » ; il ne dit pas « celle-ci vient de sortir ».
 IndexNow le dit, et Bing/Yandex indexent alors en quelques minutes. Google ne

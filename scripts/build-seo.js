@@ -232,7 +232,23 @@ function ogCard(id) {
   return fs.existsSync(path.join(ROOT, rel)) ? rel : "";
 }
 
-function buildOgMeta(series, chapters, ratings) {
+/* Notes d'un chapitre, aplaties pour l'edge function : [{p, t}].
+   Même tolérance que js/notes.js (une note peut être une simple chaîne), pour
+   qu'un fichier écrit à la main ne se retrouve pas silencieusement ignoré. */
+function notesOf(notes, serieId, num) {
+  const e = ((notes || {})[serieId] || {})[String(num)];
+  if (!e) return null;
+  const brut = Array.isArray(e) ? e : (e.notes || []);
+  const list = brut
+    .map(n => (typeof n === "string" ? { text: n } : n))
+    .filter(n => n && n.text && String(n.text).trim())
+    .map(n => (n.page ? { p: String(n.page), t: String(n.text) } : { t: String(n.text) }));
+  if (!list.length) return null;
+  const intro = (Array.isArray(e) ? "" : e.intro || "").trim();
+  return intro ? { i: intro, n: list } : { n: list };
+}
+
+function buildOgMeta(series, chapters, ratings, notes) {
   const map = {};
   series.forEach(s => {
     map[s.id] = {
@@ -254,7 +270,14 @@ function buildOgMeta(series, chapters, ratings) {
       count: s.chapters || (chapters[s.id] || []).length,
       // Instantane des vraies notes ; absent s'il n'y en a pas assez.
       rating: ratings[s.id] || null,
-      chapters: (chapters[s.id] || []).map(c => ({ n: c.num, p: c.pages || 0, d: c.d || "" })),
+      chapters: (chapters[s.id] || []).map(c => {
+        const row = { n: c.num, p: c.pages || 0, d: c.d || "" };
+        // Les notes de traduction sont le seul texte original du site : c'est
+        // précisément ce qu'il faut donner à lire aux moteurs.
+        const nt = notesOf(notes, s.id, c.num);
+        if (nt) row.nt = nt;
+        return row;
+      }),
     };
   });
   const nbCh = Object.values(map).reduce((a, s) => a + s.chapters.length, 0);
@@ -328,11 +351,19 @@ async function pingIndexNow(series, chapters) {
   try { chapters = loadGlobal("js/data/chapters.js", "CHAPTERS") || {}; }
   catch { chapters = {}; }
 
+  // Notes de traduction (js/data/notes.js, tenu à la main). Fichier absent ou
+  // mal formé : on continue sans, ce n'est pas une raison de casser le build.
+  let notes;
+  try { notes = loadGlobal("js/data/notes.js", "NOTES") || {}; }
+  catch (e) { notes = {}; console.log("[seo] notes.js illisible (" + e.message + ") — ignoré"); }
+  const nbNotes = Object.values(notes).reduce((a, s) => a + Object.keys(s || {}).length, 0);
+  if (nbNotes) console.log(`[seo] notes de traduction — ${nbNotes} chapitre(s) commenté(s)`);
+
   const ratings = await fetchRatings();
 
   buildFeed(series);
   buildSitemap(series, chapters);
-  buildOgMeta(series, chapters, ratings);
+  buildOgMeta(series, chapters, ratings, notes);
   await pingIndexNow(series, chapters);
   console.log(`[seo] terminé (site ${SITE})`);
 })();

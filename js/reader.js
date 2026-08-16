@@ -940,6 +940,7 @@
         <div class="rd-credits">${TEAM.map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${t.who}</div></div>`).join("")}</div>
         ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
         <div class="rd-mood" id="rd-mood"></div>
+        ${(window.LTnotes && window.LTnotes.html(window.LTnotes.get(A.manga, A.chap.num))) || ""}
         <div class="rd-end-nav">
           <button class="btn btn-ghost" id="rd-end-prev">${ic("left")} Précédent</button>
           <a class="btn btn-primary" href="${DISCORD}" target="_blank" rel="noopener">Rejoindre le Discord</a>
