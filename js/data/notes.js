@@ -26,7 +26,7 @@
 // -- Exemple, a decommenter et adapter ------------------------------------
 // window.NOTES = {
 //   "Tougen Anki": {
-//     "246.5": {
+//     "246": {
 //       intro: "Un chapitre bavard, avec deux passages qui nous ont donne du fil a retordre.",
 //       notes: [
 //         { page: 6, text: "« Oni » est garde tel quel : « demon » renvoie a un imaginaire chretien qui n'a rien a voir." },
