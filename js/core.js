@@ -480,7 +480,50 @@
     } catch { _sb = null; }
     return _sb;
   }
+
+  /* ---------- Chargement à la demande de supabase-js ----------
+     La bibliothèque pèse 212 Ko — de loin le plus gros fichier du site après
+     les planches. Sur la fiche série, le lecteur et la bibliothèque, elle ne
+     sert QU'aux visiteurs connectés : synchroniser la progression, gagner de
+     l'XP, poser une note. Un visiteur anonyme — c'est-à-dire l'immense
+     majorité, et la totalité du trafic venu de Google — la téléchargeait pour
+     rien.
+
+     Le forum et le classement, eux, gardent leur <script> : chez eux la
+     bibliothèque sert à AFFICHER le contenu, pas à l'enrichir.
+
+     Savoir si quelqu'un est connecté ne demande pas la bibliothèque :
+     supabase-js range sa session dans localStorage. On regarde donc la clé, et
+     on ne charge les 212 Ko que si elle existe. */
+  const SB_SRC = "js/vendor/supabase-js-2.112.3.min.js";
+  let _sbLoad = null;
+  function sbLoad() {
+    if (window.supabase) return Promise.resolve(true);
+    if (!_sbLoad) {
+      _sbLoad = new Promise(done => {
+        const s = document.createElement("script");
+        s.src = SB_SRC;
+        s.onload = () => done(true);
+        // Un échec ne doit pas condamner la page : on repart sans, et on
+        // autorise une nouvelle tentative plus tard.
+        s.onerror = () => { _sbLoad = null; done(false); };
+        document.head.appendChild(s);
+      });
+    }
+    return _sbLoad;
+  }
+  function sbHasSession() {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        if (/^sb-.+-auth-token$/.test(localStorage.key(i) || "")) return true;
+      }
+    } catch { /* stockage bloqué : on considère qu'il n'y a pas de session */ }
+    return false;
+  }
+
   window.LTsb = sbClient;
+  window.LTsb.load = sbLoad;          // pour charger avant une action connectée
+  window.LTsb.hasSession = sbHasSession;
 
   /* ---------- mini utils ---------- */
   function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
@@ -800,6 +843,17 @@
      "complete" est le seul état qui garantit que DOMContentLoaded est déjà
      passé ; dans tous les autres cas on l'attend, ce qui laisse les scripts
      différés finir de s'enregistrer. */
-  if (document.readyState === "complete") boot();
-  else document.addEventListener("DOMContentLoaded", boot);
+  /* Un visiteur CONNECTÉ a besoin de supabase-js dès le départ : sync.js,
+     xp.js et ratings.js appellent LTsb() dès `lt:ready` et se contentent
+     silencieusement d'un null. Sans cette attente, sa progression ne se
+     synchroniserait plus et son XP ne monterait plus — sans le moindre message.
+     On retarde donc le démarrage, mais pour lui seul.
+     Le Promise.race est un filet : si le fichier ne répond pas, le site part
+     quand même au bout de 2,5 s, exactement comme pour un visiteur anonyme. */
+  function start() {
+    if (!sbHasSession() || window.supabase) return boot();
+    Promise.race([sbLoad(), new Promise(r => setTimeout(r, 2500))]).then(boot, boot);
+  }
+  if (document.readyState === "complete") start();
+  else document.addEventListener("DOMContentLoaded", start);
 })();

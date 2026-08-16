@@ -816,6 +816,20 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   supabase-js, `loadJSZip()` dans `js/reader.js` pour JSZip).
   JSZip (95 Ko) n'est d'ailleurs plus chargé qu'**au clic** sur « Télécharger le
   chapitre » : inutile de le faire payer à tous les lecteurs.
+- **`supabase-js` chargé à la demande** (212 Ko). Sur la fiche série, le lecteur
+  et la bibliothèque, il ne sert qu'aux visiteurs **connectés** : synchroniser la
+  progression, gagner de l'XP, poser une note. Un visiteur anonyme — donc la
+  quasi-totalité du trafic venu de Google — ne le télécharge plus du tout.
+  Savoir si quelqu'un est connecté ne demande pas la bibliothèque : supabase-js
+  range sa session dans `localStorage` (clé `sb-<ref>-auth-token`), et
+  `core.js` se contente de regarder si la clé existe. Si oui, il charge les
+  212 Ko **et retarde le démarrage** jusqu'à ce qu'ils soient là — sans quoi
+  `sync.js`, `xp.js` et `ratings.js`, qui appellent `LTsb()` dès `lt:ready` et
+  se contentent silencieusement d'un `null`, cesseraient de fonctionner sans le
+  moindre message. Un garde-fou de 2,5 s évite qu'un fichier qui ne répond pas
+  bloque la page.
+  **`forum.html` et `classement.html` gardent leur `<script>`** : chez eux la
+  bibliothèque sert à *afficher* le contenu, pas à l'enrichir.
 - **Préchargement spéculatif** (`js/core.js`, `wireSpeculation`) : au survol d'un
   lien, le navigateur va chercher la page suivante. La fiche série est
   **pré-rendue** (page construite entièrement), le reste est simplement
