@@ -63,8 +63,14 @@ tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
 tools/Modifier-Atelier.bat  ← interface web locale pour l'avancement des chapitres
+tools/jpg-to-webp.py        ← conversion des planches JPG → WebP (sans perte)
 supabase/*.sql              ← schémas Supabase (forum + gamification)
 ```
+
+Tous les scripts de `tools/` sont **versionnés** : ils font partie du travail
+courant décrit ici, et le site ne se maintient pas sans eux. Seuls restent hors
+dépôt ce qu'ils *produisent* et qui se régénère (`tools/.dims-cache.json`,
+`tools/.backups/`, `__pycache__/`).
 
 ---
 
