@@ -9,7 +9,7 @@
    Lancer    : node scripts/test-og.mjs
    ========================================================================= */
 import { readFileSync } from "node:fs";
-import { _seriesPage, _chapterPage, _genrePage, _inject as inject } from "../netlify/edge-functions/og.js";
+import { _seriesPage, _chapterPage, _genrePage, _inject as inject, _BOTS as BOTS } from "../netlify/edge-functions/og.js";
 
 const meta = JSON.parse(readFileSync(new URL("../og-meta.json", import.meta.url), "utf8"));
 const SITE = "https://lanortrad.com";
@@ -139,6 +139,37 @@ check("fil d'Ariane a 3 niveaux", ldg[1].itemListElement.length === 3);
 check("accents et casse tolerés", !!_genrePage(meta, "mystere", SITE));
 check("le libelle affiché reste le vrai", /Mystère/.test(_genrePage(meta, "mystere", SITE).title));
 check("genre inconnu -> null (page d'origine servie)", _genrePage(meta, "Cuisine", SITE) === null);
+
+/* ---- detection des robots ----
+   Tout le pre-rendu repose sur cette regex : un robot qui n'y figure pas ne
+   voit qu'une coquille vide, et un navigateur qui y figurerait par erreur
+   recevrait 32 Ko de HTML inutile. Elle merite donc des tests. */
+console.log("\n== Detection des robots ==");
+const doitPasser = [
+  ["Googlebot", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"],
+  ["Bingbot", "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"],
+  ["Qwant (moteur francais)", "Mozilla/5.0 (compatible; Qwantify/2.0; +https://www.qwant.com/)"],
+  ["Discord", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"],
+  ["Facebook", "facebookexternalhit/1.1"],
+  ["Twitter/X", "Twitterbot/1.0"],
+  ["WhatsApp", "WhatsApp/2.19.81 A"],
+  ["Mastodon", "http.rb/5.1.1 (Mastodon/4.2.1; +https://mastodon.social/)"],
+  ["Bluesky", "Mozilla/5.0 (compatible; Bluesky Cardyb/1.1)"],
+  ["Applebot", "Mozilla/5.0 (compatible; Applebot/0.1)"],
+];
+const doitPasPasser = [
+  ["Chrome bureau", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"],
+  ["Safari iPhone", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"],
+  ["Firefox", "Mozilla/5.0 (X11; Linux x86_64; rv:127.0) Gecko/20100101 Firefox/127.0"],
+  ["Chrome Android", "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Mobile Safari/537.36"],
+  // Exclus deliberement : donner le contenu aux robots d'IA est un choix
+  // editorial, pas technique. Si ce test casse, c'est que quelqu'un les a
+  // ajoutes — volontairement ou non.
+  ["GPTBot (exclu volontairement)", "Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)"],
+  ["ClaudeBot (exclu volontairement)", "Mozilla/5.0 (compatible; ClaudeBot/1.0)"],
+];
+doitPasser.forEach(([n, ua]) => check(`recoit le prerendu : ${n}`, BOTS.test(ua)));
+doitPasPasser.forEach(([n, ua]) => check(`page inchangee : ${n}`, !BOTS.test(ua)));
 
 /* ---- echappement ---- */
 console.log("\n== Securite ==");

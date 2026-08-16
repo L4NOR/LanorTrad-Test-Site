@@ -15,7 +15,34 @@
    Les vrais visiteurs passent sans surcoût — la page leur est servie
    inchangée, et leur JavaScript fait le reste.
    ========================================================================= */
-const BOTS = /facebookexternalhit|Twitterbot|Discordbot|Slackbot|WhatsApp|LinkedInBot|TelegramBot|Pinterest|redditbot|Googlebot|Google-InspectionTool|bingbot|DuckDuckBot|Applebot|YandexBot|embedly|vkShare|SkypeUriPreview|W3C_Validator/i;
+/* Robots qui reçoivent le pré-rendu.
+
+   C'est le point faible de cette approche : un robot absent de cette liste ne
+   voit qu'une coquille vide. Elle doit donc rester à jour — c'est cinq minutes
+   de travail, contre plusieurs jours pour l'alternative (pages statiques, ce
+   qui imposerait de changer toutes les URLs).
+
+   Volontairement ABSENTS : les robots d'IA (GPTBot, ClaudeBot, PerplexityBot,
+   CCBot…). Ils crawlent déjà le site, mais leur donner en plus le contenu
+   pré-rendu relève d'un choix éditorial sur du scantrad, pas d'une décision
+   technique. À ajouter ici si la team le décide. */
+const BOTS = new RegExp([
+  // Moteurs de recherche
+  "Googlebot", "Google-InspectionTool", "Storebot-Google", "AdsBot-Google",
+  "bingbot", "BingPreview", "DuckDuckBot", "YandexBot", "Applebot",
+  "Baiduspider", "Sogou", "SeznamBot", "MojeekBot", "Yeti",
+  // Qwant et Exalead : moteurs français, notre public
+  "Qwantify", "ExaBot",
+  // Aperçus de partage
+  "facebookexternalhit", "facebookcatalog", "Twitterbot", "Discordbot",
+  "Slackbot", "WhatsApp", "LinkedInBot", "TelegramBot", "Pinterest",
+  "redditbot", "SkypeUriPreview", "vkShare", "embedly",
+  // Fediverse et Bluesky : de vrais canaux de partage aujourd'hui
+  "Mastodon", "Misskey", "Akkoma", "Pleroma", "Cardyb", "Bluesky",
+  "Discourse Forum Onebox",
+  // Archivage et validation
+  "archive.org_bot", "ia_archiver", "W3C_Validator",
+].join("|"), "i");
 
 const esc = x => String(x == null ? "" : x).replace(/[&<>"]/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -318,7 +345,7 @@ async function notFound(origin) {
 }
 
 /* Exportés pour scripts/test-og.mjs (`node scripts/test-og.mjs`). */
-export { seriesPage as _seriesPage, chapterPage as _chapterPage, genrePage as _genrePage, inject as _inject };
+export { seriesPage as _seriesPage, chapterPage as _chapterPage, genrePage as _genrePage, inject as _inject, BOTS as _BOTS };
 
 /* --------------------------------- main --------------------------------- */
 export default async (request, context) => {

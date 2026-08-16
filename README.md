@@ -760,6 +760,34 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   (ComicSeries / Chapter / CollectionPage / BreadcrumbList) servies aux robots
   *sans* JS par l'edge function, vignettes de partage 1200×630, vrais 404 sur
   les URLs fantômes, et signalement **IndexNow** des nouveautés (voir ci-dessous).
+- **Pré-rendu pour les robots** (`netlify/edge-functions/og.js`) : le site étant
+  rendu côté navigateur, `/manga.html?id=…` et `/reader.html?…` sont des
+  coquilles vides sans JavaScript. L'edge function injecte, **pour les robots
+  seulement**, les vraies balises et un pré-rendu du contenu.
+
+  <details><summary>Pourquoi ne pas servir des pages statiques à tout le monde ?</summary>
+
+  Parce que les URLs sont en `?id=…`. Il n'existe donc qu'**un seul fichier**
+  `manga.html` pour toutes les séries, et un fichier statique ne peut pas
+  contenir dix contenus différents. Les URLs propres (`/manga/tougen-anki/`) ne
+  sont pas un bonus du pré-rendu statique : elles en sont la **condition**.
+
+  Servir le pré-rendu à tout le monde sans changer les URLs coûterait +32 Ko par
+  page (et un passage par l'edge function à chaque visite) pour un contenu que
+  **personne ne voit** : le `.loader` est un calque opaque plein écran jusqu'à ce
+  que le JS ait fini.
+
+  Google ne recommande plus le *dynamic rendering*, mais ne le sanctionne pas
+  tant que le contenu servi aux robots correspond à celui des visiteurs — ce qui
+  est le cas ici, aucun texte ne leur est réservé. Le seul vrai risque est
+  **qu'un robot manque à la liste** : elle est en tête de `og.js` et couverte par
+  16 cas de test dans `scripts/test-og.mjs`. La tenir à jour prend cinq minutes.
+  </details>
+
+  Les **robots d'IA** (GPTBot, ClaudeBot, PerplexityBot…) en sont volontairement
+  absents : leur donner le contenu pré-rendu est un choix éditorial sur du
+  scantrad, pas une décision technique. Un test vérifie qu'ils restent exclus,
+  pour que l'ajout soit forcément délibéré.
 - **Vues par genre** : `catalogue.html?genre=Horreur` est une page à part
   entière — titre, description, `canonical` et liste pré-rendue pour les robots
   — parce que « manga d'horreur en français » est une requête réelle. C'est le
