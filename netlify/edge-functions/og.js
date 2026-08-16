@@ -50,10 +50,27 @@ const esc = x => String(x == null ? "" : x).replace(/[&<>"]/g, c =>
 const clean = x => String(x == null ? "" : x).replace(/\s+/g, " ").trim();
 const cut = (x, n) => (x.length <= n ? x : x.slice(0, n - 1).replace(/\s+\S*$/, "") + "…");
 
-/* Remplace <title>, ajoute des balises avant </head>, remplit le conteneur. */
+/* Remplace <title>, ajoute des balises avant </head>, remplit le conteneur.
+
+   Les balises que l'on s'apprete a reecrire sont d'abord RETIREES. Sans ca,
+   celles du fichier HTML restent en place, et comme elles sont ecrites plus
+   haut dans le <head>, ce sont ELLES que les robots retiennent : Discord et
+   Facebook prennent la premiere og:image trouvee. Resultat, la vignette
+   generique du site s'affichait a la place de la carte de la serie, et la
+   fiche partageait le titre generique.
+   Pire sur le catalogue, qui a un canonical statique : deux canonical
+   contradictoires dans la meme page. */
+const AVIRER = [
+  /[ \t]*<meta\s+property="og:[^"]*"[^>]*>[ \t]*\r?\n?/gi,
+  /[ \t]*<meta\s+name="twitter:[^"]*"[^>]*>[ \t]*\r?\n?/gi,
+  /[ \t]*<meta\s+name="description"[^>]*>[ \t]*\r?\n?/gi,
+  /[ \t]*<link\s+rel="canonical"[^>]*>[ \t]*\r?\n?/gi,
+];
+
 function inject(html, { title, head, mountRe, body }) {
-  let out = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`)
-                .replace(/<\/head>/i, head + "</head>");
+  let out = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
+  for (const re of AVIRER) out = out.replace(re, "");
+  out = out.replace(/<\/head>/i, head + "</head>");
   if (mountRe && body) out = out.replace(mountRe, body);
   return out;
 }

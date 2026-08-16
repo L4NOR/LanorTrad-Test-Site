@@ -140,6 +140,31 @@ check("accents et casse tolerés", !!_genrePage(meta, "mystere", SITE));
 check("le libelle affiché reste le vrai", /Mystère/.test(_genrePage(meta, "mystere", SITE).title));
 check("genre inconnu -> null (page d'origine servie)", _genrePage(meta, "Cuisine", SITE) === null);
 
+/* ---- pas de balises en double ----
+   Les fichiers HTML portent des valeurs par defaut (og:image generique,
+   canonical du catalogue...). Si l'edge function se contente d'ajouter les
+   siennes, la page en contient deux, et les robots retiennent la PREMIERE,
+   c'est-a-dire la valeur par defaut. */
+console.log("\n== Pas de doublons dans le <head> ==");
+const shellComplet = `<!DOCTYPE html><html lang="fr"><head>
+  <title>Série — LanorTrad</title>
+  <meta name="description" content="Description par defaut.">
+  <link rel="canonical" href="https://lanortrad.com/catalogue.html">
+  <meta property="og:title" content="Titre par defaut">
+  <meta property="og:image" content="https://lanortrad.com/images/og/lanortrad.jpg">
+  <meta name="twitter:image" content="https://lanortrad.com/images/og/lanortrad.jpg">
+</head><body><main id="series-root"></main></body></html>`;
+const hd = inject(shellComplet, _seriesPage(s, "Tougen Anki", SITE));
+const compte = re => (hd.match(re) || []).length;
+check("une seule og:image", compte(/<meta property="og:image"/g) === 1,
+  compte(/<meta property="og:image"/g) + " trouvée(s)");
+check("une seule og:title", compte(/<meta property="og:title"/g) === 1);
+check("un seul canonical", compte(/<link rel="canonical"/g) === 1);
+check("une seule description", compte(/<meta name="description"/g) === 1);
+check("une seule twitter:image", compte(/<meta name="twitter:image"/g) === 1);
+check("la valeur par defaut a bien disparu", !hd.includes("images/og/lanortrad.jpg"));
+check("c'est la vignette de la serie qui reste", !s.og || hd.includes(s.og));
+
 /* ---- detection des robots ----
    Tout le pre-rendu repose sur cette regex : un robot qui n'y figure pas ne
    voit qu'une coquille vide, et un navigateur qui y figurerait par erreur
