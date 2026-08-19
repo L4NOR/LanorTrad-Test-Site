@@ -181,6 +181,16 @@ for (const [src, v] of Object.entries(COVERS)) {
    Un fichier renommé, une page oubliée dans un lien : ça ne casse pas le
    build, ça casse la navigation.
    ------------------------------------------------------------------------ */
+/* La même règle de slug que le site (js/core.js) : elle sert aussi bien aux
+   noms de vignettes qu'aux adresses. Extraite du fichier plutôt que recopiée,
+   pour qu'une divergence soit impossible. */
+const slugCoreTot = (() => {
+  const src = fs.readFileSync(R("js/core.js"), "utf8");
+  const m = src.match(/function slugify\(x\) \{[\s\S]*?\r?\n  \}/);
+  if (!m) return null;
+  try { return new Function("return (" + m[0] + ")")(); } catch { return null; }
+})();
+
 titre("Pages HTML");
 const HTML = fs.readdirSync(ROOT).filter(f => f.endsWith(".html"));
 let casses = 0;
@@ -201,6 +211,39 @@ for (const page of HTML) {
   }
 }
 if (!casses) ok(`${HTML.length} pages — tous les fichiers référencés existent`);
+
+/* ------------------------------------------------------------------------
+   5 bis. Les vignettes de partage
+   Une og:image cassée ne se voit nulle part sur le site : elle se voit sur
+   Discord, chez les autres, une fois le lien parti.
+   ------------------------------------------------------------------------ */
+titre("Vignettes de partage");
+let og = 0;
+for (const page of HTML) {
+  const src = fs.readFileSync(R(page), "utf8");
+  for (const m of src.matchAll(/<meta (?:property="og:image"|name="twitter:image") content="([^"]+)"/g)) {
+    let rel;
+    try { rel = new URL(m[1]).pathname.replace(/^\//, ""); } catch { rel = m[1]; }
+    if (!existe(decodeURIComponent(rel))) err(`${page} — vignette de partage absente : ${m[1]}`);
+    else og++;
+  }
+}
+ok(`${og} référence(s) de vignette, toutes présentes`);
+
+// Une carte par série (tools/build-og.py) et par genre (build-og-pages.py).
+// Les genres sont fabriqués à la demande par l'edge function : TOUS doivent
+// avoir leur carte, pas seulement ceux déclarés au sitemap.
+if (slugCoreTot) {
+  for (const s of SERIES) {
+    const f = `images/og/series/${slugCoreTot(s.id)}.jpg`;
+    if (!existe(f)) warn(`carte de partage absente pour ${s.id} — lance py tools/build-og.py`);
+  }
+  const genres = new Set();
+  SERIES.forEach(s => (s.genres || []).forEach(g => { if (g !== "Collaboration") genres.add(g); }));
+  const sansCarte = [...genres].filter(g => !existe(`images/og/genres/${slugCoreTot(g)}.jpg`));
+  if (sansCarte.length) err(`genre(s) sans carte de partage : ${sansCarte.join(", ")} — lance py tools/build-og-pages.py`);
+  else ok(`${genres.size} genre(s), chacun sa carte`);
+}
 
 /* ------------------------------------------------------------------------
    6. Le service worker précache-t-il des fichiers qui existent ?
@@ -242,12 +285,7 @@ try {
    désigne autre chose — le pire des deux mondes.
    ------------------------------------------------------------------------ */
 titre("Sitemap et adresses");
-const slugCore = (() => {
-  const src = fs.readFileSync(R("js/core.js"), "utf8");
-  const m = src.match(/function slugify\(x\) \{[\s\S]*?\r?\n  \}/);
-  if (!m) return null;
-  try { return new Function("return (" + m[0] + ")")(); } catch { return null; }
-})();
+const slugCore = slugCoreTot;
 const slugBuild = (() => {
   const src = fs.readFileSync(R("scripts/build-seo.js"), "utf8");
   const m = src.match(/const slugFile = [\s\S]*?;\r?\n/);

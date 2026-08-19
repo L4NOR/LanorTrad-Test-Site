@@ -132,6 +132,12 @@ check("h1 present", /<h1>Catalogue Horreur<\/h1>/.test(hg));
 check("les series du genre sont listees", (hg.match(/<li><a href/g) || []).length >= 2);
 check("canonical du genre", hg.includes('rel="canonical" href="https://lanortrad.com/genre/horreur/"'));
 check("plus de titre generique", !hg.includes("<title>Catalogue — LanorTrad</title>"));
+// Chaque genre a sa propre carte de partage (tools/build-og-pages.py) : sans
+// elle, les 17 vues par genre partageaient la vignette generique du site.
+check("carte de partage du genre",
+  hg.includes('og:image" content="https://lanortrad.com/images/og/genres/horreur.jpg"'));
+check("dimensions de la carte declarees", hg.includes('og:image:width" content="1200"'));
+check("carte du genre accentue", _genrePage(meta, "mystere", SITE).head.includes("/images/og/genres/mystere.jpg"));
 const ldg = JSON.parse(hg.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1].replace(/\\u003c/g, "<"))["@graph"];
 check("JSON-LD CollectionPage", ldg[0]["@type"] === "CollectionPage");
 check("ItemList non vide", ldg[0].mainEntity.numberOfItems >= 2);

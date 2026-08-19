@@ -351,9 +351,14 @@ function genrePage(meta, genre, site) {
     ],
   };
 
+  /* Carte de partage du genre (tools/build-og-pages.py). Sans elle, les 17
+     vues par genre partageaient toutes la vignette generique du site. */
   return {
     title,
-    head: metaTags({ title, desc, image: site + "/images/og/lanortrad.jpg", url, type: "website" })
+    head: metaTags({
+        title, desc, url, type: "website", card: true,
+        image: `${site}/images/og/genres/${slugify(libelle)}.jpg`,
+      })
       + "  " + ldTag(ld) + "\n",
     mountRe: /<main>[\s\S]*?<\/main>/i,
     body,

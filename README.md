@@ -61,7 +61,8 @@ Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
 tools/build-data.py         ← scanner : chapters.js + js/data/pages/
 tools/build-covers.py       ← variantes légères des couvertures (images/Cover/rs/)
-tools/build-og.py           ← vignettes de partage 1200x630 (images/og/series/)
+tools/build-og.py           ← vignettes de partage des SÉRIES (images/og/series/)
+tools/build-og-pages.py     ← vignettes des PAGES et des GENRES (images/og/pages|genres/)
 tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data.py)
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
@@ -392,6 +393,37 @@ dont l'outil a besoin, puis le relit pour **référencer** les vignettes créée
 - Pour la typo exacte du site, une fois : `py -m pip install fonttools brotli`
   (les `.woff2` sont des polices variables, illisibles par Pillow sans ça).
   Sans ces modules, l'outil bascule sur une police système et le dit.
+
+### D bis. Vignettes des autres pages → `build-og-pages.py`
+
+`build-og.py` ne couvre que les séries. Tout le reste du site — accueil,
+catalogue, planning, forum, classement, bibliothèque, équipe, pages légales —
+partageait **la même image générique**, et les 17 vues par genre aussi. Sur
+Discord, un lien vers le planning et un lien vers le forum se ressemblaient
+trait pour trait.
+
+```bash
+node scripts/build-seo.js && py tools/build-og-pages.py
+```
+
+- Sortie : `images/og/pages/<page>.jpg` et `images/og/genres/<genre>.jpg`, à
+  **committer** (Netlify ne lance pas Python).
+- Même charte que les cartes de série — le dessin est littéralement le même
+  moteur, importé depuis `build-og.py`. Deux différences assumées : un
+  **éventail** de couvertures au lieu d'une seule (ces pages parlent du site
+  entier ou d'un genre), et le filet du bas reprend le **dégradé** du site
+  plutôt que la couleur d'une série.
+- **Rien n'est inventé sur ces cartes** : le sous-titre est la
+  `<meta name="description">` réelle de la page, et les chiffres sont comptés
+  dans `og-meta.json`. Changer la description d'une page suffit à périmer sa
+  carte, qui se régénère au passage suivant.
+- Chaque page prend un **trio de couvertures différent** : sept cartes
+  identiques au titre près se suivraient sinon dans un fil Discord.
+- Les genres sont tous couverts, pas seulement les 8 déclarés au sitemap :
+  l'edge function fabrique une page pour n'importe quel genre existant, et une
+  carte manquante donnerait un partage cassé. `scripts/check.js` le vérifie.
+- `manga.html` et `reader.html` gardent l'image générique par défaut, et c'est
+  voulu : leur vraie carte (celle de la série) est posée par l'edge function.
 
 ### E. Notes de traduction → `js/data/notes.js`
 
@@ -875,6 +907,9 @@ vérifiée.
   (`js/presence.js`, `supabase/presence.sql`). Anonyme, oublié au bout de deux
   minutes, jamais affiché en dessous de 2 — le premier lecteur, c'est toi.
 - **Vérifications automatiques** au déploiement et à chaque push (§ 8 bis).
+- **Vignettes de partage partout** : une carte 1200 × 630 par série, par page
+  et par genre (§ 4.D et 4.D bis) — plus aucune page ne partage l'image
+  générique du site.
 - **SEO** : sitemap **index** (un fichier par série, couvertures déclarées en
   `image:image`), `robots.txt`, flux RSS, données structurées JSON-LD
   (ComicSeries / Chapter / CollectionPage / BreadcrumbList) servies aux robots
