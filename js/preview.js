@@ -55,7 +55,7 @@
       src: c.thumb, accent: s.accent, title: s.title,
       sub: oneshot ? `${c.pages} pages`
         : (hit ? `Chapitre ${c.num} · ${c.pages} pages` : `Dernier paru : chapitre ${c.num}`),
-      href: `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${c.num}`,
+      href: window.LT.urlChapter(s, c.num),
       cta: oneshot ? "Lire le oneshot" : `Lire le chapitre ${c.num}`,
       label: oneshot ? `Aperçu de la première page — ${s.title}`
         : `Aperçu de la première page — ${s.title}, chapitre ${c.num}`

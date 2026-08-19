@@ -48,6 +48,26 @@ const esc = x => String(x == null ? "" : x).replace(/[&<>"]/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 const clean = x => String(x == null ? "" : x).replace(/\s+/g, " ").trim();
+
+/* Adresses lisibles (voir netlify.toml). Le slug est la SEULE chose que
+   transporte l'URL : « Tougen Anki » y devient « tougen-anki ». Meme regle
+   exactement que js/core.js (slugify) et scripts/build-seo.js — si l'une des
+   trois derive, les canonical ne pointent plus sur les pages du sitemap. */
+const slugify = x => String(x == null ? "" : x).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^A-Za-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-|-$/g, "").toLowerCase();
+const uSerie    = (site, id) => `${site}/manga/${slugify(id)}/`;
+const uChapitre = (site, id, n) => `${uSerie(site, id)}chapitre-${encodeURIComponent(n)}/`;
+const uGenre    = (site, g) => `${site}/genre/${slugify(g)}/`;
+/* L'URL ne porte que le slug : on retrouve la cle reelle de og-meta.json. */
+function resoudreId(meta, key) {
+  if (!key) return null;
+  if (meta[key]) return key;
+  const k = slugify(key);
+  return Object.keys(meta).find(x => slugify(x) === k) || null;
+}
+/* Chapitre affiche quand l'adresse n'en precise aucun (/manga/<slug>/lecture/) :
+   le PLUS ANCIEN, exactement ce qu'ouvre le lecteur dans ce cas. */
+const chapitreParDefaut = s => (s.chapters || [])[(s.chapters || []).length - 1];
 const cut = (x, n) => (x.length <= n ? x : x.slice(0, n - 1).replace(/\s+\S*$/, "") + "…");
 
 /* Remplace <title>, ajoute des balises avant </head>, remplit le conteneur.
@@ -106,13 +126,13 @@ function seriesPage(s, id, site) {
   const title = `${s.title} — Scan VF à lire en ligne | LanorTrad`;
   const genres = (s.genres || []).join(", ");
   const desc = cut(clean(`Lis ${s.title} en français, gratuitement. ${s.description || ""}`), 300);
-  const url = `${site}/manga.html?id=${encodeURIComponent(id)}`;
+  const url = uSerie(site, id);
   // Vignette de partage paysage si elle existe (tools/build-og.py) : les
   // reseaux sociaux affichent un 1200x630 et recadrent brutalement une
   // couverture portrait. Repli sur la couverture si la vignette manque.
   const image = site + "/" + encodeURI(s.og || s.cover || "");
   const cover = site + "/" + encodeURI(s.cover || "");
-  const readUrl = `${site}/reader.html?manga=${encodeURIComponent(id)}`;
+  const readUrl = url + "lecture/";
 
   const last = (s.chapters || [])[0];
   const body = `<article>`
@@ -124,7 +144,7 @@ function seriesPage(s, id, site) {
     + `<p><a href="${esc(readUrl)}">Lire ${esc(s.title)} en ligne</a></p>`
     + ((s.chapters || []).length
       ? `<h2>Chapitres (${s.chapters.length})</h2><ul>` + s.chapters.slice(0, 300).map(c =>
-          `<li><a href="${esc(`${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(c.n)}`)}">${esc(s.title)} chapitre ${esc(c.n)}</a></li>`
+          `<li><a href="${esc(uChapitre(site, id, c.n))}">${esc(s.title)} chapitre ${esc(c.n)}</a></li>`
         ).join("") + `</ul>`
       : "")
     + `</article>`;
@@ -207,10 +227,10 @@ function chapterPage(s, id, num, site) {
       : `Lis le chapitre ${c.n} de ${s.title} en français, gratuitement, sur LanorTrad. ${c.p ? c.p + " pages, " : ""}traduites et éditées par la team.`)
     + (c.nt && c.nt.i ? " " + c.nt.i : "")
   ), 300);
-  const url = `${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(c.n)}`;
+  const url = uChapitre(site, id, c.n);
   const image = site + "/" + encodeURI(s.og || s.cover || "");
-  const seriesUrl = `${site}/manga.html?id=${encodeURIComponent(id)}`;
-  const chapUrl = n => `${site}/reader.html?manga=${encodeURIComponent(id)}&chapter=${encodeURIComponent(n)}`;
+  const seriesUrl = uSerie(site, id);
+  const chapUrl = n => uChapitre(site, id, n);
 
   /* Notes de traduction. C'est le seul texte ORIGINAL d'une page de lecture :
      tout le reste est une image. Un moteur n'a donc rien a se mettre sous la
@@ -277,7 +297,10 @@ function chapterPage(s, id, num, site) {
    exactement ce que le visiteur voit une fois le JS execute. */
 function genrePage(meta, genre, site) {
   // On retrouve le genre quelle que soit la casse ou les accents de l'URL.
-  const norm = x => String(x).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  // La ponctuation saute aussi : l'adresse propre d'un genre est un slug
+  // (« science-fiction »), la requete historique un libelle (« Science-Fiction »).
+  const norm = x => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "");
   const cible = norm(genre);
   const hits = [];
   let libelle = null;
@@ -292,12 +315,12 @@ function genrePage(meta, genre, site) {
   const title = `Manga ${libelle} en français — Catalogue LanorTrad`;
   const desc = cut(clean(`${n} série${n > 1 ? "s" : ""} de manga ${libelle.toLowerCase()} traduite${n > 1 ? "s" : ""} en français par LanorTrad, à lire gratuitement en ligne : `
     + hits.map(h => h[1].title).join(", ") + "."), 300);
-  const url = `${site}/catalogue.html?genre=${encodeURIComponent(libelle)}`;
+  const url = uGenre(site, libelle);
 
   const body = `<main><article><h1>Catalogue ${esc(libelle)}</h1>`
     + `<p>${esc(desc)}</p><ul>`
     + hits.map(([id, s]) =>
-        `<li><a href="${esc(`${site}/manga.html?id=${encodeURIComponent(id)}`)}">${esc(s.title)}</a>`
+        `<li><a href="${esc(uSerie(site, id))}">${esc(s.title)}</a>`
         + (s.status ? ` — ${esc(s.status)}` : "")
         + (s.chapters && s.chapters.length ? ` (${s.chapters.length} chapitres)` : "")
         + `</li>`).join("")
@@ -313,7 +336,7 @@ function genrePage(meta, genre, site) {
           numberOfItems: n,
           itemListElement: hits.map(([id, s], i) => ({
             "@type": "ListItem", position: i + 1, name: s.title,
-            url: `${site}/manga.html?id=${encodeURIComponent(id)}`,
+            url: uSerie(site, id),
           })),
         },
       },
@@ -362,7 +385,43 @@ async function notFound(origin) {
 }
 
 /* Exportés pour scripts/test-og.mjs (`node scripts/test-og.mjs`). */
-export { seriesPage as _seriesPage, chapterPage as _chapterPage, genrePage as _genrePage, inject as _inject, BOTS as _BOTS };
+export { seriesPage as _seriesPage, chapterPage as _chapterPage, genrePage as _genrePage, inject as _inject, BOTS as _BOTS, lireAdresse as _lireAdresse, slugify as _slugify };
+
+/* --------------------------- lecture de l'adresse ---------------------------
+   La meme page arrive sous deux formes : l'ancienne (manga.html?id=...) et la
+   nouvelle (/manga/<slug>/chapitre-240/). Selon que la reecriture declaree dans
+   netlify.toml s'applique avant ou apres l'edge function, c'est l'une OU
+   l'autre qui se presente ici : les deux sont donc traitees. */
+function lireAdresse(url) {
+  let chemin = url.pathname;
+  try { chemin = decodeURIComponent(chemin); } catch (_) { /* adresse mal encodee : telle quelle */ }
+
+  const propre = /^\/manga\/([^/]+?)(?:\/([^/]+?))?\/?$/i.exec(chemin);
+  if (propre) {
+    const seg = propre[2] || "";
+    return {
+      type: seg ? "chapitre" : "serie",
+      id: propre[1],
+      // /manga/<slug>/lecture/ : aucun chapitre precis. Le lecteur ouvrira le
+      // plus ancien, c'est donc celui-la qu'on decrit.
+      chapitre: seg && !/^lecture$/i.test(seg) ? seg.replace(/^chapitre-/i, "") : null,
+    };
+  }
+  const genrePropre = /^\/genre\/([^/]+)\/?$/i.exec(chemin);
+  if (genrePropre) return { type: "genre", genre: genrePropre[1] };
+
+  if (/\/catalogue\.html$/i.test(chemin)) {
+    const g = url.searchParams.get("genre");
+    // Le catalogue sans filtre est une vraie page, deja servie telle quelle :
+    // on ne s'en mele que s'il y a un genre a mettre en avant.
+    return g ? { type: "genre", genre: g } : { type: "rien" };
+  }
+  if (/\/reader\.html$/i.test(chemin))
+    return { type: "chapitre", id: url.searchParams.get("manga"), chapitre: url.searchParams.get("chapter") };
+  if (/\/manga\.html$/i.test(chemin))
+    return { type: "serie", id: url.searchParams.get("id") };
+  return { type: "rien" };
+}
 
 /* --------------------------------- main --------------------------------- */
 export default async (request, context) => {
@@ -370,15 +429,13 @@ export default async (request, context) => {
   if (!BOTS.test(ua)) return;                        // visiteur normal → page inchangée
 
   const url = new URL(request.url);
-  const isCatalogue = /\/catalogue\.html$/i.test(url.pathname);
-  const isReader = /\/reader\.html$/i.test(url.pathname);
+  const cible = lireAdresse(url);
+  if (cible.type === "rien") return;
 
-  // Le catalogue sans filtre est une vraie page, deja servie telle quelle :
-  // on ne s'en mele que s'il y a un genre a mettre en avant.
-  const genre = isCatalogue ? url.searchParams.get("genre") : null;
-  if (isCatalogue && !genre) return;
-
-  const id = isCatalogue ? null : url.searchParams.get(isReader ? "manga" : "id");
+  const isCatalogue = cible.type === "genre";
+  const isReader = cible.type === "chapitre";
+  const genre = cible.genre || null;
+  const id = cible.id || null;
   // Sans identifiant, la page n'a aucun contenu à montrer à un robot.
   if (!isCatalogue && !id) return notFound(url.origin);
 
@@ -399,11 +456,13 @@ export default async (request, context) => {
       // on sert donc la page telle quelle plutot qu'un 404.
       if (!plan) return;
     } else {
-      const s = meta[id];
+      // L'adresse propre ne transporte que le slug : on remonte a la vraie cle.
+      const cle = resoudreId(meta, id);
+      const s = cle ? meta[cle] : null;
       if (!s) return notFound(url.origin);           // série inconnue → 404
       plan = isReader
-        ? chapterPage(s, id, url.searchParams.get("chapter") || (s.chapters || [])[0]?.n, site)
-        : seriesPage(s, id, site);
+        ? chapterPage(s, cle, cible.chapitre || chapitreParDefaut(s)?.n, site)
+        : seriesPage(s, cle, site);
       if (!plan) return notFound(url.origin);        // chapitre inconnu → 404
     }
 

@@ -5,7 +5,8 @@
   "use strict";
 
   function init() {
-    const id = new URLSearchParams(location.search).get("id");
+    // route() lit aussi bien /manga/tougen-anki/ que manga.html?id=Tougen%20Anki.
+    const id = window.LT.route().id;
     const s = window.LT.seriesById(id);
     const root = document.getElementById("series-root");
     if (!root) return;
@@ -60,7 +61,7 @@
                    séries dont le SYNOPSIS contient le mot, ce qui n'est pas ce
                    qu'on promet en cliquant sur « Horreur ». Et c'est l'URL que
                    le sitemap déclare. -->
-              <div class="tag-row">${s.genres.map(g => `<a class="tag" href="catalogue.html?genre=${encodeURIComponent(g)}">${g}</a>`).join("")}</div>
+              <div class="tag-row">${s.genres.map(g => `<a class="tag" href="${window.LT.urlGenre(g)}">${g}</a>`).join("")}</div>
               <p class="series-desc">${s.description}</p>
               <div class="series-actions" id="series-actions"></div>
               <div id="rate-block"></div>
@@ -109,10 +110,10 @@
     if (chapters.length) {
       const first = chapters[chapters.length - 1].num;
       actions.innerHTML =
-        `<a class="btn btn-primary" href="reader.html?manga=${enc(s.id)}&chapter=${first}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Commencer le chapitre ${first}</a>`;
+        `<a class="btn btn-primary" href="${window.LT.urlChapter(s, first)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Commencer le chapitre ${first}</a>`;
       if (progress) actions.innerHTML =
-        `<a class="btn btn-primary" href="reader.html?manga=${enc(s.id)}&chapter=${progress.chapter}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Reprendre le chapitre ${progress.chapter}</a>` +
-        `<a class="btn btn-ghost" href="reader.html?manga=${enc(s.id)}&chapter=${first}">Recommencer</a>`;
+        `<a class="btn btn-primary" href="${window.LT.urlChapter(s, progress.chapter)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Reprendre le chapitre ${progress.chapter}</a>` +
+        `<a class="btn btn-ghost" href="${window.LT.urlChapter(s, first)}">Recommencer</a>`;
     } else {
       actions.innerHTML = `<a class="btn btn-ghost" href="https://discord.gg/md37S7nhkZ" target="_blank" rel="noopener">📢 Suivre les sorties sur Discord</a>`;
     }
@@ -162,7 +163,7 @@
         if (c.locked) return `<div class="chap-item locked"><span class="n">Ch. ${c.num}</span><span class="pages">🔒</span></div>`;
         const isRead = progress && parseFloat(c.num) < parseFloat(progress.chapter);
         const isCur = progress && c.num === progress.chapter;
-        const href = `reader.html?manga=${enc(s.id)}&chapter=${c.num}`;
+        const href = window.LT.urlChapter(s, c.num);
         const item = `<a class="chap-item ${isRead ? "read" : ""}" href="${href}">
             <span class="n">Ch. ${c.num}</span>
             ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.pages} p.</span>`}
@@ -477,7 +478,7 @@
     const coverImg = new URL(s.cover, location.href).href;
     const genres = window.LT.publicGenres(s);
     // Canonique : URL propre sur le domaine de prod (identique au sitemap)
-    setLink("canonical", "https://lanortrad.com/manga.html?id=" + encodeURIComponent(s.id));
+    setLink("canonical", "https://lanortrad.com" + window.LT.urlSeries(s));
     setMeta("description", `Lis ${s.title} en français sur LanorTrad. ${s.description}`);
     // OpenGraph
     setProp("og:type", "book");

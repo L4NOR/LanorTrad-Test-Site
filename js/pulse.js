@@ -22,7 +22,7 @@
       case "comment": {
         const s = window.LT.seriesById && window.LT.seriesById(it.ref);
         const title = s ? s.title : it.ref;
-        const href = `reader.html?manga=${encodeURIComponent(it.ref)}&chapter=${encodeURIComponent(it.ref2)}`;
+        const href = window.LT.urlChapter(it.ref, it.ref2);
         return `<div class="pu-item" data-reveal><span class="pu-ico">💬</span><p>${u} a commenté
           <a href="${href}">${esc(title)} · ch. ${esc(it.ref2)}</a></p>${when}</div>`;
       }

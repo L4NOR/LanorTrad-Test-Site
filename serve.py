@@ -12,8 +12,21 @@ d'un chapitre (HTML + CSS + JS + dizaines d'images) sans abandonner de connexion
 Usage :  py serve.py        (à lancer depuis la racine du site)
          py serve.py 8000   (port au choix)
 """
+import os
+import re
 import sys
+import urllib.parse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+# Adresses lisibles : le meme rapprochement que les reecritures de netlify.toml,
+# pour que /manga/tougen-anki/chapitre-240/ se teste aussi en local.
+# Comme sur Netlify, un fichier reel l'emporte toujours sur ces regles : sans ca
+# les images (Manga/preview/...) tomberaient dedans.
+PROPRES = [
+    (re.compile(r"^/manga/[^/]+/?$"), "/manga.html"),
+    (re.compile(r"^/manga/[^/]+/[^/]+/?$"), "/reader.html"),
+    (re.compile(r"^/genre/[^/]+/?$"), "/catalogue.html"),
+]
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8779
 
@@ -28,6 +41,23 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
         super().end_headers()
+
+    def reecrire(self, chemin_complet):
+        chemin = urllib.parse.unquote(urllib.parse.urlsplit(chemin_complet).path)
+        if os.path.exists("." + chemin.rstrip("/")):
+            return chemin_complet          # fichier ou dossier reel : il l'emporte
+        for motif, cible in PROPRES:
+            if motif.match(chemin):
+                return cible
+        return chemin_complet
+
+    def do_GET(self):
+        self.path = self.reecrire(self.path)
+        super().do_GET()
+
+    def do_HEAD(self):
+        self.path = self.reecrire(self.path)
+        super().do_HEAD()
 
     # Évite de spammer la console avec les connexions abandonnées par le navigateur.
     def log_message(self, fmt, *args):

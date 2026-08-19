@@ -15,7 +15,9 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const PAGE = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  // Passe par le routeur du noyau : sous une adresse lisible (/manga/x/), le
+  // dernier segment du chemin n'est plus le nom du fichier.
+  const PAGE = (window.LT && window.LT.page) || (location.pathname.split("/").pop() || "index.html").toLowerCase();
   const IS_HOME = PAGE === "" || PAGE === "index.html";
   const IS_FORUM = PAGE === "forum.html";
 

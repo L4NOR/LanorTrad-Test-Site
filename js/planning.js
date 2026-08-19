@@ -31,7 +31,7 @@
           const peek = window.LTpreview ? window.LTpreview.btnFor(s, next) : "";
           const gauge = atl ? window.LTatelier.mini(atl) : "";
           return `<div class="pl-cell${peek ? " has-peek" : ""}${gauge ? " has-atl" : ""}" style="--accent:${s.accent}">
-            <a class="pl-item" href="${s.url}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
+            <a class="pl-item" href="${window.LT.urlSeries(s)}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
             <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
             <div><div class="t">${s.title}</div><div class="c">Ch. ${next} à venir</div></div></a>${gauge}${peek}</div>`;
         }).join("") : `<div class="empty-d">Pas de sortie prévue</div>`;
@@ -59,7 +59,7 @@
         .sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate)).slice(0, 8);
       tl.innerHTML = rows.map(s => {
         const last = C[s.id] ? C[s.id][0].num : s.chapters;
-        const href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${last}` : s.url;
+        const href = window.LT.playable(s) ? window.LT.urlChapter(s, last) : window.LT.urlSeries(s);
         const peek = window.LTpreview ? window.LTpreview.btnFor(s, last) : "";
         return `<div class="tl-row${peek ? " has-peek" : ""}" style="--accent:${s.accent}" data-reveal="left">
           <a class="tl-card" href="${href}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">

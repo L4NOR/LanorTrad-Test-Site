@@ -16,7 +16,7 @@
     const progBar = pct > 0
       ? `<div class="card-prog" title="Chapitre ${prog.chapter} · ${pct}% lu"><i style="width:${pct}%"></i></div>` : "";
     return `
-      <a class="m-card" href="${s.url}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}" data-id="${s.id}" style="--accent:${s.accent}">
+      <a class="m-card" href="${window.LT.urlSeries(s)}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}" data-id="${s.id}" style="--accent:${s.accent}">
         <div class="inner">
           <span class="shine"></span>
           <span class="card-glow"></span>

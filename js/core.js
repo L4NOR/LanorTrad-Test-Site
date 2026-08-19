@@ -19,7 +19,54 @@
 
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const page = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+
+  /* ---------- URLs propres ----------
+     Le site n'a toujours qu'un fichier manga.html pour toutes les series : ce
+     sont des REECRITURES (statut 200, voir netlify.toml) qui lui donnent des
+     adresses lisibles.
+       /manga/tougen-anki/                -> manga.html?id=Tougen Anki
+       /manga/tougen-anki/chapitre-240/   -> reader.html?manga=…&chapter=240
+       /genre/horreur/                    -> catalogue.html?genre=Horreur
+     Les anciennes adresses en ?id= continuent de fonctionner ; leur canonical
+     pointe vers la nouvelle forme.
+
+     Consequence a ne pas oublier : l'adresse AFFICHEE reste la jolie, donc
+     `location.search` est VIDE sur ces pages. Tout ce qui lisait ?id=, ?manga=
+     ou ?genre= doit passer par route(). */
+  function slugify(x) {
+    return String(x == null ? "" : x).normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^A-Za-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-|-$/g, "").toLowerCase();
+  }
+  const urlSeries  = s => "/manga/" + slugify(s && s.id || s) + "/";
+  // Sans numero : /manga/<slug>/lecture/ — le point d'entree « Lire maintenant ».
+  // Le lecteur y reprend ou commence, puis reecrit l'adresse avec le chapitre
+  // reellement ouvert (voir js/reader.js).
+  const urlChapter = (s, n) => n == null || n === "" ? urlSeries(s) + "lecture/"
+    : urlSeries(s) + "chapitre-" + encodeURIComponent(n) + "/";
+  const urlGenre   = g => "/genre/" + slugify(g) + "/";
+
+  let _route = null;
+  function route() {
+    if (_route) return _route;
+    let seg = location.pathname.split("/").filter(Boolean);
+    try { seg = seg.map(decodeURIComponent); } catch {}
+    const q = new URLSearchParams(location.search);
+    const r = { page: "index.html", id: null, chapter: null, genre: null, pretty: false };
+    if (seg[0] === "manga" && seg[1]) {
+      r.pretty = true; r.id = seg[1];
+      r.page = seg[2] ? "reader.html" : "manga.html";
+      if (seg[2] && seg[2].toLowerCase() !== "lecture") r.chapter = seg[2].replace(/^chapitre-/i, "");
+    } else if (seg[0] === "genre" && seg[1]) {
+      r.pretty = true; r.page = "catalogue.html"; r.genre = seg[1];
+    } else {
+      r.page = (seg[seg.length - 1] || "index.html").toLowerCase();
+      r.id = q.get("id") || q.get("manga");
+      r.chapter = q.get("chapter");
+      r.genre = q.get("genre");
+    }
+    return (_route = r);
+  }
+  const page = route().page;
 
   /* ---------- Thème ---------- */
   const THEMES = ["dark", "oled", "light"];
@@ -66,7 +113,11 @@
     // Lien d'évitement (accessibilité clavier) : 1er élément focusable
     const mainEl = document.querySelector("main") || document.getElementById("reader-root");
     if (mainEl) { if (!mainEl.id) mainEl.id = "main-content"; mainEl.setAttribute("tabindex", "-1"); }
-    document.body.prepend(el(`<a href="#${mainEl ? mainEl.id : "main-content"}" class="skip-link">Aller au contenu</a>`));
+    // href complet et pas seulement « #id » : les pages servies sous une URL
+    // propre portent un <base href="/">, qui transformerait « #main » en
+    // « /#main » — le lien d'evitement quitterait la page.
+    const ancre = location.href.split("#")[0] + "#" + (mainEl ? mainEl.id : "main-content");
+    document.body.prepend(el(`<a href="${ancre}" class="skip-link">Aller au contenu</a>`));
 
     // Veil + toast host (toujours présents)
     document.body.append(el(`<div class="page-veil" id="veil"></div>`));
@@ -414,12 +465,12 @@
   const escAttr = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   function serieItem(s) {
-    return { kind: "serie", title: s.title, url: s.url, cover: s.cover,
+    return { kind: "serie", title: s.title, url: urlSeries(s), cover: s.cover,
              sub: `${s.status} · ${(s.genres || []).slice(0, 2).join(", ")}` };
   }
   function chapterItem(s, ch, term) {
     return { kind: "chapitre", title: `${s.title} — chapitre ${ch.num}`, term,
-             url: `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${encodeURIComponent(ch.num)}`,
+             url: urlChapter(s, ch.num),
              cover: s.cover, sub: `${ch.pages} pages · lire tout de suite` };
   }
   function palRow(it) {
@@ -465,7 +516,16 @@
     const full = Math.round(r);
     return `<span class="stars" title="${r}/5">${"★".repeat(full)}${"☆".repeat(5 - full)}</span>`;
   }
-  function seriesById(id) { return (window.SERIES || []).find(s => s.id === id); }
+  /* Accepte l'identifiant reel (« Tougen Anki ») comme le slug d'URL
+     (« tougen-anki ») : les adresses propres ne transportent que le slug. */
+  function seriesById(id) {
+    if (!id) return undefined;
+    const L = window.SERIES || [];
+    const direct = L.find(s => s.id === id);
+    if (direct) return direct;
+    const k = slugify(id);
+    return k ? L.find(s => slugify(s.id) === k) : undefined;
+  }
 
   /* ---------- Client Supabase partagé (ou null si non chargé / non configuré) ----
      Recréé tant qu'il n'existe pas : sur certaines pages core.js s'exécute avant
@@ -624,7 +684,7 @@
   const publicGenres = s => (s.genres || []).filter(isGenre);
 
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, playable, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
@@ -663,9 +723,13 @@
     if (document.documentElement.getAttribute("data-perf") === "lite") return;
     if (navigator.connection && navigator.connection.saveData) return;
 
+    // Fiche serie = /manga/<slug>/ ; page de chapitre = /manga/<slug>/chapitre-N/.
+    // La seconde ne doit surtout pas etre PRE-RENDUE (voir plus haut).
+    const fiche = { or: [{ href_matches: "/manga.html?*" }, { href_matches: "/manga/*" }] };
+    const chapitre = { or: [{ href_matches: "/reader.html?*" }, { href_matches: "/manga/*/chapitre-*" }] };
     const rules = {
       prerender: [{
-        where: { href_matches: "/manga.html?*" },
+        where: { and: [fiche, { not: chapitre }] },
         eagerness: "moderate"
       }],
       prefetch: [{
@@ -673,7 +737,7 @@
           and: [
             { href_matches: "/*" },
             // Déjà couverte par la règle de prerender ci-dessus.
-            { not: { href_matches: "/manga.html?*" } },
+            { not: { and: [fiche, { not: chapitre }] } },
             // Page personnelle : rien à y gagner, et elle lit le stockage local.
             { not: { href_matches: "/bibliotheque.html*" } },
             { not: { selector_matches: "[rel~=nofollow]" } },

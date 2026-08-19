@@ -40,9 +40,14 @@
      INITIALISATION
      ===================================================================== */
   async function init() {
-    const p = new URLSearchParams(location.search);
-    A.manga = p.get("manga");
+    // route() lit aussi bien /manga/tougen-anki/chapitre-240/ que
+    // reader.html?manga=…&chapter=240. Attention : l'URL propre ne transporte
+    // que le SLUG, alors que tout le reste du lecteur (CHAPTERS, progression,
+    // compteurs de vues) est indexe par l'identifiant reel de la serie.
+    const p = window.LT.route();
+    A.manga = p.id;
     A.S = window.LT.seriesById(A.manga);
+    if (A.S) A.manga = A.S.id;
     A.chapters = (window.CHAPTERS || {})[A.manga] || [];
 
     document.body.classList.add("reader-body");
@@ -62,7 +67,7 @@
     });
 
     // Chapitre demandé : URL > reprise > plus ancien dispo (chapitre 1)
-    let wantNum = p.get("chapter");
+    let wantNum = p.chapter;
     const saved = loadProgress();
     if (!wantNum && saved && A.chapters.some(c => c.num === saved.chapter)) { wantNum = saved.chapter; A.resumePage = saved.page || 0; }
     if (!wantNum && A.chapters.length) wantNum = A.chapters[A.chapters.length - 1].num;
@@ -253,7 +258,7 @@
     A.idx = 0; A.total = A.chap.pages; A.prefetched = null; A.readAwarded = false;
     $("rd-chap-label").textContent = `Chapitre ${A.chap.num} · ${A.chap.pages} pages`;
     $("rd-chap-select").value = A.chap.num;
-    history.replaceState(null, "", `reader.html?manga=${encodeURIComponent(A.manga)}&chapter=${A.chap.num}`);
+    history.replaceState(null, "", window.LT.urlChapter(A.S, A.chap.num));
     setCanonical();
 
     const track = $("rd-track");
@@ -1045,7 +1050,7 @@
       ? `Lis ${A.S.title} en français, gratuitement, sur LanorTrad. ${pages}traduit et édité par la team.`
       : `Lis le chapitre ${A.chap.num} de ${A.S.title} en français, gratuitement, sur LanorTrad. ${pages}traduites et éditées par la team.`);
 
-    const url = "https://lanortrad.com/reader.html?manga=" + encodeURIComponent(A.manga) + "&chapter=" + encodeURIComponent(A.chap.num);
+    const url = "https://lanortrad.com" + window.LT.urlChapter(A.S, A.chap.num);
     let l = document.querySelector('link[rel="canonical"]');
     if (!l) { l = document.createElement("link"); l.rel = "canonical"; document.head.appendChild(l); }
     l.href = url;

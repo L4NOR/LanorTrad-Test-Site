@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v52";
+const CACHE = "lanortrad-v53";
 /* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */
@@ -45,6 +45,17 @@ self.addEventListener("activate", e => {
   self.clients.claim();
 });
 
+/* Adresses lisibles : hors ligne, il n'y a plus de reecriture Netlify pour
+   les traduire (voir netlify.toml). Le service worker fait donc lui-meme le
+   rapprochement, sans quoi /manga/tougen-anki/ tomberait sur la page « hors
+   ligne » alors que manga.html est bel et bien en cache. */
+function fichierPour(pathname) {
+  const seg = pathname.split("/").filter(Boolean);
+  if (seg[0] === "manga" && seg[1]) return seg[2] ? "reader.html" : "manga.html";
+  if (seg[0] === "genre" && seg[1]) return "catalogue.html";
+  return null;
+}
+
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
@@ -88,6 +99,9 @@ self.addEventListener("fetch", e => {
       // rendu par la version cachée de manga.html (d'où ignoreSearch).
       const page = await caches.match(req, { ignoreSearch: true });
       if (page) return page;
+      // Adresse lisible : on sert le fichier qui la rend.
+      const propre = fichierPour(url.pathname);
+      if (propre) { const hit2 = await caches.match(propre); if (hit2) return hit2; }
       // Vraiment rien en cache : page « hors ligne » (explications + mini-jeu)
       // plutôt qu'une erreur du navigateur.
       return (await caches.match(OFFLINE_PAGE)) || caches.match("index.html");

@@ -73,7 +73,9 @@
      l'accueil n'ont pas du tout le même profil. Jamais l'URL elle-même, qui
      dirait quelle série est lue. ---- */
   function pageType() {
-    var p = location.pathname.split("/").pop() || "index.html";
+    // Sous /manga/tougen-anki/chapitre-240/, le nom du fichier n'est plus dans
+    // le chemin : le routeur du noyau sait le retrouver.
+    var p = (window.LT && window.LT.page) || location.pathname.split("/").pop() || "index.html";
     return p.replace(/\.html$/, "") || "index";
   }
 

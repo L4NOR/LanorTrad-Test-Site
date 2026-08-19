@@ -9,7 +9,8 @@
    Lancer    : node scripts/test-og.mjs
    ========================================================================= */
 import { readFileSync } from "node:fs";
-import { _seriesPage, _chapterPage, _genrePage, _inject as inject, _BOTS as BOTS } from "../netlify/edge-functions/og.js";
+import { _seriesPage, _chapterPage, _genrePage, _inject as inject, _BOTS as BOTS,
+         _lireAdresse as lireAdresse, _slugify as slugify } from "../netlify/edge-functions/og.js";
 
 const meta = JSON.parse(readFileSync(new URL("../og-meta.json", import.meta.url), "utf8"));
 const SITE = "https://lanortrad.com";
@@ -31,7 +32,7 @@ console.log("titre :", p.title);
 check("titre contient le numero de chapitre", /Chapitre 240/.test(p.title));
 // &amp; est l'echappement HTML correct de & dans un attribut : le navigateur
 // et les crawlers le relisent comme &.
-check("canonical par chapitre", html.includes('rel="canonical" href="https://lanortrad.com/reader.html?manga=Tougen%20Anki&amp;chapter=240"'));
+check("canonical par chapitre", html.includes('rel="canonical" href="https://lanortrad.com/manga/tougen-anki/chapitre-240/"'));
 // og:image doit etre la carte de partage 1200x630, pas la couverture portrait
 // (que les reseaux sociaux recadreraient au centre).
 check("og:image absolue", /og:image" content="https:\/\/lanortrad\.com\/images\//.test(html));
@@ -43,7 +44,7 @@ check("lien prev", html.includes('rel="prev"'));
 check("lien next", html.includes('rel="next"'));
 check("prerendu injecte dans reader-root", /<div id="reader-root"><article><h1>/.test(html));
 check("h1 lisible", /<h1>Tougen Anki — Chapitre 240<\/h1>/.test(html));
-check("lien vers la fiche serie", html.includes("manga.html?id=Tougen%20Anki"));
+check("lien vers la fiche serie", html.includes("/manga/tougen-anki/"));
 const ld = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
 check("JSON-LD present", !!ld);
 if (ld) {
@@ -89,7 +90,7 @@ const hs = inject(shellSeries, ps);
 console.log("\n== Fiche serie ==");
 check("titre de fiche", /Tougen Anki — Scan VF/.test(ps.title));
 check("liste des chapitres pre-rendue", (hs.match(/<li><a href/g) || []).length > 100);
-check("canonical de fiche", hs.includes('rel="canonical" href="https://lanortrad.com/manga.html?id=Tougen%20Anki"'));
+check("canonical de fiche", hs.includes('rel="canonical" href="https://lanortrad.com/manga/tougen-anki/"'));
 check("prerendu injecte dans series-root", /<main id="series-root"><article>/.test(hs));
 const lds = hs.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
 check("JSON-LD de fiche present", !!lds);
@@ -129,7 +130,7 @@ console.log("titre :", pg.title);
 check("titre oriente requete", /Manga Horreur en français/.test(pg.title));
 check("h1 present", /<h1>Catalogue Horreur<\/h1>/.test(hg));
 check("les series du genre sont listees", (hg.match(/<li><a href/g) || []).length >= 2);
-check("canonical du genre", hg.includes('rel="canonical" href="https://lanortrad.com/catalogue.html?genre=Horreur"'));
+check("canonical du genre", hg.includes('rel="canonical" href="https://lanortrad.com/genre/horreur/"'));
 check("plus de titre generique", !hg.includes("<title>Catalogue — LanorTrad</title>"));
 const ldg = JSON.parse(hg.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1].replace(/\\u003c/g, "<"))["@graph"];
 check("JSON-LD CollectionPage", ldg[0]["@type"] === "CollectionPage");
@@ -139,6 +140,42 @@ check("fil d'Ariane a 3 niveaux", ldg[1].itemListElement.length === 3);
 check("accents et casse tolerés", !!_genrePage(meta, "mystere", SITE));
 check("le libelle affiché reste le vrai", /Mystère/.test(_genrePage(meta, "mystere", SITE).title));
 check("genre inconnu -> null (page d'origine servie)", _genrePage(meta, "Cuisine", SITE) === null);
+
+/* ---- adresses lisibles ----
+   Tout le SEO repose sur une seule regle de slug, ecrite a TROIS endroits :
+   js/core.js (le site), scripts/build-seo.js (le sitemap) et og.js (ce qui est
+   servi aux robots). Si l'une derive, le sitemap declare des URLs dont le
+   canonical designe autre chose — le pire des deux mondes. */
+console.log("\n== Adresses lisibles ==");
+check("slug d'une serie a espaces", slugify("Tougen Anki") === "tougen-anki");
+check("slug sans accent ni ponctuation", slugify("Mystère & Cie") === "mystere-cie");
+const slugs = Object.keys(meta).map(slugify);
+check("un slug unique par serie", new Set(slugs).size === slugs.length, slugs.join(", "));
+
+const lu = u => lireAdresse(new URL(u, SITE));
+check("/manga/tougen-anki/ -> fiche",
+  lu("/manga/tougen-anki/").type === "serie" && lu("/manga/tougen-anki/").id === "tougen-anki");
+check("sans barre finale aussi", lu("/manga/tougen-anki").type === "serie");
+check("/manga/tougen-anki/chapitre-240/ -> chapitre",
+  lu("/manga/tougen-anki/chapitre-240/").type === "chapitre" && lu("/manga/tougen-anki/chapitre-240/").chapitre === "240");
+check("chapitre decimal dans le chemin", lu("/manga/tougen-anki/chapitre-246.5/").chapitre === "246.5");
+check("/lecture/ = chapitre sans numero",
+  lu("/manga/tougen-anki/lecture/").type === "chapitre" && lu("/manga/tougen-anki/lecture/").chapitre === null);
+check("/genre/horreur/ -> genre", lu("/genre/horreur/").genre === "horreur");
+check("ancienne adresse de chapitre toujours comprise",
+  lu("/reader.html?manga=Tougen%20Anki&chapter=240").chapitre === "240");
+check("ancienne adresse de fiche toujours comprise",
+  lu("/manga.html?id=Tougen%20Anki").id === "Tougen Anki");
+check("catalogue sans genre : page inchangee", lu("/catalogue.html").type === "rien");
+check("page quelconque : page inchangee", lu("/planning.html").type === "rien");
+// Les images vivent sous /Manga/<Serie>/... : elles ne doivent JAMAIS etre
+// prises pour une adresse de serie.
+check("une image n'est pas une fiche", lu("/Manga/Tougen%20Anki/240/001.webp").type === "rien");
+// Le slug de l'URL doit ramener a la vraie cle de og-meta.json.
+const parSlug = inject(shellSeries, _seriesPage(meta["Tougen Anki"], "Tougen Anki", SITE));
+check("les liens internes du prerendu sont propres",
+  parSlug.includes('href="https://lanortrad.com/manga/tougen-anki/chapitre-'));
+check("le lien « lire » pointe /lecture/", parSlug.includes("/manga/tougen-anki/lecture/"));
 
 /* ---- pas de balises en double ----
    Les fichiers HTML portent des valeurs par defaut (og:image generique,

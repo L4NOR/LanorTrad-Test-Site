@@ -116,7 +116,7 @@
       </li>`;
     }).join("");
 
-    const head = o.series ? `<a class="atl-serie" href="${esc(e.s.url)}">
+    const head = o.series ? `<a class="atl-serie" href="${esc(window.LT.urlSeries(e.s))}">
         <img src="${window.LT.cover(e.s.cover, 120)}" alt="${esc(e.s.title)}" data-fade loading="lazy" width="46" height="64">
         <span class="atl-serie-t">${esc(e.s.title)}</span>
       </a>` : "";
@@ -127,7 +127,7 @@
     const first = e.chapter.split(/[-–,]/)[0].trim();
     const online = e.done && ((window.CHAPTERS || {})[e.s.id] || []).some(c => String(c.num) === first);
     const cta = online
-      ? `<a class="atl-go" href="reader.html?manga=${encodeURIComponent(e.s.id)}&chapter=${encodeURIComponent(first)}">Lire maintenant →</a>`
+      ? `<a class="atl-go" href="${window.LT.urlChapter(e.s, first)}">Lire maintenant →</a>`
       : "";
 
     return `<div class="atl${e.done ? " is-done" : ""}" style="--accent:${esc(e.s.accent)}">

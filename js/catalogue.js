@@ -27,7 +27,7 @@
     if (q) fSearch.value = q;
     // On accepte l'écriture sans accent ni casse (« mystere » -> « Mystère ») :
     // ces URLs finissent dans des liens et des partages, elles doivent pardonner.
-    const gWanted = params.get("genre");
+    const gWanted = window.LT.route().genre;
     if (gWanted) {
       const found = genres.find(g => window.LT.norm(g) === window.LT.norm(gWanted));
       if (found) fGenre.value = found;
@@ -76,9 +76,13 @@
        correctement. replaceState : filtrer ne doit pas remplir l'historique,
        sinon le bouton Retour oblige à défaire les filtres un par un. */
     function syncUrl(genre, n) {
+      // Le genre vit desormais dans le CHEMIN (/genre/horreur/), pas dans la
+      // requete : c'est l'adresse que declarent le sitemap et le canonical.
+      // Les autres filtres (dont ?q=) restent en requete, ils ne sont pas
+      // indexables et n'ont pas a l'etre.
       const url = new URL(location.href);
-      if (genre) url.searchParams.set("genre", genre);
-      else url.searchParams.delete("genre");
+      url.searchParams.delete("genre");
+      url.pathname = genre ? window.LT.urlGenre(genre) : "/catalogue.html";
       if (url.href !== location.href) history.replaceState(null, "", url);
 
       const base = "https://lanortrad.com/catalogue.html";
@@ -86,7 +90,7 @@
         document.title = `Manga ${genre} en français — Catalogue LanorTrad`;
         setMeta("description",
           `${n} série${n > 1 ? "s" : ""} de manga ${genre.toLowerCase()} traduite${n > 1 ? "s" : ""} en français par LanorTrad, à lire gratuitement en ligne.`);
-        setCanonical(`${base}?genre=${encodeURIComponent(genre)}`);
+        setCanonical("https://lanortrad.com" + window.LT.urlGenre(genre));
         setH1(`Catalogue ${genre}`);
       } else {
         document.title = "Catalogue — LanorTrad";
@@ -120,7 +124,7 @@
       const playable = S.filter(s => window.LT.playable(s));
       const pool = playable.length ? playable : S;
       const s = pool[Math.floor(Math.random() * pool.length)];
-      if (s) location.href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}` : s.url;
+      if (s) location.href = window.LT.playable(s) ? window.LT.urlChapter(s) : window.LT.urlSeries(s);
     });
   }
 

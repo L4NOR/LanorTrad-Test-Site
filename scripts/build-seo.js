@@ -75,7 +75,7 @@ function buildFeed(series) {
     .sort((a, b) => String(b.lastUpdate).localeCompare(String(a.lastUpdate)))
     .slice(0, 30)
     .map(s => {
-      const link = abs("manga.html?id=" + enc(s.id));
+      const link = uSerie(s.id);
       const title = `${s.title} — chapitre ${s.chapters}`;
       return `    <item>
       <title>${esc(title)}</title>
@@ -117,6 +117,18 @@ ${items}
    l'éditeur, on ne les pousse pas à l'indexation. */
 const slugFile = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "")
   .replace(/[^A-Za-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-|-$/g, "").toLowerCase() || "serie";
+
+/* ----------------------------- adresses lisibles -----------------------------
+   Ce que le sitemap, le flux et IndexNow declarent, ce sont les adresses
+   PROPRES (/manga/tougen-anki/chapitre-240/) : ce sont elles que les pages
+   posent en canonical, et elles seules doivent circuler.
+   Les anciennes (?id=) restent servies, mais ne sont plus declarees nulle part.
+   La regle de slug est partagee avec js/core.js (slugify) et
+   netlify/edge-functions/og.js — les trois doivent rester d'accord, sinon le
+   sitemap pointe des URLs dont le canonical designe autre chose. */
+const uSerie    = id => SITE + "/manga/" + slugFile(id) + "/";
+const uChapitre = (id, n) => uSerie(id) + "chapitre-" + enc(n) + "/";
+const uGenre    = g => SITE + "/genre/" + slugFile(g) + "/";
 
 function buildSitemap(series, chapters) {
   const today = new Date().toISOString().slice(0, 10);
@@ -173,7 +185,7 @@ ${rows.join("\n")}
     if (!INTERNES.has(g)) (parGenre[g] = parGenre[g] || []).push(s);
   }));
   const genresPublies = Object.keys(parGenre).filter(g => parGenre[g].length >= 2).sort();
-  genresPublies.forEach(g => fixed.push(url(abs("catalogue.html?genre=" + enc(g)), "weekly", "0.7")));
+  genresPublies.forEach(g => fixed.push(url(uGenre(g), "weekly", "0.7")));
 
   write("sitemap-pages.xml", fixed, today);
   const ecartes = Object.keys(parGenre).length - genresPublies.length;
@@ -186,7 +198,7 @@ ${rows.join("\n")}
     // Pas de repli sur `today` : une série sans lastUpdate se redaterait à
     // chaque déploiement, ce qui est exactement le bruit qu'on veut supprimer.
     const rows = [
-      url(abs("manga.html?id=" + enc(s.id)), "weekly", s.featured ? "0.9" : "0.6",
+      url(uSerie(s.id), "weekly", s.featured ? "0.9" : "0.6",
         s.lastUpdate || "", s.cover ? abs(encodeURI(s.cover)) : ""),
     ];
     // lastmod par chapitre. `c.d` est la date de sortie reelle, figee par
@@ -195,7 +207,7 @@ ${rows.join("\n")}
     // date. Pour les autres, on prefere PAS de lastmod a un faux : dater tous
     // les chapitres du jour du deploiement, c'est se faire ignorer par Google.
     (chapters[s.id] || []).forEach((c, i) =>
-      rows.push(url(abs(`reader.html?manga=${enc(s.id)}&chapter=${enc(c.num)}`),
+      rows.push(url(uChapitre(s.id, c.num),
         "monthly", "0.5", c.d || (i === 0 ? s.lastUpdate : ""))));
     total += rows.length;
     write(`sitemap-${slugFile(s.id)}.xml`, rows, s.lastUpdate || "");
@@ -364,8 +376,8 @@ async function pingIndexNow(series, chapters) {
   const urls = new Set();
   series.forEach(s => {
     const fresh = (chapters[s.id] || []).filter(c => c.d === today);
-    fresh.forEach(c => urls.add(abs(`reader.html?manga=${enc(s.id)}&chapter=${enc(c.num)}`)));
-    if (fresh.length) urls.add(abs("manga.html?id=" + enc(s.id)));
+    fresh.forEach(c => urls.add(uChapitre(s.id, c.num)));
+    if (fresh.length) urls.add(uSerie(s.id));
   });
   if (!urls.size) { console.log("[seo] IndexNow — aucune nouveauté aujourd'hui"); return; }
   // Les pages qui listent les sorties ont changé elles aussi.

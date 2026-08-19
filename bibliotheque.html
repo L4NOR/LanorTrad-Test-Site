@@ -130,7 +130,7 @@
         grid.innerHTML = `<div class="lib-empty" style="grid-column:1/-1"><div class="big">📚</div><p>Aucune lecture en cours. Ouvre un premier chapitre, on garde ta page.</p><a class="btn btn-primary" href="catalogue.html" style="margin-top:16px">Découvrir une série</a></div>`;
       } else {
         grid.innerHTML = rows.map(r => `
-          <a class="resume" href="reader.html?manga=${encodeURIComponent(r.s.id)}&chapter=${r.p.chapter}">
+          <a class="resume" href="${window.LT.urlChapter(r.s, r.p.chapter)}">
             <img src="${r.s.cover}" alt="${r.s.title}" data-fade>
             <div class="info">
               <h4>${r.s.title}</h4>

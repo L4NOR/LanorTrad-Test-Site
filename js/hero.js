@@ -63,10 +63,10 @@
       if (t) { t.classList.remove("swap"); void t.offsetWidth; t.textContent = s.title; t.classList.add("swap"); }
       if (d) d.textContent = s.description;
       if (c) c.innerHTML = s.genres.map(g => `<span class="hero-chip">${g}</span>`).join("");
-      if (more) more.href = s.url;
+      if (more) more.href = window.LT.urlSeries(s);
       if (read) {
-        if (window.LT.playable(s)) { read.href = `reader.html?manga=${encodeURIComponent(s.id)}`; read.querySelector("span").textContent = "Lire maintenant"; }
-        else { read.href = s.url; read.querySelector("span").textContent = "Voir l'œuvre"; }
+        if (window.LT.playable(s)) { read.href = window.LT.urlChapter(s); read.querySelector("span").textContent = "Lire maintenant"; }
+        else { read.href = window.LT.urlSeries(s); read.querySelector("span").textContent = "Voir l'œuvre"; }
       }
     }
 

@@ -21,6 +21,57 @@
 [build.environment]
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_SUBJECT"
 
+# =========================================================================
+# Adresses lisibles (reecritures, statut 200 : l'URL affichee ne change pas)
+#
+#   /manga/tougen-anki/                -> manga.html?id=tougen-anki
+#   /manga/tougen-anki/lecture/        -> reader.html?manga=tougen-anki
+#   /manga/tougen-anki/chapitre-240/   -> reader.html?manga=…&chapter=chapitre-240
+#   /genre/horreur/                    -> catalogue.html?genre=horreur
+#
+# Le site reste un fichier manga.html unique pour toutes les series : ce sont
+# ces regles, et elles seules, qui donnent a chaque serie sa propre adresse.
+# Ce que recoit la page, c'est le SLUG (« tougen-anki »), pas l'identifiant
+# reel (« Tougen Anki ») : c'est js/core.js (route + seriesById) qui fait le
+# rapprochement, cote navigateur comme cote edge function.
+#
+# Les anciennes adresses en ?id= continuent de fonctionner telles quelles —
+# rien n'est supprime, un vieux lien ou un vieux partage reste valable. Elles
+# declarent simplement un canonical vers la nouvelle forme.
+#
+# Un fichier reel l'emporte toujours sur ces regles (force = false par defaut),
+# donc /Manga/<serie>/… (les images) n'est jamais capte.
+# =========================================================================
+[[redirects]]
+  from = "/manga/:slug"
+  to = "/manga.html?id=:slug"
+  status = 200
+
+[[redirects]]
+  from = "/manga/:slug/"
+  to = "/manga.html?id=:slug"
+  status = 200
+
+[[redirects]]
+  from = "/manga/:slug/:chapitre"
+  to = "/reader.html?manga=:slug&chapter=:chapitre"
+  status = 200
+
+[[redirects]]
+  from = "/manga/:slug/:chapitre/"
+  to = "/reader.html?manga=:slug&chapter=:chapitre"
+  status = 200
+
+[[redirects]]
+  from = "/genre/:genre"
+  to = "/catalogue.html?genre=:genre"
+  status = 200
+
+[[redirects]]
+  from = "/genre/:genre/"
+  to = "/catalogue.html?genre=:genre"
+  status = 200
+
 # Edge function : pour les robots seulement, injecte les vraies balises
 # (titre, description, canonical, OpenGraph, JSON-LD) et un pré-rendu du
 # contenu sur la fiche série ET sur chaque page de chapitre.
@@ -37,6 +88,17 @@
 # inchangée.
 [[edge_functions]]
   path = "/catalogue.html"
+  function = "og"
+
+# Memes pages, sous leur adresse lisible. Declarer les deux formes est
+# volontaire : selon que la reecriture s'applique avant ou apres l'edge
+# function, la requete se presente sous l'une ou sous l'autre.
+[[edge_functions]]
+  path = "/manga/*"
+  function = "og"
+
+[[edge_functions]]
+  path = "/genre/*"
   function = "og"
 
 # Sécurité de base

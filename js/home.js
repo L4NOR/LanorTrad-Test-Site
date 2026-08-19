@@ -31,14 +31,14 @@
         const slImg = g("sl-img");
         window.LT.applyCover(slImg, s.cover, "(max-width:900px) 55vw, 330px");
         slImg.alt = s.title;
-        g("sl-cover").href = s.url; g("sl-more").href = s.url;
+        g("sl-cover").href = window.LT.urlSeries(s); g("sl-more").href = window.LT.urlSeries(s);
         g("sl-genres").innerHTML = s.genres.slice(0, 3).map(x => `<span>${x}</span>`).join("");
         g("sl-title").textContent = s.title;
         g("sl-rating").innerHTML = `${window.LT.stars(s.rating)} <b>${s.rating}</b> <span>·</span> ${s.chapters} chapitres <span>·</span> ${s.status}`;
         g("sl-syn").textContent = s.description;
         const read = g("sl-read");
-        if (window.LT.playable(s)) { read.href = `reader.html?manga=${encodeURIComponent(s.id)}`; read.querySelector("span").textContent = "Lire maintenant"; }
-        else { read.href = s.url; read.querySelector("span").textContent = "Voir l'œuvre"; }
+        if (window.LT.playable(s)) { read.href = window.LT.urlChapter(s); read.querySelector("span").textContent = "Lire maintenant"; }
+        else { read.href = window.LT.urlSeries(s); read.querySelector("span").textContent = "Voir l'œuvre"; }
         thumbs.forEach((b, k) => b.classList.toggle("on", k === cur));
         elInfo.classList.remove("swap"); void elInfo.offsetWidth; elInfo.classList.add("swap");
         window.LTpalette.get(window.LT.cover(s.cover, 120)).then(hex => { if (hex && cur === i) spot.style.setProperty("--accent", hex); });
@@ -64,7 +64,7 @@
         rel.innerHTML = list.map(({ r, s, d }) => {
           const lbl = dateLabel(d, today);
           const stCls = r.status === "Confirmé" ? "ok" : r.status === "Reporté" ? "late" : "est";
-          const href = window.LT.playable(s) ? `manga.html?id=${encodeURIComponent(s.id)}` : s.url;
+          const href = window.LT.urlSeries(s);
           // Aperçu : première page du chapitre annoncé s'il est déjà sorti,
           // sinon celle du dernier paru.
           const peek = window.LTpreview ? window.LTpreview.btnFor(s, r.chapters) : "";
@@ -97,7 +97,7 @@
           const chs = C[s.id] || [];
           const ch = chs.find(c => c.num === p.chapter);
           const pct = ch && ch.pages ? Math.min(100, Math.round(((p.page || 0) / ch.pages) * 100)) : 0;
-          const href = window.LT.playable(s) ? `reader.html?manga=${encodeURIComponent(s.id)}&chapter=${p.chapter}` : s.url;
+          const href = window.LT.playable(s) ? window.LT.urlChapter(s, p.chapter) : window.LT.urlSeries(s);
           return `<a class="rc" href="${href}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}" style="--accent:${s.accent}">
             <img src="${window.LT.cover(s.cover, 240)}" alt="${s.title}" data-fade loading="lazy">
             <div class="info"><h4>${s.title}</h4><span class="ch">Chapitre ${p.chapter}</span><div class="pbar"><i style="width:${pct}%"></i></div></div>
@@ -150,7 +150,7 @@
       });
       rows.sort((a, b) => b.sort - a.sort);
       latest.innerHTML = rows.slice(0, 6).map(r => {
-        const href = window.LT.playable(r.s) ? `reader.html?manga=${encodeURIComponent(r.s.id)}&chapter=${r.num}` : r.s.url;
+        const href = window.LT.playable(r.s) ? window.LT.urlChapter(r.s, r.num) : window.LT.urlSeries(r.s);
         return `
         <a class="latest" href="${href}">
           <img src="${window.LT.cover(r.s.cover, 120)}" alt="${r.s.title}" loading="lazy">
@@ -178,7 +178,7 @@
       // découvrir les vues par genre depuis l'accueil, et ça rend enfin le
       // bandeau cliquable — il ne servait à rien jusqu'ici.
       const pills = genres.map(g =>
-        `<a class="pill" href="catalogue.html?genre=${encodeURIComponent(g)}">${g}</a>`).join("");
+        `<a class="pill" href="${window.LT.urlGenre(g)}">${g}</a>`).join("");
       mq.innerHTML = pills + pills; // doublé pour boucle continue
     }
 

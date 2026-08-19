@@ -2,6 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <!-- Cette page est aussi servie sous une adresse propre (/manga/tougen-anki/,
+       /manga/tougen-anki/chapitre-240/, /genre/horreur/ — voir netlify.toml).
+       Comme il s'agit d'une reecriture, le navigateur croit etre dans un
+       sous-dossier : sans cette balise, « css/base.css » deviendrait
+       « /manga/tougen-anki/css/base.css ». <base> ramene toutes les adresses
+       relatives — feuilles de style, scripts, images, service worker — a la
+       racine du site. -->
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Série — LanorTrad</title>
   <meta name="description" content="Fiche série LanorTrad : synopsis, genres, liste des chapitres et lecture en ligne.">

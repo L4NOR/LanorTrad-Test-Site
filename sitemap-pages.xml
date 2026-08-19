@@ -8,12 +8,12 @@
   <url><loc>https://lanortrad.com/classement.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://lanortrad.com/mentions-legales.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://lanortrad.com/confidentialite.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Action</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Aventure</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Drame</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Fantaisie</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Horreur</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Myst%C3%A8re</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Oneshot</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://lanortrad.com/catalogue.html?genre=Surnaturel</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/action/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/aventure/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/drame/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/fantaisie/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/horreur/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/mystere/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/oneshot/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lanortrad.com/genre/surnaturel/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>

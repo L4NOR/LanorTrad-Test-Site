@@ -530,7 +530,7 @@
         const a = n.actor || {};
         let href, label;
         if (n.manga_id) {                                   // mention dans un commentaire de chapitre
-          href = `reader.html?manga=${encodeURIComponent(n.manga_id)}${n.chapter_num ? "&chapter=" + encodeURIComponent(n.chapter_num) : ""}`;
+          href = window.LT.urlChapter(n.manga_id, n.chapter_num);
           label = `t'a mentionné en commentaire (${esc(n.manga_id)}${n.chapter_num ? " · ch. " + esc(n.chapter_num) : ""})`;
         } else {
           const title = (n.topic && n.topic.title) || "un sujet";
