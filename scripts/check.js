@@ -277,15 +277,29 @@ if (!existe("sitemap.xml")) {
     if (!existe(f)) { err(`sitemap.xml annonce ${f}, qui n'existe pas`); continue; }
     urls = urls.concat([...fs.readFileSync(R(f), "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]));
   }
+  /* On compare des CHEMINS, jamais des URLs entières : le domaine du sitemap
+     est celui du déploiement (scripts/build-seo.js lit process.env.URL), donc
+     lanortradtest.netlify.app sur le site de test et lanortrad.com en
+     production. Comparer les URLs entières faisait échouer le build de test
+     sur les 554 pages à la fois — ce que le domaine vaut ne regarde pas cette
+     vérification, qui porte sur ce qui est déclaré. */
+  const chemins = new Set();
+  const origines = new Set();
+  for (const u of urls) {
+    try { const x = new URL(u); chemins.add(x.pathname); origines.add(x.origin); }
+    catch { err(`URL invalide dans le sitemap : ${u}`); }
+  }
+  if (origines.size > 1) err(`le sitemap mélange plusieurs domaines : ${[...origines].join(", ")}`);
+  else if (origines.size) ok(`sitemap servi pour ${[...origines][0]}`);
+
   const attendus = [];
   if (slugCore) {
     for (const s of SERIES) {
-      attendus.push(`https://lanortrad.com/manga/${slugCore(s.id)}/`);
+      attendus.push(`/manga/${slugCore(s.id)}/`);
       for (const c of CHAPTERS[s.id] || [])
-        attendus.push(`https://lanortrad.com/manga/${slugCore(s.id)}/chapitre-${encodeURIComponent(c.num)}/`);
+        attendus.push(`/manga/${slugCore(s.id)}/chapitre-${encodeURIComponent(c.num)}/`);
     }
-    const set = new Set(urls);
-    const absents = attendus.filter(u => !set.has(u));
+    const absents = attendus.filter(u => !chemins.has(u));
     if (absents.length) {
       absents.slice(0, 5).forEach(u => err(`absent du sitemap : ${u}`));
       if (absents.length > 5) err(`… et ${absents.length - 5} autre(s) URL(s) absente(s) du sitemap`);
