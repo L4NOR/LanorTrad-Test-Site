@@ -95,7 +95,13 @@ changer l'adresse affichée. Trois conséquences, toutes traitées dans le code 
   indexées par le nom réel (`Tougen Anki`) — `LT.seriesById()` accepte les deux ;
 - le navigateur se croit dans un sous-dossier, d'où le `<base href="/">` en tête
   de ces trois pages : sans lui, `css/base.css` deviendrait
-  `/manga/tougen-anki/css/base.css`.
+  `/manga/tougen-anki/css/base.css`. La balise est **écrite en dur** (le
+  préchargeur du navigateur lit le `<head>` avant d'exécuter le moindre script :
+  une balise posée par JS arriverait trop tard, et tous les fichiers seraient
+  déjà demandés à la mauvaise adresse). Un petit script inline la **retire**
+  quand l'adresse n'est pas réécrite — sinon, ouvrir la page directement depuis
+  le disque donnerait `file:///F:/css/base.css`, et la page s'afficherait sans
+  aucun style.
 
 Les anciennes adresses (`manga.html?id=…`) **fonctionnent toujours** — un vieux
 lien, un vieux partage restent valables — mais ne sont plus déclarées nulle
