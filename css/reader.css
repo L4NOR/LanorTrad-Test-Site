@@ -383,3 +383,9 @@ body.reader-body {
   .rd-count { min-width: 44px; font-size: .74rem; }
   .rd-preview img { width: 78px; height: 110px; }
 }
+
+/* « X lecteurs en ce moment » (js/presence.js). Discret : c'est une
+   information d'ambiance, pas une information de lecture. Reste vide — et
+   donc invisible — quand il n'y a personne d'autre. */
+.rd-presence { margin-left: 6px; opacity: .85; }
+.rd-presence[hidden] { display: none; }

@@ -86,6 +86,12 @@
     wirePrefs();
     startMarathon();
 
+    // « X lecteurs en ce moment » sur la série ouverte (voir js/presence.js).
+    // Portée série et non chapitre : sur un site de cette taille, compter par
+    // chapitre ne donnerait jamais que soi-meme.
+    if (window.LTpresence) window.LTpresence.afficher(
+      window.LTpresence.serie(A.manga), $("rd-presence"), n => `· 👀 ${n} en ce moment`);
+
     if (!A.chap) {
       // Chapitre demandé inexistant : rien à indexer ici non plus. Les robots
       // ont déjà reçu un 404 (netlify/edge-functions/og.js) ; ceci couvre ceux
@@ -139,10 +145,10 @@
       <div class="rd-progress" id="rd-progress"></div>
 
       <header class="rd-top" id="rd-top">
-        <a class="rd-back" href="${A.S.url}">${ic("left")}<span class="lbl">Fiche</span></a>
+        <a class="rd-back" href="${window.LT.urlSeries(A.S)}">${ic("left")}<span class="lbl">Fiche</span></a>
         <div class="rd-heading">
           <div class="t">${esc(A.S.title)}</div>
-          <div class="c" id="rd-chap-label"></div>
+          <div class="c"><span id="rd-chap-label"></span><span class="rd-presence" id="rd-presence" hidden></span></div>
         </div>
         <div class="rd-select"><select id="rd-chap-select" aria-label="Choisir un chapitre"></select></div>
         <button class="rd-icon-btn" id="rd-open-prefs" title="Préférences" aria-label="Préférences">${ic("gear")}</button>

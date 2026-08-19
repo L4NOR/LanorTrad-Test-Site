@@ -122,6 +122,14 @@
       cibles: [{ k: "fn", n: "recent_activity", args: { p_limit: 1 } }],
     },
     {
+      f: "presence.sql", titre: "Lecteurs en ce moment",
+      pour: "« 👀 3 lecteurs en ce moment » sur la fiche série et dans le lecteur.",
+      // presence_ping écrit — mais seulement après ses garde-fous : un
+      // identifiant trop court le fait sortir avant la moindre écriture.
+      // La sonde reste donc en lecture seule, comme les autres.
+      cibles: [{ k: "fn", n: "presence_ping", args: { p_id: "", p_scope: "" } }],
+    },
+    {
       f: "podium.sql", titre: "Couronne du podium",
       pour: "Le 👑 des trois premiers de la semaine passée.",
       cibles: [{ k: "fn", n: "podium_last_week", args: {} }],

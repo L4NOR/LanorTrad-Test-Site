@@ -107,7 +107,11 @@ as $$
       to_regprocedure('public.recent_activity(int)') is not null,
 
     'podium.sql',
-      to_regprocedure('public.podium_last_week()') is not null
+      to_regprocedure('public.podium_last_week()') is not null,
+
+    'presence.sql',
+      (to_regclass('public.presence') is not null
+       and to_regprocedure('public.presence_ping(text, text)') is not null)
   );
 $$;
 

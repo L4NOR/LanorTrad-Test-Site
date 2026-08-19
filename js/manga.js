@@ -56,6 +56,7 @@
                 <span><b>${s.chapters}</b> chapitre${s.chapters > 1 ? "s" : ""}</span><span class="dot"></span>
                 <span>MàJ ${window.LT.timeAgo(s.lastUpdate) || "—"}</span>
                 <span class="dot" id="mv-vdot" hidden></span><span id="mv-views"></span>
+                <span class="dot" id="mv-pdot" hidden></span><span id="mv-presence" hidden></span>
               </div>
               <!-- ?genre= et non ?q= : la recherche plein texte ramène aussi les
                    séries dont le SYNOPSIS contient le mot, ce qui n'est pas ce
@@ -250,6 +251,12 @@
       const v = window.LTviews.get(s.id), el = document.getElementById("mv-views");
       if (el && v != null) { el.innerHTML = window.LTviews.eye + " " + window.LTviews.fmt(v) + " lectures"; const d = document.getElementById("mv-vdot"); if (d) d.hidden = false; }
     });
+
+    // Qui lit cette série EN CE MOMENT. Tous les autres compteurs du site
+    // sont des totaux ; celui-ci dit qu'il y a quelqu'un d'autre, là,
+    // maintenant. Reste vide s'il n'y a personne — ou personne d'autre.
+    if (window.LTpresence) window.LTpresence.afficher(
+      window.LTpresence.serie(s.id), document.getElementById("mv-presence"));
 
     // Notes réelles des lecteurs (Supabase) : widget + moyenne dans la meta +
     // aggregateRating honnête dans le JSON-LD (jamais sans vrais votes).
