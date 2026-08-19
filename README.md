@@ -24,7 +24,9 @@ quel sur Netlify ou GitHub Pages.
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
    · [7 bis. Mode hors ligne + mini-jeu](#7-bis-mode-hors-ligne--mini-jeu--oni-runner-)
 8. [Déploiement](#8-déploiement)
+   · [8 bis. Vérifications automatiques](#8-bis-vérifications-automatiques)
 9. [État actuel du site](#9-état-actuel-du-site)
+10. [Diagnostic — quels scripts SQL sont déployés ?](#10-diagnostic--quels-scripts-sql-sont-déployés-)
 
 ---
 
@@ -33,13 +35,14 @@ quel sur Netlify ou GitHub Pages.
 ```
 index.html         Accueil (héros 3D, séries, derniers chapitres)
 catalogue.html     Catalogue + filtres (genre, statut, type, tri)
-manga.html         Fiche série (data-driven : ?id=Nom)
-reader.html        Lecteur (?manga=Nom&chapter=N)
+manga.html         Fiche série (data-driven)   → /manga/<slug>/
+reader.html        Lecteur                      → /manga/<slug>/chapitre-<N>/
 bibliotheque.html  Reprise de lecture (stockage local)
 planning.html      Planning des sorties (calendrier hebdo)
 forum.html         Forum communautaire (comptes Supabase)
 classement.html    Classement XP / gamification
 equipe.html        Équipe (membres réels)
+diag.html          Outil de team : quels scripts SQL sont déployés (§ 10)
 
 fonts/  Inter + Sora auto-hébergées (woff2, licence SIL OFL)
 css/    base, fonts, components, animations, home, catalogue, manga, reader, pages,
@@ -65,7 +68,48 @@ tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches sé
 tools/Modifier-Atelier.bat  ← interface web locale pour l'avancement des chapitres
 tools/jpg-to-webp.py        ← conversion des planches JPG → WebP (sans perte)
 supabase/*.sql              ← schémas Supabase (forum + gamification)
+scripts/build-seo.js        ← sitemap, flux RSS, og-meta.json, robots.txt
+scripts/check.js            ← vérifie la cohérence du site (§ 8 bis)
+scripts/test-og.mjs         ← tests du pré-rendu servi aux robots
 ```
+
+### Les adresses du site
+
+Chaque série et chaque chapitre a sa propre adresse, lisible :
+
+```
+/manga/tougen-anki/                 la fiche
+/manga/tougen-anki/lecture/         « lire maintenant » (reprend ou commence)
+/manga/tougen-anki/chapitre-240/    un chapitre
+/genre/horreur/                     le catalogue filtré
+```
+
+Ce ne sont pas des fichiers : ce sont des **réécritures** déclarées dans
+`netlify.toml`, qui servent `manga.html` / `reader.html` / `catalogue.html` sans
+changer l'adresse affichée. Trois conséquences, toutes traitées dans le code :
+
+- l'adresse affichée reste la jolie, donc **`location.search` est vide** — tout
+  ce qui lisait `?id=` passe par `LT.route()` (`js/core.js`), qui comprend les
+  deux formes ;
+- l'URL ne transporte que le **slug** (`tougen-anki`) alors que les données sont
+  indexées par le nom réel (`Tougen Anki`) — `LT.seriesById()` accepte les deux ;
+- le navigateur se croit dans un sous-dossier, d'où le `<base href="/">` en tête
+  de ces trois pages : sans lui, `css/base.css` deviendrait
+  `/manga/tougen-anki/css/base.css`.
+
+Les anciennes adresses (`manga.html?id=…`) **fonctionnent toujours** — un vieux
+lien, un vieux partage restent valables — mais ne sont plus déclarées nulle
+part : sitemap, flux, IndexNow, `canonical` et liens internes pointent la
+nouvelle forme.
+
+La règle de slug est écrite à **trois** endroits qui doivent rester d'accord :
+`js/core.js` (le site), `scripts/build-seo.js` (le sitemap) et
+`netlify/edge-functions/og.js` (ce que voient les robots). `scripts/check.js`
+vérifie qu'ils ne divergent pas ; en cas de dérive, le sitemap déclarerait des
+URLs dont le `canonical` désigne autre chose.
+
+`serve.py` rejoue les mêmes réécritures en local, pour que ça se teste sans
+déployer.
 
 Tous les scripts de `tools/` sont **versionnés** : ils font partie du travail
 courant décrit ici, et le site ne se maintient pas sans eux. Seuls restent hors
@@ -595,6 +639,17 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
 15. `supabase/podium.sql` (la **couronne 👑 du top 3** — RPC `podium_last_week` :
     les 3 meilleurs de la semaine passée portent une couronne la semaine
     suivante, sur le classement et le forum ; respecte `leaderboard_opt_out`)
+16. `supabase/presence.sql` (**« X lecteurs en ce moment »** sur la fiche série et
+    dans le lecteur — table `presence` + RPC `presence_ping`. Une ligne par
+    onglet ouvert : identifiant tiré au hasard par le navigateur, série
+    regardée, heure. Ni IP, ni identifiant de compte ; effacée au bout de deux
+    minutes sans signe de vie. La RPC ne renvoie qu'un **nombre**, jamais une
+    liste)
+17. `supabase/diag.sql` (facultatif mais recommandé — la fonction `lt_diag()`
+    qui permet à `diag.html` de répondre exactement, triggers compris. Voir § 10)
+
+**Tu ne sais plus lesquels sont passés ?** Ouvre `/diag.html` sur le site : elle
+te le dit script par script (§ 10).
 
 Cela crée, de façon **idempotente** (ré-exécutable sans danger) :
 
@@ -739,7 +794,53 @@ l'équivalent maison du dinosaure de Chrome.
 
 Le dossier `F:\LanorTrad-Test-Site` est autonome et prêt à déployer (Netlify :
 glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est prêt
-(cache des images). Les IDs GA / AdSense sont ceux de l'ancien site.
+(cache des images, réécritures des adresses lisibles, edge function).
+
+La commande de build enchaîne trois étapes :
+
+```
+node scripts/build-seo.js && node scripts/check.js && node scripts/test-og.mjs
+```
+
+Les deux dernières **font échouer le déploiement** si elles trouvent une
+incohérence. C'est délibéré (voir § 8 bis).
+
+---
+
+## 8 bis. Vérifications automatiques
+
+Le site tient sur des fichiers générés et 14 000 images, et rien ne prévenait
+quand les deux se désaccordaient : la page s'affichait quand même, vide ou à
+moitié. Ça s'est produit — `js/data/notes.js` est devenu du JavaScript invalide,
+`window.NOTES` n'existait plus, et plus **aucune** note de traduction ne
+s'affichait nulle part. Le build le signalait sur une ligne, sans échouer.
+
+```bash
+node scripts/check.js
+```
+
+Ce qu'il regarde :
+
+- les fichiers de `js/data/` sont-ils du JavaScript valide, et définissent-ils
+  bien ce qu'on attend d'eux ;
+- chaque chapitre déclaré a-t-il sa liste de pages, et le nombre annoncé
+  correspond-il au nombre réel ;
+- les pages, couvertures et variantes responsives sont-elles sur le disque ;
+- les pages HTML référencent-elles des fichiers qui existent ;
+- le service worker ne précache-t-il que des fichiers présents — **une seule**
+  entrée fausse fait échouer `addAll()` en entier, donc plus de mode hors ligne
+  du tout, sans le moindre message ;
+- le sitemap déclare-t-il exactement les séries et chapitres des données ;
+- la règle de slug est-elle la même dans le site et dans le sitemap.
+
+Sortie `0` si tout va bien, `1` s'il y a une erreur. Les alertes (« signalé,
+mais pas bloquant ») ne font pas échouer.
+
+`.github/workflows/verifications.yml` rejoue le tout à chaque push, **sans
+télécharger les 5,5 Go d'images** (checkout partiel). `check.js` annonce alors
+les vérifications qu'il saute, plutôt que de les compter comme réussies : c'est
+au build Netlify, où le dépôt est complet, que la présence des images est
+vérifiée.
 
 ---
 
@@ -761,6 +862,13 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   cache images persistant entre les versions). Bouton « Lire hors connexion » dans
   le rail du lecteur : pré-télécharge le chapitre entier dans ce cache.
   Installable.
+- **Adresses lisibles** : `/manga/tougen-anki/chapitre-240/` plutôt que
+  `reader.html?manga=…&chapter=…` (§ 1). Réécritures Netlify, anciennes adresses
+  toujours valables, `canonical` vers la nouvelle forme.
+- **« X lecteurs en ce moment »** sur la fiche série et dans le lecteur
+  (`js/presence.js`, `supabase/presence.sql`). Anonyme, oublié au bout de deux
+  minutes, jamais affiché en dessous de 2 — le premier lecteur, c'est toi.
+- **Vérifications automatiques** au déploiement et à chaque push (§ 8 bis).
 - **SEO** : sitemap **index** (un fichier par série, couvertures déclarées en
   `image:image`), `robots.txt`, flux RSS, données structurées JSON-LD
   (ComicSeries / Chapter / CollectionPage / BreadcrumbList) servies aux robots
@@ -844,3 +952,33 @@ glisser-déposer le dossier, ou pointer le dépôt dessus). `netlify.toml` est p
   Les actions qui laissent une trace (marquer une série vue, compter une
   lecture) passent par `LT.whenActive()` et attendent l'ouverture réelle : un
   survol ne doit jamais gonfler un compteur public.
+
+---
+
+## 10. Diagnostic — quels scripts SQL sont déployés ?
+
+Le site est fait pour **dégrader en silence** : une brique dont le SQL n'est pas
+passé ne casse rien, elle se cache. C'est ce qu'il faut pour un lecteur, mais
+côté team ça veut dire qu'on ne peut pas savoir, en regardant le site, ce qui
+est réellement en place. Il y a **17 scripts**.
+
+Ouvre **`/diag.html`** (page en `noindex`, hors sitemap, interdite dans
+`robots.txt`). Elle donne, script par script : son état, ce qu'il active, et
+pour ceux qui manquent un bouton qui **copie le SQL** — prêt à coller dans
+Supabase → SQL Editor.
+
+Toutes les vérifications sont en **lecture seule**. Les fonctions qui écrivent
+(`bump_view`, `rate_series`, `claim_mission`…) ne sont jamais appelées : on
+interroge la table ou la fonction de lecture qui les accompagne.
+
+### Pourquoi `supabase/diag.sql`
+
+Deux choses échappent à l'API, et pas qu'un peu : un **trigger** ne s'y expose
+pas, et une fonction dont l'accès client est volontairement fermé répond
+« inconnue » — exactement comme si elle n'existait pas. C'est tout
+`gamification-triggers.sql`.
+
+`supabase/diag.sql` installe `lt_diag()`, qui répond depuis l'intérieur de la
+base sur une liste d'objets **écrite en dur** (aucune donnée, aucune exploration
+de schéma). La page l'utilise dès qu'elle existe ; sinon elle le dit franchement
+plutôt que d'afficher un « à déployer » qu'elle ne peut pas prouver.
