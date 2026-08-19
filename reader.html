@@ -4,12 +4,30 @@
   <meta charset="UTF-8">
   <!-- Cette page est aussi servie sous une adresse propre (/manga/tougen-anki/,
        /manga/tougen-anki/chapitre-240/, /genre/horreur/ — voir netlify.toml).
-       Comme il s'agit d'une reecriture, le navigateur croit etre dans un
-       sous-dossier : sans cette balise, « css/base.css » deviendrait
-       « /manga/tougen-anki/css/base.css ». <base> ramene toutes les adresses
-       relatives — feuilles de style, scripts, images, service worker — a la
-       racine du site. -->
+       Comme il s'agit d'une reecriture, le navigateur croit alors etre dans un
+       sous-dossier : sans <base>, « css/base.css » irait chercher
+       « /manga/tougen-anki/css/base.css ». D'ou la balise ci-dessous.
+
+       Elle est ECRITE EN DUR, et pas posee par un script : le navigateur
+       analyse le <head> en avance pour lancer les telechargements au plus tot,
+       bien avant d'executer le moindre script. Un <base> ajoute apres coup
+       arriverait trop tard — les CSS et les JS auraient deja ete demandes a la
+       mauvaise adresse (28 requetes en 404 par page, mesure faite).
+
+       Le script qui suit ne fait donc que l'inverse : il la RETIRE quand elle
+       ne sert a rien. C'est necessaire parce qu'une balise <base href="/"> en
+       dur casse la page des qu'elle n'est pas servie depuis la racine d'un
+       site — ouverte directement depuis le disque (double-clic), elle
+       transforme « css/base.css » en « file:///F:/css/base.css », et la page
+       s'affiche sans aucun style. Retiree avant que l'analyseur n'atteigne la
+       premiere adresse relative, tout se resout de nouveau normalement. -->
   <base href="/">
+  <script>
+    (function () {
+      var propre = location.protocol !== "file:" && /^\/(manga|genre)\/[^/]/.test(location.pathname);
+      if (!propre) { var b = document.querySelector("base"); if (b) b.remove(); }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Lecture — LanorTrad</title>
   <meta name="description" content="Lecteur de manga LanorTrad : modes webtoon, page et double, préférences personnalisables.">
