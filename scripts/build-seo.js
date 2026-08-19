@@ -317,6 +317,8 @@ function buildRobots() {
   const txt = prod
     ? `User-agent: *
 Allow: /
+# Outil de team (etat des scripts SQL), en noindex : rien a indexer ici.
+Disallow: /diag.html
 
 Sitemap: ${abs("sitemap.xml")}
 `

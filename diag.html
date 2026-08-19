@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostic — LanorTrad</title>
+  <!-- Page d'outillage interne : elle n'a rien à faire dans un moteur de
+       recherche. Elle n'est pas non plus déclarée au sitemap, et robots.txt
+       l'interdit (voir scripts/build-seo.js). -->
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0b16">
+  <link rel="icon" href="images/icons/icon-192x192.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <script src="js/perf.js"></script><link rel="stylesheet" href="css/perf.css"><link rel="stylesheet" href="css/offline.css"><link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/extras.css">
+  <link rel="stylesheet" href="css/pages.css"><link rel="stylesheet" href="css/diag.css">
+</head>
+<body>
+  <div class="loader"><div style="text-align:center"><div class="l-mark">Lanor<span class="grad-text">Trad</span></div><div class="l-bar"><i></i></div></div></div>
+  <main>
+    <section class="wrap page-head" data-reveal>
+      <span class="eyebrow">Outil de team</span>
+      <h1>Diagnostic</h1>
+      <p>Le site est fait pour ne rien casser quand un script SQL n'est pas déployé :
+         la brique concernée se cache, tout simplement. Pratique pour les lecteurs,
+         aveuglant pour nous. Cette page pose donc la question directement à la base.
+         Tout est en <b>lecture seule</b> — aucune vérification n'écrit quoi que ce soit.</p>
+      <p><button class="btn btn-ghost" id="dg-refaire" type="button">Revérifier</button></p>
+    </section>
+
+    <section class="section" style="padding-top:10px">
+      <div class="wrap">
+        <div id="dg-resume" class="dg-resume"></div>
+        <div id="dg-mount"></div>
+      </div>
+    </section>
+  </main>
+
+  <script defer src="js/data/series.js"></script><script defer src="js/data/covers.js"></script>
+  <script defer src="js/store.js"></script><script defer src="js/palette.js"></script>
+  <script defer src="js/core.js"></script>
+  <script defer src="js/supabase-config.js"></script>
+  <script defer src="js/diag.js"></script>
+  <script defer src="js/offline.js"></script>
+</body>
+</html>
