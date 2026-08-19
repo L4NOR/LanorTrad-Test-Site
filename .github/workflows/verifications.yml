@@ -1,0 +1,48 @@
+# =========================================================================
+#  LanorTrad — Vérifications automatiques (GitHub Actions)
+#
+#  Rejoue à chaque push ce que Netlify rejoue au déploiement, mais tout de
+#  suite et sans publier : cohérence des données (scripts/check.js) et
+#  pré-rendu servi aux robots (scripts/test-og.mjs).
+#
+#  Le dépôt pèse ~5,5 Go d'images. On n'en télécharge AUCUNE :
+#    • filter: blob:none    -> les fichiers ne sont récupérés qu'à la demande
+#    • sparse-checkout      -> on ne demande que le code et les données
+#  check.js s'en aperçoit et annonce les vérifications qu'il saute : la
+#  présence des 14 000 pages sur le disque, elle, est vérifiée au build
+#  Netlify, où le dépôt est complet.
+# =========================================================================
+name: Vérifications
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/Manga/
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Régénère sitemap, flux et og-meta.json : les tests qui suivent
+      # comparent les données du site à ce que ce script produit.
+      - name: Générer les fichiers SEO
+        run: node scripts/build-seo.js
+
+      - name: Cohérence du site
+        run: node scripts/check.js
+
+      - name: Pré-rendu servi aux robots
+        run: node scripts/test-og.mjs

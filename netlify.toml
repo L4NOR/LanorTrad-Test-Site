@@ -1,8 +1,18 @@
 # LanorTrad — configuration Netlify
 [build]
   publish = "."
-  # Régénère feed.xml + sitemap.xml + og-meta.json à partir des données du site
-  command = "node scripts/build-seo.js"
+  # 1. Régénère feed.xml + sitemap.xml + og-meta.json à partir des données du site.
+  # 2. Vérifie que le site est cohérent : chapitres declarés dont les pages
+  #    existent, couvertures présentes, fichiers de données lisibles, sitemap
+  #    d'accord avec les données, precache du service worker valide.
+  # 3. Rejoue les tests du pré-rendu servi aux robots.
+  #
+  # Les deux dernières étapes FONT ÉCHOUER LE DÉPLOIEMENT si elles trouvent
+  # une incohérence. C'est délibéré : jusqu'ici ces problèmes-là passaient en
+  # une ligne de log et se découvraient en production, souvent des jours plus
+  # tard (un fichier de données invalide, un chapitre sans ses images).
+  # Un déploiement refusé se répare en poussant ce qui manque.
+  command = "node scripts/build-seo.js && node scripts/check.js && node scripts/test-og.mjs"
 
 # Scan de secrets : deux variables ne sont PAS des secrets, malgré leur nom.
 #
