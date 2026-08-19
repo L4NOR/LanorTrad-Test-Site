@@ -35,24 +35,24 @@
 
 window.NOTES = {
 
-   ↓↓↓ ENLEVE LES // DE CE BLOC POUR L'ACTIVER, puis adapte ↓↓↓
-  
-   "Tougen Anki": {
-     "246": {
-       intro: "Un chapitre bavard, avec deux passages qui nous ont donne du fil a retordre.",
-       notes: [
-         { page: 6, text: "« Oni » est garde tel quel : « demon » renvoie a un imaginaire chretien qui n'a rien a voir." },
-         "Le nom de la technique joue sur deux lectures du meme kanji. Intraduisible sans casser le jeu de mots : on a garde le sens plutot que la forme."
-       ]
-     },
-     "245": {
-       notes: [
-         "Une seule note suffit, et l'intro est facultative."
-       ]
-     }
-  },
-  
-  ↑↑↑ FIN DU BLOC D'EXEMPLE ↑↑↑
+//    ↓↓↓ ENLEVE LES // DE CE BLOC POUR L'ACTIVER, puis adapte ↓↓↓
+
+//    "Tougen Anki": {
+//      "246": {
+//        intro: "Un chapitre bavard, avec deux passages qui nous ont donne du fil a retordre.",
+//        notes: [
+//          { page: 6, text: "« Oni » est garde tel quel : « demon » renvoie a un imaginaire chretien qui n'a rien a voir." },
+//          "Le nom de la technique joue sur deux lectures du meme kanji. Intraduisible sans casser le jeu de mots : on a garde le sens plutot que la forme."
+//        ]
+//      },
+//      "245": {
+//        notes: [
+//          "Une seule note suffit, et l'intro est facultative."
+//        ]
+//      }
+//   },
+
+//   ↑↑↑ FIN DU BLOC D'EXEMPLE ↑↑↑
 
 };
 
