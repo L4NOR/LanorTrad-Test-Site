@@ -913,6 +913,20 @@ ou double-clic sur `tools/Deployer.bat`. Le script rejoue exactement la chaîne 
 une vérification échoue**, téléverse, puis remet le dépôt dans son état d'origine.
 `--essai` déploie sur une URL temporaire au lieu de la production.
 
+**Et les déploiements git de Netlify ?** Ils continueront d'échouer tant que le
+dépôt pèsera 15 Go : chaque push déclenche un clone qui se fait tuer au bout de
+30 minutes. Découper les commits n'y change rien — c'est le clone qui bloque,
+pas la taille du diff.
+
+Deux façons de ne plus les subir :
+
+- **le plus propre** : couper les builds automatiques dans Netlify
+  (*Project configuration → Build & deploy → Stop builds*) ;
+- **sans toucher au tableau de bord** : mettre `[skip netlify]` dans le message
+  de commit. Netlify lit le message dès le webhook et ne démarre rien.
+  `[skip ci]` marcherait aussi, mais il ferait sauter les vérifications GitHub
+  au passage — ce n'est pas ce qu'on veut.
+
 > **Le piège que le script désamorce.** `build-seo.js` recible les adresses
 > absolues sur le domaine réellement servi, qu'il lit dans la variable `URL`.
 > Netlify la fournit, ta machine non. Sans elle, les pages partiraient en
