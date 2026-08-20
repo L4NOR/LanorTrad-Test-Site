@@ -26,10 +26,18 @@
 # publiée dans les mentions légales et la politique de confidentialité, d'où
 # la détection. Le vrai secret du push, c'est VAPID_PRIVATE, qui reste scanné.
 #
-# On exclut ces deux clés uniquement, sans désactiver la détection des vrais
-# secrets (SUPABASE_SERVICE_ROLE, VAPID_PRIVATE, PUSH_SECRET…).
+# URL / DEPLOY_URL / DEPLOY_PRIME_URL sont l'adresse PUBLIQUE du site, fournie
+# par Netlify. Depuis que scripts/build-seo.js recible les pages sur le domaine
+# reellement servi, cette valeur se retrouve dans le canonical, l'og:url et
+# l'og:image de chaque page — c'est le but. Le scanner y voit une variable
+# d'environnement recopiee dans les fichiers publies et fait echouer le
+# deploiement. Or l'adresse du site est ce qu'il y a de moins secret : elle est
+# dans la barre d'adresse de chaque visiteur.
+#
+# On exclut ces cles uniquement, sans desactiver la detection des vrais secrets
+# (SUPABASE_SERVICE_ROLE, VAPID_PRIVATE, PUSH_SECRET…).
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_SUBJECT"
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_SUBJECT,URL,DEPLOY_URL,DEPLOY_PRIME_URL"
 
 # =========================================================================
 # Adresses lisibles (reecritures, statut 200 : l'URL affichee ne change pas)
