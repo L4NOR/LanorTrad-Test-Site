@@ -299,6 +299,44 @@ function buildOgMeta(series, chapters, ratings, notes) {
   console.log(`[seo] og-meta.json — ${Object.keys(map).length} séries, ${nbCh} chapitres`);
 }
 
+/* --------------------- adresses absolues des pages ---------------------
+   Les pages HTML portent en dur https://lanortrad.com dans leur `canonical`,
+   leur `og:url` et surtout leur `og:image`.
+
+   Sur un deploiement qui n'est PAS ce domaine, les robots de partage vont donc
+   chercher la vignette sur un site qui n'existe pas encore : Discord, X ou
+   Facebook recoivent un 404 et n'affichent AUCUNE image. C'est exactement ce
+   qui se passait sur lanortradtest.netlify.app, alors que les fichiers etaient
+   bel et bien deployes.
+
+   Les pages servies par l'edge function (series, chapitres, genres) n'avaient
+   pas le probleme : elle construit ses adresses a partir de l'origine reelle
+   de la requete. Ce sont donc les pages statiques, et elles seules, qu'il faut
+   recibler.
+
+   On reecrit ici, au build, vers le domaine reellement servi. Sur
+   lanortrad.com l'operation ne change rien : c'est deja la bonne adresse.
+   Ce sont les fichiers du DEPLOIEMENT qui sont modifies, pas le depot. */
+const PROD = "https://lanortrad.com";
+
+function recibleHtml() {
+  if (SITE === PROD) {
+    console.log("[seo] adresses absolues — deja sur " + PROD + ", rien a faire");
+    return;
+  }
+  const pages = fs.readdirSync(ROOT).filter(f => f.endsWith(".html"));
+  let touchees = 0, refs = 0;
+  for (const f of pages) {
+    const p = path.join(ROOT, f);
+    const src = fs.readFileSync(p, "utf8");
+    const n = src.split(PROD).length - 1;
+    if (!n) continue;
+    fs.writeFileSync(p, src.split(PROD).join(SITE), "utf8");
+    touchees++; refs += n;
+  }
+  console.log(`[seo] adresses absolues — ${refs} reciblee(s) sur ${SITE} dans ${touchees} page(s)`);
+}
+
 /* ---------------------------- robots.txt ----------------------------
    Le fichier est GÉNÉRÉ, parce que la bonne réponse dépend du domaine servi.
 
@@ -422,6 +460,7 @@ async function pingIndexNow(series, chapters) {
 
   const ratings = await fetchRatings();
 
+  recibleHtml();
   buildRobots();
   buildFeed(series);
   buildSitemap(series, chapters);

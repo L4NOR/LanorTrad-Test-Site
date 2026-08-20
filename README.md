@@ -865,6 +865,24 @@ incohérence. C'est délibéré (voir § 8 bis).
 
 ---
 
+### Un déploiement qui n'est pas `lanortrad.com`
+
+Les pages HTML portent le domaine de production **en dur** dans leur
+`canonical`, leur `og:url` et leur `og:image`. Sur un déploiement de test, les
+robots de partage iraient donc chercher la vignette sur un site qui n'existe pas
+encore : Discord et X reçoivent un 404 et n'affichent **aucune image**, alors
+que les fichiers sont bel et bien déployés.
+
+`scripts/build-seo.js` **recible** donc ces adresses vers le domaine réellement
+servi (`process.env.URL`), au build, dans les fichiers du déploiement — pas dans
+le dépôt. Sur `lanortrad.com`, l'opération ne change rien.
+
+Les pages servies par l'edge function (séries, chapitres, genres) n'ont jamais
+eu le problème : elle construit ses adresses à partir de l'origine réelle de la
+requête.
+
+---
+
 ## 8 bis. Vérifications automatiques
 
 Le site tient sur des fichiers générés et 14 000 images, et rien ne prévenait
