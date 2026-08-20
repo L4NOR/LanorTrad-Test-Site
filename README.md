@@ -23,7 +23,7 @@ quel sur Netlify ou GitHub Pages.
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
    · [7 bis. Mode hors ligne + mini-jeu](#7-bis-mode-hors-ligne--mini-jeu--oni-runner-)
-8. [Déploiement](#8-déploiement)
+8. [Déploiement](#8-déploiement) · [depuis ta machine](#déployer-depuis-ta-machine-et-pourquoi)
    · [8 bis. Vérifications automatiques](#8-bis-vérifications-automatiques)
 9. [État actuel du site](#9-état-actuel-du-site)
 10. [Diagnostic — quels scripts SQL sont déployés ?](#10-diagnostic--quels-scripts-sql-sont-déployés-)
@@ -69,6 +69,8 @@ tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
 tools/Modifier-Atelier.bat  ← interface web locale pour l'avancement des chapitres
 tools/jpg-to-webp.py        ← conversion des planches JPG → WebP (sans perte)
+tools/deployer.py           ← déploiement depuis cette machine (§ 8)
+tools/Deployer.bat          ← le même, en double-clic
 supabase/*.sql              ← schémas Supabase (forum + gamification)
 scripts/build-seo.js        ← sitemap, flux RSS, og-meta.json, robots.txt
 scripts/check.js            ← vérifie la cohérence du site (§ 8 bis)
@@ -864,6 +866,45 @@ Les deux dernières **font échouer le déploiement** si elles trouvent une
 incohérence. C'est délibéré (voir § 8 bis).
 
 ---
+
+### Déployer depuis ta machine (et pourquoi)
+
+Netlify clone le dépôt à chaque déploiement dont le cache est froid. Le dépôt
+pèse **15 Go de pages de chapitre** (28 Go avec l'historique) et le stade
+`preparing repo` est **tué au bout de 30 minutes** : le déploiement échoue avant
+même que la commande de build ne démarre. Ce n'est pas un accident de parcours,
+ça se reproduit dès que Netlify perd son cache, et ça empire à chaque série.
+
+On inverse donc : la machine qui possède déjà les fichiers les téléverse
+elle-même. Netlify compare les empreintes et ne redemande que ce qu'il n'a pas —
+un chapitre de plus, c'est vingt fichiers, pas quinze giga-octets.
+
+**Une seule fois :**
+
+```bash
+npm install -g netlify-cli
+```
+
+Puis `netlify login` (le navigateur s'ouvre, c'est toi qui valides) et
+`netlify link` pour relier ce dossier au site.
+
+**À chaque fois :**
+
+```bash
+py tools/deployer.py
+```
+
+ou double-clic sur `tools/Deployer.bat`. Le script rejoue exactement la chaîne de
+`netlify.toml` — fichiers SEO, cohérence, tests du pré-rendu — **s'arrête net si
+une vérification échoue**, téléverse, puis remet le dépôt dans son état d'origine.
+`--essai` déploie sur une URL temporaire au lieu de la production.
+
+> **Le piège que le script désamorce.** `build-seo.js` recible les adresses
+> absolues sur le domaine réellement servi, qu'il lit dans la variable `URL`.
+> Netlify la fournit, ta machine non. Sans elle, les pages partiraient en
+> annonçant leurs vignettes sur `lanortrad.com`, qui ne sert pas encore le
+> site : plus aucune image de partage sur Discord. Le script la pose
+> (`LT_SITE_URL`, une seule ligne à changer le jour du basculement).
 
 ### Un déploiement qui n'est pas `lanortrad.com`
 
