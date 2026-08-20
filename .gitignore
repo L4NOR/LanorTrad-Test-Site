@@ -8,6 +8,7 @@
 # Ici on ne liste que ce qui est réellement local : caches, sauvegardes,
 # fichiers compilés. Un nouvel outil est donc versionné par défaut.
 tools/.backups/
+tools/.essai-webp/
 tools/__pycache__/
 tools/*.pyc
 
