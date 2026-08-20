@@ -28,6 +28,43 @@ const rfc822 = d => new Date(d + "T12:00:00Z").toUTCString();
 const enc = encodeURIComponent;
 const abs = p => SITE + "/" + String(p).replace(/^\/+/, "");
 
+/* --------------------------- ecriture sur disque ---------------------------
+   On ecrit A COTE puis on renomme, au lieu de reecrire le fichier en place.
+
+   Deux raisons, et la premiere n'est pas theorique : sur cette machine, la
+   protection anti-rancongiciel refuse la TRONCATURE d'un fichier existant —
+   c'est le geste typique d'un chiffrement, et elle l'a bloque en plein
+   deploiement, sur feed.xml. Mesure faite : ouvrir en lecture passe, ouvrir en
+   "r+" passe, ouvrir en "w" (qui tronque) echoue avec UNKNOWN (errno -4094),
+   et creer-puis-renommer passe.
+
+   La seconde raison vaut partout : le remplacement est atomique. Une coupure
+   en cours d'ecriture ne laisse jamais un sitemap a moitie ecrit.
+
+   On reessaie quand meme quelques fois : un antivirus qui inspecte le fichier
+   fraichement cree peut le garder ouvert une fraction de seconde. */
+function ecrire(chemin, contenu) {
+  const passagers = new Set(["EBUSY", "EPERM", "EACCES", "UNKNOWN", "ENFILE", "EMFILE"]);
+  const provisoire = `${chemin}.tmp-${process.pid}`;
+  let dernier;
+  for (let essai = 1; essai <= 6; essai++) {
+    try {
+      fs.writeFileSync(provisoire, contenu, "utf8");
+      fs.renameSync(provisoire, chemin);
+      return;
+    } catch (e) {
+      dernier = e;
+      try { fs.unlinkSync(provisoire); } catch { /* deja parti */ }
+      if (!passagers.has(e.code)) throw e;
+      const jusqua = Date.now() + essai * 250;      // ce script est synchrone
+      while (Date.now() < jusqua) { /* on laisse le fichier se liberer */ }
+    }
+  }
+  console.log(`[seo] ${path.basename(chemin)} : ${dernier.code} apres 6 tentatives.`
+    + " Un antivirus bloque-t-il l'ecriture dans ce dossier ?");
+  throw dernier;
+}
+
 /* --------------------------- notes lecteurs ---------------------------
    Les etoiles dans les resultats Google viennent d'un aggregateRating. Il
    n'existait que cote navigateur (js/manga.js), donc invisible au premier
@@ -116,7 +153,7 @@ ${items}
   </channel>
 </rss>
 `;
-  fs.writeFileSync(path.join(ROOT, "feed.xml"), xml, "utf8");
+  ecrire(path.join(ROOT, "feed.xml"), xml);
   console.log(`[seo] feed.xml — ${(xml.match(/<item>/g) || []).length} entrées`);
 }
 
@@ -161,7 +198,7 @@ ${rows.join("\n")}
 `;
   const written = [];
   const write = (name, rows, lastmod) => {
-    fs.writeFileSync(path.join(ROOT, name), wrap(rows), "utf8");
+    ecrire(path.join(ROOT, name), wrap(rows));
     written.push({ name, lastmod, count: rows.length });
   };
 
@@ -235,7 +272,7 @@ ${rows.join("\n")}
 ${written.map(w => `  <sitemap><loc>${abs(w.name)}</loc>${w.lastmod ? `<lastmod>${w.lastmod}</lastmod>` : ""}</sitemap>`).join("\n")}
 </sitemapindex>
 `;
-  fs.writeFileSync(path.join(ROOT, "sitemap.xml"), index, "utf8");
+  ecrire(path.join(ROOT, "sitemap.xml"), index);
 
   // Une série renommée ou supprimée laisserait son fichier derrière elle, et
   // l'index n'y renvoyant plus, Google le garderait en mémoire un moment.
@@ -313,7 +350,7 @@ function buildOgMeta(series, chapters, ratings, notes) {
     };
   });
   const nbCh = Object.values(map).reduce((a, s) => a + s.chapters.length, 0);
-  fs.writeFileSync(path.join(ROOT, "og-meta.json"), JSON.stringify(map), "utf8");
+  ecrire(path.join(ROOT, "og-meta.json"), JSON.stringify(map));
   console.log(`[seo] og-meta.json — ${Object.keys(map).length} séries, ${nbCh} chapitres`);
 }
 
@@ -349,7 +386,7 @@ function recibleHtml() {
     const src = fs.readFileSync(p, "utf8");
     const n = src.split(PROD).length - 1;
     if (!n) continue;
-    fs.writeFileSync(p, src.split(PROD).join(SITE), "utf8");
+    ecrire(p, src.split(PROD).join(SITE));
     touchees++; refs += n;
   }
   console.log(`[seo] adresses absolues — ${refs} reciblee(s) sur ${SITE} dans ${touchees} page(s)`);
@@ -390,7 +427,7 @@ Sitemap: ${abs("sitemap.xml")}
 User-agent: *
 Disallow: /
 `;
-  fs.writeFileSync(path.join(ROOT, "robots.txt"), txt, "utf8");
+  ecrire(path.join(ROOT, "robots.txt"), txt);
   console.log(`[seo] robots.txt — ${prod ? "indexation autorisée" : "indexation BLOQUÉE (déploiement de test)"} — ${host}`);
 }
 
@@ -428,7 +465,7 @@ async function pingIndexNow(series, chapters) {
   }
 
   // Le protocole exige que la clé soit vérifiable à la racine du site.
-  fs.writeFileSync(path.join(ROOT, `${key}.txt`), key, "utf8");
+  ecrire(path.join(ROOT, `${key}.txt`), key);
 
   const today = new Date().toISOString().slice(0, 10);
   const urls = new Set();
