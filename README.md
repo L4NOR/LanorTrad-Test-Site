@@ -63,6 +63,7 @@ tools/build-data.py         ← scanner : chapters.js + js/data/pages/
 tools/build-covers.py       ← variantes légères des couvertures (images/Cover/rs/)
 tools/build-og.py           ← vignettes de partage des SÉRIES (images/og/series/)
 tools/build-og-pages.py     ← vignettes des PAGES et des GENRES (images/og/pages|genres/)
+tools/og-maquettes.py       ← les maquettes dessinées de ces vignettes (module)
 tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data.py)
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
@@ -409,15 +410,26 @@ node scripts/build-seo.js && py tools/build-og-pages.py
 - Sortie : `images/og/pages/<page>.jpg` et `images/og/genres/<genre>.jpg`, à
   **committer** (Netlify ne lance pas Python).
 - Même charte que les cartes de série — le dessin est littéralement le même
-  moteur, importé depuis `build-og.py`. Deux différences assumées : un
-  **éventail** de couvertures au lieu d'une seule (ces pages parlent du site
-  entier ou d'un genre), et le filet du bas reprend le **dégradé** du site
-  plutôt que la couleur d'une série.
-- **Rien n'est inventé sur ces cartes** : le sous-titre est la
-  `<meta name="description">` réelle de la page, et les chiffres sont comptés
-  dans `og-meta.json`. Changer la description d'une page suffit à périmer sa
-  carte, qui se régénère au passage suivant.
-- Chaque page prend un **trio de couvertures différent** : sept cartes
+  moteur, importé depuis `build-og.py`. Le filet du bas reprend le **dégradé**
+  du site plutôt que la couleur d'une série.
+- Chaque page montre une **maquette de ce qu'elle contient**
+  (`tools/og-maquettes.py`) : une discussion pour le forum, une semaine pour le
+  planning, une grille filtrable pour le catalogue et les genres, un tableau de
+  rangs pour le classement, des lectures en cours pour la bibliothèque, les
+  trois membres pour l'équipe. Un empilement de couvertures dit « manga » ; il
+  ne dit pas ce qu'on trouve sur la page.
+- **Aucun emoji** n'est dessinable : les polices du site sont des sous-ensembles
+  latins, un emoji y sortirait en carré vide. Pastilles, jauges, médailles et
+  avatars sont donc dessinés.
+- **Ce qui est vrai sur ces cartes** : séries, numéros de chapitres, jours de
+  parution, catégories du forum, membres et rôles de l'équipe (lus directement
+  dans `equipe.html`), noms des rangs. Le sous-titre est la
+  `<meta name="description">` réelle de la page.
+  **Ce qui est illustratif, et ne peut pas ne pas l'être** : les pseudos des
+  lecteurs (forum, classement) et l'avancement de lecture (bibliothèque), qui
+  est propre à chaque visiteur. Le seul message attribué à un membre réel est
+  une annonce de sortie — ce que la team publie effectivement.
+- Chaque page prend un **trio de couvertures différent** en fond : sept cartes
   identiques au titre près se suivraient sinon dans un fil Discord.
 - Les genres sont tous couverts, pas seulement les 8 déclarés au sitemap :
   l'edge function fabrique une page pour n'importe quel genre existant, et une
