@@ -34,7 +34,7 @@
         g("sl-cover").href = window.LT.urlSeries(s); g("sl-more").href = window.LT.urlSeries(s);
         g("sl-genres").innerHTML = s.genres.slice(0, 3).map(x => `<span>${x}</span>`).join("");
         g("sl-title").textContent = s.title;
-        g("sl-rating").innerHTML = `${window.LT.stars(s.rating)} <b>${s.rating}</b> <span>·</span> ${s.chapters} chapitres <span>·</span> ${s.status}`;
+        g("sl-rating").innerHTML = `${window.LT.stars(s.rating)} <b>${s.rating}</b> <span>·</span> ${window.LT.nbChapitres(s)} chapitres <span>·</span> ${s.status}`;
         g("sl-syn").textContent = s.description;
         const read = g("sl-read");
         if (window.LT.playable(s)) { read.href = window.LT.urlChapter(s); read.querySelector("span").textContent = "Lire maintenant"; }
@@ -145,7 +145,7 @@
           list.slice(0, 2).forEach(ch =>
             rows.push({ s, num: ch.num, date: s.lastUpdate, sort: new Date(s.lastUpdate || 0).getTime() + parseFloat(ch.num) }));
         } else if (s.type === "manga") {
-          rows.push({ s, num: s.chapters, date: s.lastUpdate, sort: new Date(s.lastUpdate || 0).getTime() });
+          rows.push({ s, num: window.LT.nbChapitres(s), date: s.lastUpdate, sort: new Date(s.lastUpdate || 0).getTime() });
         }
       });
       rows.sort((a, b) => b.sort - a.sort);
@@ -166,7 +166,7 @@
     /* — Compteurs animés — */
     const mangas = S.filter(s => s.type === "manga").length;
     const oneshots = S.filter(s => s.type === "oneshot").length;
-    const totalCh = S.reduce((n, s) => n + (s.chapters || 0), 0);
+    const totalCh = S.reduce((n, s) => n + window.LT.nbChapitres(s), 0);
     setCounter("stat-series", mangas);
     setCounter("stat-chapters", totalCh, "+");
 

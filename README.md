@@ -948,6 +948,14 @@ vérifiée.
 - **Vignettes de partage partout** : une carte 1200 × 630 par série, par page
   et par genre (§ 4.D et 4.D bis) — plus aucune page ne partage l'image
   générique du site.
+- **Chapitres officiels et bonus** : un numéro décimal (`246.5`) désigne une
+  histoire annexe. Ce que le site annonce, c'est l'avancement de **l'histoire**
+  — Tougen Anki 246, Ao No Exorcist 167, Tokyo Underworld 38 — et les bonus
+  sont mentionnés à part sur la fiche. Le compte se fait sur la liste réelle
+  des chapitres (`LT.chapCount`, js/core.js), pas sur le champ `chapters` de
+  `series.js`, tenu à la main : les deux avaient déjà divergé. Même règle côté
+  build (`scripts/build-seo.js`) et côté vignettes (`tools/build-og.py`), donc
+  flux RSS, données structurées et cartes disent tous la même chose.
 - **SEO** : sitemap **index** (un fichier par série, couvertures déclarées en
   `image:image`), `robots.txt`, flux RSS, données structurées JSON-LD
   (ComicSeries / Chapter / CollectionPage / BreadcrumbList) servies aux robots

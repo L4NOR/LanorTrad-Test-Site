@@ -30,6 +30,9 @@
     // survol de lien, et un survol n'a jamais lu quoi que ce soit.
     window.LT.whenActive(() => window.LTstore.markSeen(s.id));
     let chapters = (window.CHAPTERS || {})[s.id] || [];
+    // Les chapitres au numero decimal sont des bonus : ils ne comptent pas
+    // dans l'avancement annonce de l'histoire (voir js/core.js, chapCount).
+    const nbCh = window.LT.chapCount(s);
     const progress = window.LTstore.progress(s.id);
     const gallery = (window.GALLERY || {})[s.id] || null;
     const hasGallery = !!(gallery && ((gallery.tomes && gallery.tomes.length) || (gallery.colors && gallery.colors.length)));
@@ -53,7 +56,7 @@
                 <span id="mv-rating">${window.LT.stars(s.rating)} <b>${s.rating}</b></span><span class="dot"></span>
                 <span>Par <b>${s.author}</b></span><span class="dot"></span>
                 ${s.artist && s.artist !== s.author ? `<span>Dessin <b>${s.artist}</b></span><span class="dot"></span>` : ""}
-                <span><b>${s.chapters}</b> chapitre${s.chapters > 1 ? "s" : ""}</span><span class="dot"></span>
+                <span><b>${nbCh.officiels}</b> chapitre${nbCh.officiels > 1 ? "s" : ""}</span>${nbCh.bonus ? `<span class="dot"></span><span class="mv-bonus">${nbCh.bonus} bonus</span>` : ""}<span class="dot"></span>
                 <span>MàJ ${window.LT.timeAgo(s.lastUpdate) || "—"}</span>
                 <span class="dot" id="mv-vdot" hidden></span><span id="mv-views"></span>
                 <span class="dot" id="mv-pdot" hidden></span><span id="mv-presence" hidden></span>
@@ -134,13 +137,13 @@
     const blockOf = num => Math.floor((Math.ceil(parseFloat(num)) - 1) / RANGE);
 
     if (!chapters.length) {
-      notice.innerHTML = `<div class="notice">⏳ On prépare les <b>${s.chapters}</b> chapitres de cette série. Le Discord te préviendra dès qu'ils tombent.</div>`;
+      notice.innerHTML = `<div class="notice">⏳ On prépare les <b>${nbCh.officiels}</b> chapitres de cette série. Le Discord te préviendra dès qu'ils tombent.</div>`;
     }
 
     function render() {
       const term = search.value.trim();
       const base = chapters.length ? chapters
-        : Array.from({ length: s.chapters }, (_, i) => ({ num: String(s.chapters - i), pages: 0, locked: true }));
+        : Array.from({ length: nbCh.officiels }, (_, i) => ({ num: String(nbCh.officiels - i), pages: 0, locked: true }));
       let data = base.slice();
       const useRanges = !term && base.length > RANGE;
 
@@ -512,7 +515,7 @@
     if (s.artist && s.artist !== s.author) work.illustrator = { "@type": "Person", name: s.artist };
     if (s.year) work.datePublished = String(s.year);
     if (s.type === "oneshot") work.bookFormat = "https://schema.org/GraphicNovel";
-    else work.numberOfEpisodes = s.chapters;
+    else work.numberOfEpisodes = window.LT.nbChapitres(s);
     const crumbs = {
       "@type": "BreadcrumbList",
       itemListElement: [

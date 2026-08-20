@@ -50,7 +50,7 @@
       const sorters = {
         recent: (a, b) => new Date(b.lastUpdate || 0) - new Date(a.lastUpdate || 0),
         rating: (a, b) => (b.rating || 0) - (a.rating || 0),
-        chapters: (a, b) => (b.chapters || 0) - (a.chapters || 0),
+        chapters: (a, b) => window.LT.nbChapitres(b) - window.LT.nbChapitres(a),
         az: (a, b) => a.title.localeCompare(b.title, "fr"),
         za: (a, b) => b.title.localeCompare(a.title, "fr"),
       };

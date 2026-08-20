@@ -40,6 +40,9 @@
 .rate-hint { color: var(--txt-mut); font-size: .8rem; }
 .rate-hint a { color: var(--txt-soft); text-decoration: underline; }
 .rate-votes { color: var(--txt-mut); font-size: .85em; }
+/* Chapitres bonus : annonces a part du compte de l'histoire, et volontairement
+   discrets — ce sont des a-cotes, pas l'avancement de la serie. */
+.mv-bonus { color: var(--txt-mut); font-size: .9em; }
 
 .series-statline { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
 .series-statline .box { padding: 16px 22px; border-radius: var(--radius-sm); background: var(--glass); border: 1px solid var(--line); }

@@ -11,8 +11,9 @@
     const following = window.LTstore && window.LTstore.isFollowing(s.id);
     const isNew = window.LTstore && window.LTstore.isNew(s);
     const prog = window.LTstore && window.LTstore.progress(s.id);
-    const pct = (prog && prog.chapter && s.chapters)
-      ? Math.min(100, Math.round(parseFloat(prog.chapter) / s.chapters * 100)) : 0;
+    const total = window.LT.nbChapitres(s);
+    const pct = (prog && prog.chapter && total)
+      ? Math.min(100, Math.round(parseFloat(prog.chapter) / total * 100)) : 0;
     const progBar = pct > 0
       ? `<div class="card-prog" title="Chapitre ${prog.chapter} · ${pct}% lu"><i style="width:${pct}%"></i></div>` : "";
     return `
@@ -32,7 +33,7 @@
             <h3>${s.title}</h3>
             <div class="row">
               ${chips}
-              <span>${s.chapters} ch.</span>
+              <span>${total} ch.</span>
               ${window.LT ? window.LT.stars(s.rating || 4.5) : ""}
             </div>
             ${progBar}

@@ -179,7 +179,7 @@
     const yr = new Date().getFullYear();
     const fS = window.SERIES || [];
     const fSeries = fS.filter(s => s.type === "manga").length;
-    const fChapters = fS.reduce((a, s) => a + (s.chapters || 0), 0);
+    const fChapters = fS.reduce((a, s) => a + nbChapitres(s), 0);
     const footer = el(`
       <footer class="footer">
         <div class="wrap grid">
@@ -683,8 +683,28 @@
   const isGenre = g => !TAGS_INTERNES.has(g);
   const publicGenres = s => (s.genres || []).filter(isGenre);
 
+  /* ---------- Chapitres officiels et chapitres bonus ----------
+     Un numero decimal (246.5, 23.25) designe un chapitre BONUS : une histoire
+     annexe, pas un chapitre de l'histoire principale. Les compter ensemble
+     gonflerait l'avancement annonce d'une serie — Tougen Anki afficherait 249
+     chapitres quand l'histoire en est au 246.
+
+     Le compte se fait sur la LISTE reelle des chapitres. Le champ `chapters`
+     de series.js, tenu a la main, ne sert plus que de repli tant que la liste
+     n'est pas chargee (l'accueil et le catalogue l'ont toujours, eux). Au
+     passage, cela reconcilie les series ou les deux avaient diverge. */
+  const estBonus = n => { const v = parseFloat(n); return Number.isFinite(v) && v !== Math.trunc(v); };
+  function chapCount(s) {
+    const repli = (s && s.chapters) || 0;
+    const L = ((window.CHAPTERS || {})[s && s.id]) || [];
+    if (!L.length) return { total: repli, officiels: repli, bonus: 0 };
+    const bonus = L.reduce((n, c) => n + (estBonus(c.num) ? 1 : 0), 0);
+    return { total: L.length, officiels: L.length - bonus, bonus };
+  }
+  const nbChapitres = s => chapCount(s).officiels;
+
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, estBonus, chapCount, nbChapitres, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un

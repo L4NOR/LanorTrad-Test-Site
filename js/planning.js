@@ -25,7 +25,7 @@
           // L'atelier fait autorité sur le numéro à venir quand il est déclaré ;
           // sinon on déduit le suivant du dernier chapitre paru.
           const atl = window.LTatelier ? window.LTatelier.get(s.id) : null;
-          const next = atl ? atl.chapter : (C[s.id] ? parseFloat(C[s.id][0].num) + 1 : s.chapters + 1);
+          const next = atl ? atl.chapter : (C[s.id] ? parseFloat(C[s.id][0].num) + 1 : window.LT.nbChapitres(s) + 1);
           // Aperçu : le chapitre à venir n'a pas encore de pages, on montre
           // donc la première page du dernier chapitre paru (libellé explicite).
           const peek = window.LTpreview ? window.LTpreview.btnFor(s, next) : "";
@@ -58,7 +58,7 @@
       const rows = (window.SERIES || []).filter(s => s.lastUpdate)
         .sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate)).slice(0, 8);
       tl.innerHTML = rows.map(s => {
-        const last = C[s.id] ? C[s.id][0].num : s.chapters;
+        const last = C[s.id] ? C[s.id][0].num : window.LT.nbChapitres(s);
         const href = window.LT.playable(s) ? window.LT.urlChapter(s, last) : window.LT.urlSeries(s);
         const peek = window.LTpreview ? window.LTpreview.btnFor(s, last) : "";
         return `<div class="tl-row${peek ? " has-peek" : ""}" style="--accent:${s.accent}" data-reveal="left">

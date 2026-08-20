@@ -68,15 +68,31 @@ async function fetchRatings() {
   }
 }
 
+/* -------------------- chapitres officiels et bonus --------------------
+   Un numero decimal (246.5, 23.25) designe un chapitre BONUS : une histoire
+   annexe, pas un chapitre de l'histoire principale. Ce qu'on annonce partout —
+   flux, donnees structurees, vignettes de partage — c'est l'avancement de
+   l'HISTOIRE, donc le compte officiel.
+
+   Le compte se fait sur la liste reelle des chapitres et non sur le champ
+   `chapters` de series.js, tenu a la main : les deux avaient deja diverge.
+   Meme regle que js/core.js (chapCount) et tools/build-og.py. */
+const estBonus = n => { const v = parseFloat(n); return Number.isFinite(v) && v !== Math.trunc(v); };
+const nbOfficiels = (s, chapters) => {
+  const L = (chapters || {})[s.id] || [];
+  if (!L.length) return s.chapters || 0;
+  return L.reduce((n, c) => n + (estBonus(c.num) ? 0 : 1), 0);
+};
+
 /* ----------------------------- feed.xml ----------------------------- */
-function buildFeed(series) {
+function buildFeed(series, chapters) {
   const items = series
     .filter(s => s.lastUpdate)
     .sort((a, b) => String(b.lastUpdate).localeCompare(String(a.lastUpdate)))
     .slice(0, 30)
     .map(s => {
       const link = uSerie(s.id);
-      const title = `${s.title} — chapitre ${s.chapters}`;
+      const title = `${s.title} — chapitre ${nbOfficiels(s, chapters)}`;
       return `    <item>
       <title>${esc(title)}</title>
       <link>${esc(link)}</link>
@@ -281,7 +297,9 @@ function buildOgMeta(series, chapters, ratings, notes) {
       // vignette n'a pas ete generee : on retombe alors sur la couverture.
       og: ogCard(s.id),
       // Nombre de chapitres de l'oeuvre (numberOfEpisodes du JSON-LD).
-      count: s.chapters || (chapters[s.id] || []).length,
+      // Compte OFFICIEL : c'est lui que portent numberOfEpisodes et les
+      // vignettes de partage (voir nbOfficiels ci-dessus).
+      count: nbOfficiels(s, chapters),
       // Instantane des vraies notes ; absent s'il n'y en a pas assez.
       rating: ratings[s.id] || null,
       chapters: (chapters[s.id] || []).map(c => {
@@ -462,7 +480,7 @@ async function pingIndexNow(series, chapters) {
 
   recibleHtml();
   buildRobots();
-  buildFeed(series);
+  buildFeed(series, chapters);
   buildSitemap(series, chapters);
   buildOgMeta(series, chapters, ratings, notes);
   await pingIndexNow(series, chapters);
