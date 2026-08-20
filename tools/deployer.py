@@ -208,6 +208,21 @@ def main():
     env = dict(os.environ)
     env["URL"] = SITE                      # <- sans ca, les vignettes cassent
 
+    # Priorite a l'IPv4 pour les resolutions DNS du CLI.
+    #
+    # Les deux echecs de televersement observes ici etaient des
+    # « getaddrinfo ENOTFOUND api.netlify.com » survenus en pleine operation,
+    # alors que la resolution marche parfaitement a froid. Sur cette machine,
+    # le DNS IPv4 est celui de Google et le DNS IPv6 celui de la box ; sous la
+    # charge de plusieurs milliers de fichiers, c'est ce dernier qui decroche.
+    # api.netlify.com n'a de toute facon que des enregistrements IPv4.
+    #
+    # Ca reduit la fenetre de tir, ca ne la ferme pas : le vrai correctif est
+    # de donner un resolveur IPv6 fiable a la carte reseau.
+    options = env.get("NODE_OPTIONS", "")
+    if "dns-result-order" not in options:
+        env["NODE_OPTIONS"] = (options + " --dns-result-order=ipv4first").strip()
+
     print(f"Site vise   : {SITE}", flush=True)
     for nom, cmd in ETAPES:
         titre(nom)

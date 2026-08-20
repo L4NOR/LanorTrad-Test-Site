@@ -911,6 +911,17 @@ ou double-clic sur `tools/Deployer.bat`. Le script rejoue exactement la chaîne 
 une vérification échoue**, téléverse, puis remet le dépôt dans son état d'origine.
 `--essai` déploie sur une URL temporaire au lieu de la production.
 
+> **Si le DNS décroche en plein envoi** (`getaddrinfo ENOTFOUND api.netlify.com`),
+> regarde les résolveurs de la carte réseau : ici, l'IPv4 pointait Google et
+> l'**IPv6 la box**, qui lâchait sous la charge de plusieurs milliers de
+> fichiers. Le script demande déjà l'IPv4 en priorité au CLI
+> (`--dns-result-order=ipv4first`), mais ça ne fait que réduire la fenêtre de
+> tir. Le vrai correctif tient en une commande :
+>
+> ```powershell
+> Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ("8.8.8.8","2001:4860:4860::8888")
+> ```
+
 **Si le téléversement s'interrompt** (coupure réseau, DNS qui décroche — sur
 14 000 fichiers, ça arrive), rien n'est perdu : Netlify indexe les fichiers par
 empreinte, donc il ne redemande jamais ce qu'il a déjà reçu. Le script réessaie

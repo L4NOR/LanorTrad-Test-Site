@@ -1,6 +1,11 @@
+# Généré par scripts/build-seo.js — ne pas éditer à la main.
+#
+# Ce déploiement (lanortradtest.netlify.app) n'est pas le site public. C'en est une copie
+# quasi identique : laissée indexable, elle ferait concurrence à
+# lanortrad.com sur ses propres pages, avec en prime des canonical qui
+# pointent ici plutôt que là-bas.
+#
+# L'indexation se rouvrira d'elle-même le jour où ce dépôt servira le
+# domaine public : la règle porte sur le domaine, pas sur une case à cocher.
 User-agent: *
-Allow: /
-# Outil de team (etat des scripts SQL), en noindex : rien a indexer ici.
-Disallow: /diag.html
-
-Sitemap: https://lanortrad.com/sitemap.xml
+Disallow: /
