@@ -68,8 +68,26 @@ def lancer(cmd, env=None):
 
 
 def netlify():
-    """Chemin du CLI, ou None s'il n'est pas installe."""
-    return shutil.which("netlify") or shutil.which("netlify.cmd")
+    """Chemin du CLI, ou None s'il est vraiment introuvable.
+
+    On ne se contente pas du PATH : Windows le lit au demarrage de chaque
+    console et ne le relit jamais. Une fenetre ouverte avant l'installation du
+    CLI ne le verra donc pas, meme s'il est bel et bien la — d'ou le detour par
+    le dossier des paquets npm globaux."""
+    trouve = shutil.which("netlify") or shutil.which("netlify.cmd")
+    if trouve:
+        return trouve
+    try:
+        prefixe = subprocess.run(["npm", "config", "get", "prefix"],
+                                 capture_output=True, text=True,
+                                 shell=(os.name == "nt")).stdout.strip()
+    except Exception:                                            # noqa: BLE001
+        return None
+    for nom in ("netlify.cmd", "netlify.exe", "netlify"):
+        chemin = os.path.join(prefixe, nom)
+        if prefixe and os.path.exists(chemin):
+            return chemin
+    return None
 
 
 def restaurer():
@@ -95,10 +113,12 @@ def main():
 
     cli = netlify()
     if not cli:
-        print("Le CLI Netlify n'est pas installe.\n")
+        print("Le CLI Netlify est introuvable.\n")
         print("  npm install -g netlify-cli")
-        print("  netlify login")
-        print("  netlify link")
+        print("  netlify login      (ouvre le navigateur)")
+        print("  netlify link       (a lancer DANS ce dossier)")
+        print("\nDeja installe ? Ouvre une NOUVELLE fenetre : Windows ne relit")
+        print("le PATH qu'au demarrage d'une console.")
         return 1
 
     env = dict(os.environ)

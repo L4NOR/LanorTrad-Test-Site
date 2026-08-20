@@ -885,8 +885,21 @@ un chapitre de plus, c'est vingt fichiers, pas quinze giga-octets.
 npm install -g netlify-cli
 ```
 
-Puis `netlify login` (le navigateur s'ouvre, c'est toi qui valides) et
-`netlify link` pour relier ce dossier au site.
+Puis, **dans une fenêtre ouverte APRÈS cette installation** — Windows ne relit le
+`PATH` qu'au démarrage d'une console, une fenêtre déjà ouverte répondra
+« terme non reconnu » — et **depuis ce dossier**, pas depuis `F:\` :
+
+```bash
+netlify login
+```
+
+```bash
+netlify link
+```
+
+`login` ouvre le navigateur, c'est toi qui valides. `link` relie le dossier au
+site. Le script, lui, sait retrouver le CLI même si le `PATH` ne le montre pas :
+il va le chercher dans le dossier des paquets npm globaux.
 
 **À chaque fois :**
 
