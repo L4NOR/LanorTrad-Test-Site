@@ -28,8 +28,10 @@ partage sur lanortrad.com, qui ne sert pas encore le site : plus aucune image
 de partage sur Discord. D'ou LT_SITE_URL ci-dessous.
 
 PREALABLES (une seule fois)
-    npm install -g netlify-cli
-    py tools/deployer.py --connexion   # login + link, sans avoir a taper netlify
+    py tools/deployer.py --connexion   # login + link
+
+Rien a installer a la main : si le CLI Netlify n'est pas la, le script le fait
+telecharger par npx. Seul Node.js est requis (https://nodejs.org).
 
 La commande `netlify` n'a PAS besoin d'etre dans le PATH : ce script retrouve
 l'executable dans le dossier des paquets npm globaux. C'est delibere : sur cette
@@ -117,42 +119,38 @@ def lancer(cmd, env=None):
     return subprocess.run(cmd, cwd=ROOT, env=complet, shell=(os.name == "nt")).returncode
 
 
-def netlify():
-    """Chemin du CLI, ou None s'il est vraiment introuvable.
+def commande_netlify():
+    """La commande qui lance le CLI Netlify, ou None si Node est absent.
 
-    On ne se contente pas du PATH : Windows le lit au demarrage de chaque
-    console et ne le relit jamais. Une fenetre ouverte avant l'installation du
-    CLI ne le verra donc pas, meme s'il est bel et bien la — d'ou le detour par
-    le dossier des paquets npm globaux."""
+    Trois pistes, dans l'ordre :
+      1. le PATH (reconstruit depuis le registre) ;
+      2. les dossiers ou npm pose ses paquets globaux ;
+      3. npx, qui telecharge le CLI a la demande et le garde en cache.
+
+    La troisieme evite d'avoir a installer quoi que ce soit globalement — et
+    c'est justement ce qui manquait ici : `npm install -g` ne s'etait pas fait
+    sur cette machine."""
     trouve = shutil.which("netlify", path=PATH) or shutil.which("netlify.cmd", path=PATH)
     if trouve:
-        return trouve
+        return [trouve]
 
-    # Endroits connus, sans rien demander a personne : c'est la ou npm installe
-    # ses paquets globaux sur Windows et sur les autres systemes.
-    candidats = []
+    dossiers = []
     for base in (os.environ.get("APPDATA"), os.environ.get("LOCALAPPDATA")):
         if base:
-            candidats.append(os.path.join(base, "npm"))
-    candidats += [os.path.join(os.environ.get("ProgramFiles", ""), "nodejs"),
-                  "/usr/local/bin", "/usr/bin",
-                  os.path.expanduser("~/.npm-global/bin")]
-
-    # Et en dernier, on demande a npm — utile si le prefixe a ete deplace.
-    try:
-        sortie = subprocess.run(["npm", "config", "get", "prefix"],
-                                capture_output=True, text=True, shell=(os.name == "nt"),
-                                env={**os.environ, "PATH": PATH}).stdout.strip()
-        if sortie:
-            candidats.append(sortie)
-    except Exception:                                            # noqa: BLE001
-        pass
-
-    for dossier in candidats:
+            dossiers.append(os.path.join(base, "npm"))
+    dossiers += [os.path.join(os.environ.get("ProgramFiles", ""), "nodejs"),
+                 "/usr/local/bin", "/usr/bin", os.path.expanduser("~/.npm-global/bin")]
+    for dossier in dossiers:
         for nom in ("netlify.cmd", "netlify.exe", "netlify"):
             chemin = os.path.join(dossier, nom)
             if dossier and os.path.exists(chemin):
-                return chemin
+                return [chemin]
+
+    # Rien d'installe : npx s'en charge. Le premier appel telecharge le CLI
+    # (une minute environ), les suivants tapent dans le cache npm.
+    npx = shutil.which("npx", path=PATH) or shutil.which("npx.cmd", path=PATH)
+    if npx:
+        return [npx, "--yes", "netlify-cli"]
     return None
 
 
@@ -179,30 +177,27 @@ def main():
                     help="authentification Netlify puis liaison du dossier (une seule fois)")
     args = ap.parse_args()
 
-    cli = netlify()
+    cli = commande_netlify()
     if not cli:
-        print("Le CLI Netlify est introuvable.\n")
-        print("  npm install -g netlify-cli")
-        print("  netlify login      (ouvre le navigateur)")
-        print("  netlify link       (a lancer DANS ce dossier)")
-        print("\nCherche dans le PATH (reconstruit depuis le registre) et dans :")
-        for base in (os.environ.get("APPDATA"), os.environ.get("LOCALAPPDATA")):
-            if base:
-                print("  " + os.path.join(base, "npm"))
+        print("Node.js est introuvable sur cette machine.\n")
+        print("Le deploiement en a besoin (npx, npm, node). Installe-le :")
+        print("  https://nodejs.org  (version LTS)")
+        print("\npuis relance cette commande. Rien d'autre a installer :")
+        print("le CLI Netlify sera telecharge tout seul au premier appel.")
         return 1
 
-    print(f"CLI Netlify : {cli}", flush=True)
+    print("CLI Netlify : " + (" ".join(cli) if len(cli) > 1 else cli[0]), flush=True)
 
     if args.connexion:
         # On appelle le CLI par son chemin complet : inutile de se battre avec
         # le PATH de la console pour deux commandes qu'on ne tape qu'une fois.
         titre("Authentification")
         print("Le navigateur va s'ouvrir. C'est toi qui valides.\n", flush=True)
-        if lancer([cli, "login"]) != 0:
+        if lancer(cli + ["login"]) != 0:
             print("\nAuthentification interrompue.")
             return 1
         titre("Liaison du dossier au site")
-        code = lancer([cli, "link"])
+        code = lancer(cli + ["link"])
         if code == 0:
             print("\nPret. Tu peux maintenant lancer :  py tools/deployer.py")
         return code
@@ -221,7 +216,7 @@ def main():
 
     titre("Televersement")
     print("Netlify ne redemande que les fichiers qu'il n'a pas deja.\n", flush=True)
-    cmd = [cli, "deploy", "--dir", "."] + ([] if args.essai else ["--prod"])
+    cmd = cli + ["deploy", "--dir", "."] + ([] if args.essai else ["--prod"])
     code = lancer(cmd, env)
 
     restaurer()

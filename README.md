@@ -879,13 +879,11 @@ On inverse donc : la machine qui possède déjà les fichiers les téléverse
 elle-même. Netlify compare les empreintes et ne redemande que ce qu'il n'a pas —
 un chapitre de plus, c'est vingt fichiers, pas quinze giga-octets.
 
-**Une seule fois :**
+**Prérequis : Node.js** (https://nodejs.org, version LTS). Rien d'autre à
+installer — si le CLI Netlify n'est pas là, le script le fait télécharger par
+`npx` au premier appel, et il reste en cache ensuite.
 
-```bash
-npm install -g netlify-cli
-```
-
-Puis, **depuis ce dossier** :
+**Une seule fois, depuis ce dossier :**
 
 ```bash
 py tools/deployer.py --connexion
