@@ -67,6 +67,35 @@ _font_bytes = {}
 _warned = False
 
 
+def est_bonus(num):
+    """Un numero decimal (246.5, 23.25) designe un chapitre BONUS : une
+    histoire annexe, pas un chapitre de l'histoire principale. C'est la seule
+    marque qui les distingue dans les donnees, et elle suffit."""
+    try:
+        v = float(str(num))
+    except (TypeError, ValueError):
+        return False
+    return v != int(v)
+
+
+def compte_chapitres(s):
+    """(officiels, bonus) — comptes sur la LISTE reelle des chapitres, pas sur
+    le champ `count` de series.js, qui peut avoir pris du retard."""
+    ch = s.get("chapters") or []
+    bonus = sum(1 for c in ch if est_bonus(c.get("n")))
+    return len(ch) - bonus, bonus
+
+
+def chapitres_lisible(s):
+    """« 246 chapitres (3 bonus) ». Les bonus sont annonces a part : les
+    compter avec les autres laisserait croire que l'histoire principale est
+    plus avancee qu'elle ne l'est."""
+    officiels, bonus = compte_chapitres(s)
+    if not officiels:
+        return ""
+    return f"{officiels} chapitre{'s' if officiels > 1 else ''}" + (f" ({bonus} bonus)" if bonus else "")
+
+
 def slug(name):
     """Nom de fichier sans accent ni espace (identique cote build-seo.js)."""
     out = unicodedata.normalize("NFD", str(name))
@@ -259,11 +288,12 @@ def build_card(sid, s, cover_path):
 
     # Volume + statut : ce qui donne envie de cliquer.
     bits = []
-    n = s.get("count") or len(s.get("chapters") or [])
     if s.get("type") == "oneshot":
         bits.append("Oneshot")
-    elif n:
-        bits.append(f"{n} chapitres")
+    else:
+        libelle = chapitres_lisible(s)
+        if libelle:
+            bits.append(libelle)
     if s.get("status"):
         bits.append(s["status"])
     if bits:

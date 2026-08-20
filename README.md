@@ -421,6 +421,14 @@ node scripts/build-seo.js && py tools/build-og-pages.py
 - **Aucun emoji** n'est dessinable : les polices du site sont des sous-ensembles
   latins, un emoji y sortirait en carré vide. Pastilles, jauges, médailles et
   avatars sont donc dessinés.
+- **Chapitres bonus** : un numéro décimal (`246.5`, `23.25`) désigne une
+  histoire annexe, pas un chapitre de l'histoire principale. Les cartes
+  l'annoncent donc à part — « 246 chapitres (3 bonus) » — et une sortie bonus
+  est signalée comme telle. Les compter ensemble laisserait croire que
+  l'histoire est plus avancée qu'elle ne l'est. La règle vit dans
+  `tools/build-og.py` (`est_bonus`, `compte_chapitres`), et compte sur la
+  **liste réelle** des chapitres, pas sur le champ `chapters` de `series.js`
+  qui peut avoir pris du retard.
 - **Ce qui est vrai sur ces cartes** : séries, numéros de chapitres, jours de
   parution, catégories du forum, membres et rôles de l'équipe (lus directement
   dans `equipe.html`), noms des rangs. Le sous-titre est la

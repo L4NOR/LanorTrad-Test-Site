@@ -253,14 +253,19 @@ def maquettes(series, couvs):
     recentes = [s for s in ordre if couvs.get(id(s))]
     derniere = recentes[0] if recentes else None
     dernier_ch = (derniere or {}).get("chapters", [{}])[0].get("n", "")
+    # Un chapitre au numero decimal est un BONUS : le dire, plutot que de
+    # laisser croire que l'histoire principale en est la.
+    suffixe = " (bonus)" if og.est_bonus(dernier_ch) else ""
 
     # --- Forum : categorie et sujet reels, echange illustratif ---
     d_forum = {
         "categorie": "Discussions",                              # supabase/schema.sql
-        "sujet": f"{derniere['title']} — chapitre {dernier_ch}" if derniere else "Discussions",
+        "sujet": (f"{derniere['title']} — chapitre {dernier_ch}{suffixe}"
+                  if derniere else "Discussions"),
         "messages": [
             {"qui": "Lanor", "badge": "Team",
-             "texte": f"Le chapitre {dernier_ch} est en ligne. Bonne lecture !"},
+             # Court : la mention « (bonus) » fait deborder une phrase plus longue.
+             "texte": f"Le chapitre {dernier_ch}{suffixe} est en ligne !"},
             {"qui": "Miya", "texte": "Cette fin de chapitre… je ne m'y attendais pas."},
             {"qui": "Kenta", "texte": "Quelqu'un a une théorie sur la suite ?"},
         ],
@@ -295,7 +300,8 @@ def maquettes(series, couvs):
         "sorties": [{
             "couverture": cov(s),
             "titre": s["title"],
-            "chapitre": f"Chapitre {(s.get('chapters') or [{}])[0].get('n', '')}",
+            "chapitre": (lambda n: f"Chapitre {n}" + (" · bonus" if og.est_bonus(n) else ""))(
+                (s.get("chapters") or [{}])[0].get("n", "")),
             "quand": depuis(s.get("updated") or ""),
         } for s in recentes[:3]],
     }
@@ -310,7 +316,9 @@ def maquettes(series, couvs):
     #     illustratif. Les series et leur nombre de chapitres, eux, sont vrais. ---
     en_cours = []
     for s, ratio in zip(recentes[:3], (0.53, 0.18, 0.86)):
-        total = len(s.get("chapters") or []) or 1
+        # Le reperage se fait sur l'histoire principale : les bonus ne sont pas
+        # des paliers de lecture.
+        total = og.compte_chapitres(s)[0] or 1
         en_cours.append({
             "couverture": cov(s), "titre": s["title"], "ratio": ratio,
             "repere": f"Chapitre {max(1, round(total * ratio))} / {total}",
