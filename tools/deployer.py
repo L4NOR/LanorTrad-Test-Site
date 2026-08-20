@@ -29,12 +29,17 @@ de partage sur Discord. D'ou LT_SITE_URL ci-dessous.
 
 PREALABLES (une seule fois)
     npm install -g netlify-cli
-    netlify login      # ouvre le navigateur, c'est toi qui valides
-    netlify link       # relie ce dossier au site Netlify
+    py tools/deployer.py --connexion   # login + link, sans avoir a taper netlify
+
+La commande `netlify` n'a PAS besoin d'etre dans le PATH : ce script retrouve
+l'executable dans le dossier des paquets npm globaux. C'est delibere : sur cette
+machine, une console fraiche ne le voit pas toujours, et passer une demi-heure
+sur une variable d'environnement pour deployer un site n'a pas de sens.
 
 USAGE
     py tools/deployer.py              # deploiement en production
     py tools/deployer.py --essai      # deploiement d'apercu, URL temporaire
+    py tools/deployer.py --connexion  # authentification + liaison du dossier
 """
 import os
 import sys
@@ -109,6 +114,8 @@ def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("--essai", action="store_true",
                     help="deploiement d'apercu (URL temporaire) au lieu de la production")
+    ap.add_argument("--connexion", action="store_true",
+                    help="authentification Netlify puis liaison du dossier (une seule fois)")
     args = ap.parse_args()
 
     cli = netlify()
@@ -121,10 +128,26 @@ def main():
         print("le PATH qu'au demarrage d'une console.")
         return 1
 
+    print(f"CLI Netlify : {cli}", flush=True)
+
+    if args.connexion:
+        # On appelle le CLI par son chemin complet : inutile de se battre avec
+        # le PATH de la console pour deux commandes qu'on ne tape qu'une fois.
+        titre("Authentification")
+        print("Le navigateur va s'ouvrir. C'est toi qui valides.\n", flush=True)
+        if lancer([cli, "login"]) != 0:
+            print("\nAuthentification interrompue.")
+            return 1
+        titre("Liaison du dossier au site")
+        code = lancer([cli, "link"])
+        if code == 0:
+            print("\nPret. Tu peux maintenant lancer :  py tools/deployer.py")
+        return code
+
     env = dict(os.environ)
     env["URL"] = SITE                      # <- sans ca, les vignettes cassent
 
-    print(f"Site vise : {SITE}", flush=True)
+    print(f"Site vise   : {SITE}", flush=True)
     for nom, cmd in ETAPES:
         titre(nom)
         code = lancer(cmd, env)

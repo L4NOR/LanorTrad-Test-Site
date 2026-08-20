@@ -885,21 +885,22 @@ un chapitre de plus, c'est vingt fichiers, pas quinze giga-octets.
 npm install -g netlify-cli
 ```
 
-Puis, **dans une fenêtre ouverte APRÈS cette installation** — Windows ne relit le
-`PATH` qu'au démarrage d'une console, une fenêtre déjà ouverte répondra
-« terme non reconnu » — et **depuis ce dossier**, pas depuis `F:\` :
+Puis, **depuis ce dossier** :
 
 ```bash
-netlify login
+py tools/deployer.py --connexion
 ```
 
-```bash
-netlify link
-```
+Le navigateur s'ouvre pour l'authentification — c'est toi qui valides — puis le
+dossier est relié au site.
 
-`login` ouvre le navigateur, c'est toi qui valides. `link` relie le dossier au
-site. Le script, lui, sait retrouver le CLI même si le `PATH` ne le montre pas :
-il va le chercher dans le dossier des paquets npm globaux.
+> **Pourquoi passer par le script plutôt que taper `netlify login`.** La commande
+> `netlify` n'est pas toujours visible depuis une console, même après un
+> redémarrage : c'est arrivé sur cette machine alors que l'exécutable était bien
+> installé et le `PATH` correct au registre. Le script ne dépend pas du `PATH` —
+> il demande à npm où il range ses paquets globaux et appelle l'exécutable par
+> son chemin complet. Une variable d'environnement capricieuse ne doit pas
+> empêcher de publier un site.
 
 **À chaque fois :**
 
