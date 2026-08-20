@@ -60,6 +60,47 @@ ETAPES = [
 ]
 
 
+def path_complet():
+    """Le PATH reconstruit depuis le registre : machine, puis utilisateur.
+
+    Sur cette machine, une console fraiche demarre parfois sans les dossiers de
+    Node et des paquets npm globaux, alors que les deux sont installes et
+    correctement declares dans le registre. Resultat : ni `node`, ni `npm`, ni
+    `netlify`, et un script qui s'arrete sur une variable d'environnement.
+
+    Plutot que de dependre de ce que la console a bien voulu heriter, on relit
+    la source. Hors Windows, on garde le PATH tel quel."""
+    herite = os.environ.get("PATH", "")
+    if os.name != "nt":
+        return herite
+    import winreg
+    morceaux = []
+    for racine, cle in (
+        (winreg.HKEY_LOCAL_MACHINE,
+         r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"),
+        (winreg.HKEY_CURRENT_USER, "Environment"),
+    ):
+        try:
+            with winreg.OpenKey(racine, cle) as k:
+                valeur, _ = winreg.QueryValueEx(k, "Path")
+                if valeur:
+                    morceaux.append(os.path.expandvars(valeur))
+        except OSError:
+            pass
+    morceaux.append(herite)
+    # Doublons retires, ordre conserve.
+    vus, propre = set(), []
+    for bout in os.pathsep.join(morceaux).split(os.pathsep):
+        bout = bout.strip().rstrip("\\")
+        if bout and bout.lower() not in vus:
+            vus.add(bout.lower())
+            propre.append(bout)
+    return os.pathsep.join(propre)
+
+
+PATH = path_complet()
+
+
 def titre(t):
     # flush : les sous-processus ecrivent directement sur la console, nos
     # propres messages passent par un tampon. Sans ca, chaque titre
@@ -69,7 +110,11 @@ def titre(t):
 
 
 def lancer(cmd, env=None):
-    return subprocess.run(cmd, cwd=ROOT, env=env, shell=(os.name == "nt")).returncode
+    """Tous les sous-processus heritent du PATH reconstruit : sans ca, `node`
+    et `git` manqueraient a l'appel exactement comme `netlify`."""
+    complet = dict(env or os.environ)
+    complet["PATH"] = PATH
+    return subprocess.run(cmd, cwd=ROOT, env=complet, shell=(os.name == "nt")).returncode
 
 
 def netlify():
@@ -79,19 +124,35 @@ def netlify():
     console et ne le relit jamais. Une fenetre ouverte avant l'installation du
     CLI ne le verra donc pas, meme s'il est bel et bien la — d'ou le detour par
     le dossier des paquets npm globaux."""
-    trouve = shutil.which("netlify") or shutil.which("netlify.cmd")
+    trouve = shutil.which("netlify", path=PATH) or shutil.which("netlify.cmd", path=PATH)
     if trouve:
         return trouve
+
+    # Endroits connus, sans rien demander a personne : c'est la ou npm installe
+    # ses paquets globaux sur Windows et sur les autres systemes.
+    candidats = []
+    for base in (os.environ.get("APPDATA"), os.environ.get("LOCALAPPDATA")):
+        if base:
+            candidats.append(os.path.join(base, "npm"))
+    candidats += [os.path.join(os.environ.get("ProgramFiles", ""), "nodejs"),
+                  "/usr/local/bin", "/usr/bin",
+                  os.path.expanduser("~/.npm-global/bin")]
+
+    # Et en dernier, on demande a npm — utile si le prefixe a ete deplace.
     try:
-        prefixe = subprocess.run(["npm", "config", "get", "prefix"],
-                                 capture_output=True, text=True,
-                                 shell=(os.name == "nt")).stdout.strip()
+        sortie = subprocess.run(["npm", "config", "get", "prefix"],
+                                capture_output=True, text=True, shell=(os.name == "nt"),
+                                env={**os.environ, "PATH": PATH}).stdout.strip()
+        if sortie:
+            candidats.append(sortie)
     except Exception:                                            # noqa: BLE001
-        return None
-    for nom in ("netlify.cmd", "netlify.exe", "netlify"):
-        chemin = os.path.join(prefixe, nom)
-        if prefixe and os.path.exists(chemin):
-            return chemin
+        pass
+
+    for dossier in candidats:
+        for nom in ("netlify.cmd", "netlify.exe", "netlify"):
+            chemin = os.path.join(dossier, nom)
+            if dossier and os.path.exists(chemin):
+                return chemin
     return None
 
 
@@ -124,8 +185,10 @@ def main():
         print("  npm install -g netlify-cli")
         print("  netlify login      (ouvre le navigateur)")
         print("  netlify link       (a lancer DANS ce dossier)")
-        print("\nDeja installe ? Ouvre une NOUVELLE fenetre : Windows ne relit")
-        print("le PATH qu'au demarrage d'une console.")
+        print("\nCherche dans le PATH (reconstruit depuis le registre) et dans :")
+        for base in (os.environ.get("APPDATA"), os.environ.get("LOCALAPPDATA")):
+            if base:
+                print("  " + os.path.join(base, "npm"))
         return 1
 
     print(f"CLI Netlify : {cli}", flush=True)
