@@ -911,6 +911,13 @@ ou double-clic sur `tools/Deployer.bat`. Le script rejoue exactement la chaîne 
 une vérification échoue**, téléverse, puis remet le dépôt dans son état d'origine.
 `--essai` déploie sur une URL temporaire au lieu de la production.
 
+**Si le téléversement s'interrompt** (coupure réseau, DNS qui décroche — sur
+14 000 fichiers, ça arrive), rien n'est perdu : Netlify indexe les fichiers par
+empreinte, donc il ne redemande jamais ce qu'il a déjà reçu. Le script réessaie
+**cinq fois** tout seul, et chaque tentative repart de là où la précédente s'est
+arrêtée. Relancer la commande à la main a le même effet. `--essais N` change le
+nombre de tentatives.
+
 **Et les déploiements git de Netlify ?** Ils continueront d'échouer tant que le
 dépôt pèsera 15 Go : chaque push déclenche un clone qui se fait tuer au bout de
 30 minutes. Découper les commits n'y change rien — c'est le clone qui bloque,

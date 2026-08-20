@@ -45,6 +45,7 @@ USAGE
 """
 import os
 import sys
+import time
 import shutil
 import argparse
 import subprocess
@@ -175,6 +176,8 @@ def main():
                     help="deploiement d'apercu (URL temporaire) au lieu de la production")
     ap.add_argument("--connexion", action="store_true",
                     help="authentification Netlify puis liaison du dossier (une seule fois)")
+    ap.add_argument("--essais", type=int, default=5, metavar="N",
+                    help="tentatives de televersement avant d'abandonner (defaut 5)")
     args = ap.parse_args()
 
     cli = commande_netlify()
@@ -215,14 +218,32 @@ def main():
             return code
 
     titre("Televersement")
-    print("Netlify ne redemande que les fichiers qu'il n'a pas deja.\n", flush=True)
+    print("Netlify ne redemande que les fichiers qu'il n'a pas deja.", flush=True)
+    print("Une coupure reseau n'est donc pas perdue : chaque tentative reprend", flush=True)
+    print("la ou la precedente s'est arretee.\n", flush=True)
     cmd = cli + ["deploy", "--dir", "."] + ([] if args.essai else ["--prod"])
-    code = lancer(cmd, env)
+
+    # Sur 14 000 fichiers et plusieurs giga-octets, une micro-coupure suffit a
+    # tout arreter (ENOTFOUND, delai depasse...). On reessaie plutot que de
+    # renvoyer l'utilisateur a la ligne de commande : les fichiers deja recus
+    # sont indexes par empreinte, la tentative suivante en demande moins.
+    code = 1
+    for essai in range(1, args.essais + 1):
+        if essai > 1:
+            print(f"\n--- tentative {essai}/{args.essais}, dans 15 s ---", flush=True)
+            time.sleep(15)
+        code = lancer(cmd, env)
+        if code == 0:
+            break
+        if essai < args.essais:
+            print(f"\nTeleversement interrompu (code {code}).", flush=True)
 
     restaurer()
 
     if code != 0:
-        print("\nLe deploiement a echoue. Le depot est intact.")
+        print(f"\nLe deploiement a echoue apres {args.essais} tentative(s).")
+        print("Le depot est intact, et les fichiers deja envoyes sont conserves :")
+        print("relancer la commande reprendra ou ca s'est arrete.")
         return code
     print("\nDeploiement termine.")
     return 0
