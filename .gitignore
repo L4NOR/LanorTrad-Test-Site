@@ -49,4 +49,3 @@ tools/.dims-cache.json
 # Ou elles vivent desormais : sur ce disque, sur Netlify, et les originaux
 # JPG dans l'ancien site (Documents/Site/LanorTrad/Manga sur C:).
 # `git checkout -- Manga/` ne les restaure plus : c'est le prix assume.
-Manga/
