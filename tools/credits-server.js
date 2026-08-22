@@ -75,12 +75,15 @@ function loadChapters() {
 }
 
 function loadCredits() {
-  if (!fs.existsSync(CREDITS_FILE)) return { defaut: {}, series: {} };
+  const vide = { defaut: {}, liens: {}, series: {} };
+  if (!fs.existsSync(CREDITS_FILE)) return vide;
   const c = loadWindowVar(CREDITS_FILE, "CREDITS");
-  if (c === null) return { defaut: {}, series: {} };
+  if (c === null) return vide;
   if (typeof c !== "object" || Array.isArray(c))
     throw new Error("js/data/credits.js ne définit pas window.CREDITS (objet).");
-  return { defaut: c.defaut || {}, series: c.series || {} };
+  // liens compris : l'interface ne les montre pas, mais elle les renvoie tels
+  // quels a l'enregistrement. Les oublier ici, c'est les effacer du fichier.
+  return { defaut: c.defaut || {}, liens: c.liens || {}, series: c.series || {} };
 }
 
 /* ------------------------ validation / nettoyage ----------------------- */
@@ -107,8 +110,22 @@ function cleanEntry(raw) {
   return out;
 }
 
+/* Les liens ne passent pas par l'interface : l'outil les relit, les renvoie
+   tels quels et les reecrit. Tout ce qui n'est pas http(s) est refuse. */
+function cleanLiens(raw) {
+  const out = {};
+  if (!raw || typeof raw !== "object") return out;
+  for (const nom of Object.keys(raw)) {
+    const n = cleanName(nom);
+    const u = String(raw[nom] === undefined || raw[nom] === null ? "" : raw[nom]).trim();
+    if (n && /^https?:\/\//i.test(u)) out[n] = u;
+  }
+  return out;
+}
+
 function normalize(payload) {
   const defaut = cleanEntry(payload && payload.defaut);
+  const liens = cleanLiens(payload && payload.liens);
   const series = {};
   const src = (payload && payload.series) || {};
   for (const sid of Object.keys(src)) {
@@ -127,7 +144,7 @@ function normalize(payload) {
       series[sid] = entry;
     }
   }
-  return { defaut, series };
+  return { defaut, liens, series };
 }
 
 /* --------------------------- écriture du fichier ----------------------- */
@@ -156,6 +173,14 @@ const HEADER = [
   "// lui, n'ecrit jamais de champ vide : il le retire.",
   "// Un nom identique en clean et en edit s'affiche sur une seule ligne",
   "// \"Clean & Edit\", comme avant.",
+  "// Le MEME nom sur les quatre postes s'affiche sur UNE seule carte",
+  "// \"Realise par\" : c'est le cas des chapitres repris de l'edition officielle,",
+  "// ou repeter le nom quatre fois n'apprend rien a personne.",
+  "//",
+  "// liens : l'adresse d'une equipe creditee. Le nom devient cliquable sur",
+  "// l'ecran de fin. Ca se remplit A LA MAIN ici -- l'outil ne l'edite pas, il",
+  "// se contente de ne pas le perdre. Seul http(s) est accepte : ce qui sort",
+  "// d'ici finit dans un href.",
 ].join("\n");
 
 const q = s => JSON.stringify(String(s));
@@ -172,6 +197,13 @@ function renderFile(data, order) {
   const L = [HEADER, "window.CREDITS = {"];
   const def = Object.keys(data.defaut).length ? data.defaut : TEAM_DEFAUT;
   L.push("  defaut: " + renderEntry(def) + ",");
+  const liens = data.liens || {};
+  const noms = Object.keys(liens).sort();
+  if (noms.length) {
+    L.push("  liens: {");
+    noms.forEach((n, k) => L.push("    " + q(n) + ": " + q(liens[n]) + (k < noms.length - 1 ? "," : "")));
+    L.push("  },");
+  }
   if (!ids.length) {
     L.push("  series: {}");
     L.push("};");

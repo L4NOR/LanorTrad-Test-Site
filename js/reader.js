@@ -34,7 +34,36 @@
     if (clean && clean === edit) add("Clean & Edit", clean);
     else { add("Clean", clean); add("Edit", edit); }
     add("QC", m.qc);
+    // Un nom crédité peut avoir une adresse (credits.js -> liens) : il devient
+    // alors cliquable. La correspondance ignore la casse, parce que les crédits
+    // se saisissent à la main et qu'un « zerox » au lieu de « Zerox » ne doit pas
+    // faire disparaître le lien en silence. Tout ce qui n'est pas http(s) est
+    // ignoré : cette valeur part telle quelle dans un href.
+    const liens = C.liens || {};
+    const parNom = {};
+    for (const nom of Object.keys(liens)) parNom[nom.trim().toLowerCase()] = liens[nom];
+    for (const t of out) {
+      const u = String(parNom[t.who.toLowerCase()] || "").trim();
+      if (/^https?:\/\//i.test(u)) t.url = u;
+    }
+    // Un seul et même nom sur tous les postes : une seule carte. C'est le cas
+    // des chapitres qui viennent de l'édition officielle — répéter quatre fois
+    // « Maison d'Éditions Kana » n'apprend rien à personne et noie le reste de
+    // l'écran de fin. Un seul poste rempli, lui, reste sous son propre nom :
+    // ne créditer que la traduction est une information, pas une répétition.
+    if (out.length > 1 && out.every(t => t.who === out[0].who))
+      return [{ role: "Réalisé par", who: out[0].who, url: out[0].url }];
     return out;
+  }
+
+  /* Une carte de l'écran de fin. Le nom devient un lien quand l'équipe en a un
+     — une équipe qui a porté des chapitres avant nous mérite qu'on puisse la
+     retrouver, pas juste qu'on la nomme. */
+  function creditCard(t) {
+    const nom = t.url
+      ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.who)}</a>`
+      : esc(t.who);
+    return `<div class="cr"><div class="role">${t.role}</div><div class="who">${nom}</div></div>`;
   }
   const DISCORD = "https://discord.gg/md37S7nhkZ";
 
@@ -968,7 +997,7 @@
       <div class="rd-end" id="rd-end">
         <div class="thanks">Chapitre ${A.chap.num} terminé · merci de lire avec nous</div>
         <div class="title">${esc(A.S.title)}</div>
-        <div class="rd-credits">${creditsFor(A.manga, A.chap.num).map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${esc(t.who)}</div></div>`).join("")}</div>
+        <div class="rd-credits">${creditsFor(A.manga, A.chap.num).map(t => creditCard(t)).join("")}</div>
         ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
         <div class="rd-mood" id="rd-mood"></div>
         ${(window.LTnotes && window.LTnotes.html(window.LTnotes.get(A.manga, A.chap.num))) || ""}
