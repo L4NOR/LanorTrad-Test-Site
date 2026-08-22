@@ -135,7 +135,20 @@ if (!ecarts) ok(`aucun écart sur ${SERIES.reduce((a, s) => a + (CHAPTERS[s.id] 
    ------------------------------------------------------------------------ */
 titre("Images");
 if (!existe("Manga")) {
-  saute("dossier Manga/ absent (checkout partiel) — pages de chapitre non vérifiées");
+  /* Manga/ n'est plus versionne depuis le 2026-08-22 : un build lance par
+     Netlify DEPUIS GIT ne peut donc plus voir une seule page de chapitre.
+     Sauter la verification, comme on le faisait ici, laissait un tel build
+     partir au vert et publier un site sans aucun chapitre — c'est arrive une
+     fois, apres une reecriture de l'historique. En CI, c'est une ERREUR : le
+     deploiement echoue et la derniere version en ligne, elle, reste servie.
+     En local, l'outil peut tourner sans les images sans que ce soit grave. */
+  if (process.env.NETLIFY || process.env.CI) {
+    err("dossier Manga/ absent — ce site ne se deploie plus depuis git, mais " +
+        "par televersement direct (tools/Deployer.bat). Deploiement refuse " +
+        "pour ne pas publier un site sans chapitres.");
+  } else {
+    saute("dossier Manga/ absent — pages de chapitre non vérifiées (hors CI)");
+  }
 } else {
   let manquantes = 0, verifiees = 0;
   for (const s of SERIES) {

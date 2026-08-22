@@ -8,9 +8,14 @@
    2. Tu choisis une série + numéro de chapitre, tu glisses les images des pages
       (JPG/PNG accepté tel quel — pas besoin de convertir avant).
    3. Il crée Manga/<Série>/Chapitres/Chapitre NN/ et y range les pages (001, 002…).
-   4. Il convertit automatiquement les pages en WebP (via tools/jpg-to-webp.py)
-      SANS toucher aux couleurs ni aux tons (une case optionnelle, décochée par
-      défaut, permet une simple netteté légère), puis supprime les JPG sources.
+   4. Il convertit automatiquement les pages en WebP QUALITÉ 90 (via
+      tools/jpg-to-webp.py), SANS toucher aux couleurs ni aux tons (une case
+      optionnelle, décochée par défaut, permet une simple netteté légère),
+      puis supprime les JPG sources.
+      La qualité 90 est le réglage de tout le catalogue depuis la passe
+      tools/webp-alleger.py : un chapitre de vingt pages pèse ~11 Mo au lieu
+      de ~22 Mo en sans perte. Un nouveau chapitre converti autrement
+      arriverait deux fois plus lourd que ses voisins, pour l'œil le même.
    5. Il régénère js/data/chapters.js → le chapitre est lisible sur le site.
 
    Onglet « Gérer » (façon manager de l'ancien site) :
@@ -40,6 +45,12 @@ const PREV_DIR  = path.join(MANGA_DIR, PREV_NAME);
 const isSeriesDir = n => n.toLowerCase() !== PREV_NAME;
 const PORT      = Number(process.env.PORT) || 4599;
 const IMG_EXT   = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
+
+/* Qualité WebP des pages converties.
+   Doit rester alignée sur tools/webp-alleger.py (--qualite, défaut 90), qui a
+   réencodé tout le catalogue existant. Les deux outils écrivent les mêmes
+   pages : les désaccorder ferait cohabiter des chapitres au poids double. */
+const WEBP_QUALITY = 90;
 
 /* ----------------------------- utils ----------------------------- */
 const safeName = s => String(s || "").replace(/[\/\\]/g, "").replace(/\.\./g, "").trim();
@@ -107,7 +118,7 @@ function runPy(cmd, args) {
 
 async function convertChapter(dir, enhance) {
   const args = [path.join(ROOT, "tools", "jpg-to-webp.py"), dir,
-    "--delete-src", "--include-png"];   // sans --quality => WebP lossless
+    "--delete-src", "--include-png", "--quality", String(WEBP_QUALITY)];
   if (enhance) args.push("--enhance");
   for (const cmd of ["py", "python", "python3"]) {
     const r = await runPy(cmd, args);
@@ -451,7 +462,7 @@ const PAGE = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
 </style></head><body><div class="card">
   <h1>📚 LanorTrad — Chapitres</h1>
   <p class="sub">Ajoute, modifie ou supprime des chapitres. Les JPG/PNG sont convertis
-    automatiquement en WebP. Aucun code à écrire.</p>
+    automatiquement en WebP qualité 90, comme le reste du catalogue. Aucun code à écrire.</p>
 
   <div class="tabs">
     <button id="tab-add" class="on">➕ Ajouter</button>
@@ -473,7 +484,7 @@ const PAGE = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
 
     <label>Pages (images)</label>
     <div id="drop">📥 Glisse-dépose les images ici (JPG, PNG…), ou clique pour choisir<br>
-      <small>Rangées dans l'ordre du nom de fichier (001, 002, …), puis converties en WebP.</small></div>
+      <small>Rangées dans l'ordre du nom de fichier (001, 002, …), puis converties en WebP qualité 90.</small></div>
     <input id="file" type="file" accept="image/*" multiple hidden>
     <div id="grid"></div>
 
@@ -580,7 +591,7 @@ elGo.addEventListener("click",async()=>{
       elBarI.style.width=Math.round(((i+1)/files.length)*100)+"%";
     }
     const enhance=$("#enhance").checked;
-    log("Conversion des pages en WebP"+(enhance?" + netteté légère":"")+" (tons inchangés)… (peut prendre 1 à 2 min)");
+    log("Conversion des pages en WebP qualité 90"+(enhance?" + netteté légère":"")+" (tons inchangés)… (peut prendre 1 à 2 min)");
     r=await fetch("/api/finalize",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({series,chapter,enhance})});
     j=await r.json(); if(!r.ok) throw new Error(j.error||"Erreur");
@@ -736,7 +747,7 @@ $("#m-rfile").addEventListener("change",async()=>{
       const pr=await fetch("/api/page?"+q,{method:"POST",body:f});
       const pj=await pr.json(); if(!pr.ok) throw new Error(pj.error||"Erreur page "+(i+1));
     }
-    log("Conversion des pages en WebP"+($("#m-enhance").checked?" + netteté légère":"")+" (tons inchangés)…");
+    log("Conversion des pages en WebP qualité 90"+($("#m-enhance").checked?" + netteté légère":"")+" (tons inchangés)…");
     r=await postJSON("/api/finalize",{series:mCur.series,chapter:mCur.chapter,enhance:$("#m-enhance").checked});
     j=await r.json(); if(!r.ok) throw new Error(j.error||"Erreur");
     if(j.log) log(j.log.trim());

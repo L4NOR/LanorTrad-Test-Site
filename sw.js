@@ -1,5 +1,5 @@
 /* LanorTrad — Service Worker : shell hors-ligne (PWA) */
-const CACHE = "lanortrad-v54";
+const CACHE = "lanortrad-v55";
 /* Cache séparé pour les pages de chapitres : il SURVIT aux montées de version
    du shell (sinon chaque mise à jour du site effacerait les chapitres
    téléchargés pour la lecture hors connexion). */
@@ -30,7 +30,7 @@ const SHELL = [
   "js/hero.js", "js/home.js", "js/catalogue.js", "js/manga.js", "js/reader.js",
   "js/planning.js", "js/preview.js", "js/forum.js", "js/supabase-config.js", "js/xp.js", "js/classement.js", "js/views.js", "js/notes.js", "js/pulse.js", "js/ratings.js", "js/sync.js", "js/atelier.js", "js/presence.js",
   "js/data/series.js", "js/data/covers.js", "js/data/chapters.js", "js/data/notes.js", "js/data/schedule.js", "js/data/gallery.js",
-  "js/data/atelier.js",
+  "js/data/atelier.js", "js/data/credits.js",
   "manifest.json"
 ];
 

@@ -19,6 +19,7 @@ quel sur Netlify ou GitHub Pages.
 3. [Ajouter / mettre à jour des chapitres](#3-ajouter--mettre-à-jour-des-chapitres)
 4. [Ajouter / modifier une série (fiches)](#4-ajouter--modifier-une-série-fiches)
    · [4 bis. L'atelier — avancement du prochain chapitre](#4-bis-latelier--avancement-du-prochain-chapitre)
+   · [4 ter. Les crédits — qui a fait quoi](#4-ter-les-crédits--qui-a-fait-quoi-chapitre-par-chapitre)
 5. [Forum — configuration (Supabase)](#5-forum--configuration-supabase)
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
@@ -56,6 +57,7 @@ js/data/pages/<Série>.js ← liste des pages, chargée par le lecteur (GÉNÉR�
 js/data/covers.js     ← variantes responsives des couvertures (GÉNÉRÉ)
 js/data/schedule.js   ← dates des prochaines sorties (à la main)
 js/data/atelier.js    ← avancement du chapitre en fabrication (à la main, § 4 bis)
+js/data/credits.js    ← qui a fait quoi, par chapitre (à la main OU via Modifier-Credits.bat)
 images/ couvertures, logos, icônes
 Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
@@ -68,7 +70,9 @@ tools/build-previews.py     ← vignettes de la 1re page (appelé par build-data
 tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
 tools/Modifier-Atelier.bat  ← interface web locale pour l'avancement des chapitres
-tools/jpg-to-webp.py        ← conversion des planches JPG → WebP (sans perte)
+tools/Modifier-Credits.bat  ← interface web locale pour les crédits des chapitres
+tools/jpg-to-webp.py        ← conversion des planches JPG → WebP (qualité 90 à l'ajout)
+tools/webp-alleger.py       ← réencode tout le catalogue en WebP qualité 90
 tools/deployer.py           ← déploiement depuis cette machine (§ 8)
 tools/Deployer.bat          ← le même, en double-clic
 supabase/*.sql              ← schémas Supabase (forum + gamification)
@@ -171,8 +175,12 @@ glissant simplement les images. Aucune ligne de commande, aucun code.
 6. Clique **Publier le chapitre**. L'outil :
    - crée `Manga/<Série>/Chapitres/Chapitre NN/`,
    - y range les pages renommées `001`, `002`, …,
-   - les **convertit automatiquement en WebP** (qualité 85) avec, si la case est
-     cochée, l'amélioration du rendu — puis supprime les JPG/PNG sources,
+   - les **convertit automatiquement en WebP qualité 90** avec, si la case est
+     cochée, l'amélioration du rendu — puis supprime les JPG/PNG sources.
+     C'est le réglage de tout le catalogue depuis `tools/webp-alleger.py` : un
+     chapitre de vingt pages pèse ~11 Mo au lieu de ~22 Mo en sans perte, pour
+     l'œil la même page. Un chapitre converti autrement arriverait deux fois
+     plus lourd que ses voisins,
    - fabrique la **vignette d'aperçu** de la page 1 (voir plus bas),
    - régénère `js/data/chapters.js` (le catalogue lu par le lecteur).
    La conversion peut prendre 1 à 2 minutes selon le nombre de pages.
@@ -506,8 +514,9 @@ signale les nouveautés. Sans la variable, l'étape est simplement sautée.
 - Une panne d'IndexNow n'interrompt jamais le déploiement.
 
 > Ceci ne concerne que les couvertures, éléments d'interface affichés petit.
-> Les **pages de manga** restent converties par `tools/jpg-to-webp.py` en
-> lossless, sans aucun redimensionnement ni retouche.
+> Les **pages de manga** sont converties par `tools/jpg-to-webp.py` en WebP
+> qualité 90, sans aucun redimensionnement ni retouche : seule la compression
+> change, les dimensions sont conservées au pixel près.
 
 ---
 
@@ -577,6 +586,72 @@ Bon à savoir :
   tu peux n'utiliser que l'un des deux.
 
 ---
+
+## 4 ter. Les crédits — qui a fait quoi, chapitre par chapitre
+
+L'écran de fin d'un chapitre remercie les personnes qui l'ont fabriqué. Ces
+quatre noms étaient écrits en dur dans `js/reader.js`, donc identiques sur tout
+le catalogue. Dès qu'une série est reprise par quelqu'un d'autre, ou qu'un
+renfort passe sur un gros chapitre, le lecteur remerciait la mauvaise personne.
+
+Les noms vivent maintenant dans **`js/data/credits.js`**, à trois niveaux.
+Chaque niveau ne remplace que les champs qu'il cite : on ne saisit que les
+exceptions, jamais 250 lignes identiques.
+
+| Niveau | Portée |
+|---|---|
+| `defaut` | l'équipe habituelle, partout |
+| `series["<id>"].defaut` | toute une série |
+| `series["<id>"].chapitres["N"]` | un chapitre précis |
+
+Un champ **absent** hérite du niveau au-dessus. Un champ mis à `""` à la main
+**masque** la ligne — un chapitre sorti sans Q-check, par exemple. Et si le
+clean et l'edit sont de la même personne, l'affichage reste « Clean & Edit » sur
+une seule ligne, comme avant : rien ne change à l'écran tant que tu n'as rien
+saisi.
+
+### A. Sans coder (interface web locale) — recommandé
+
+Double-clic sur **`tools/Modifier-Credits.bat`** (ou `node tools/credits-server.js`),
+puis <http://localhost:4602>.
+
+- en haut, **l'équipe par défaut** : ce que voit un lecteur quand rien de plus
+  précis n'est dit ;
+- un clic sur une série ouvre **« Toute la série »**, puis le tableau de tous
+  ses chapitres ;
+- dans chaque champ, le nom affiché **en filigrane** est celui hérité : laisser
+  vide suffit, il n'y a rien à recopier ;
+- **filtre par numéro** et case **« seulement ceux déjà personnalisés »**, pour
+  s'y retrouver dans une série à 250 chapitres ;
+- **↺** remet un chapitre sur le réglage de sa série ; **« Vider la série »**
+  efface toutes ses exceptions.
+
+L'outil réécrit `js/data/credits.js` proprement (rôles toujours dans le même
+ordre, chapitres triés par numéro), après une **copie de sécurité** dans
+`tools/.backups/` — et restaure l'ancien fichier si l'écriture produit quelque
+chose d'illisible. Comme les autres outils, il n'écoute que sur `127.0.0.1`.
+
+### B. À la main
+
+Ouvre `js/data/credits.js` et suis l'en-tête du fichier :
+
+```js
+window.CREDITS = {
+  defaut: { trad: "Taichoskii", clean: "Lanor", edit: "Lanor", qc: "Zerox" },
+  series: {
+    "Satsudou": {
+      defaut: { trad: "…" },          // toute la série
+      chapitres: {
+        "18": { qc: "…" }             // ce chapitre-là seulement
+      }
+    }
+  }
+};
+```
+
+L'id de série s'écrit exactement comme dans `series.js`, le numéro de chapitre
+comme dans `chapters.js`. Le fichier est servi réseau d'abord : une correction
+est visible au rechargement suivant, sans rien toucher au service worker.
 
 ## 5. Forum — configuration (Supabase)
 
@@ -1007,8 +1082,8 @@ vérifiée.
 
 ## 9. État actuel du site
 
-- **Toutes les séries + oneshots** sont convertis en WebP (~5,5 Go, ~14 000 pages)
-  et lisibles.
+- **Toutes les séries + oneshots** sont convertis en WebP qualité 90
+  (~7,6 Go, ~14 000 pages) et lisibles — 15,0 Go avant la passe d'allègement.
 - Manifeste : **536 chapitres** sur 10 séries (régénéré par `tools/build-data.py`).
 - Pages **Planning** (calendrier hebdo + « À l'atelier » + dernières sorties) et
   **Équipe** (membres réels) complètes.

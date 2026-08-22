@@ -11,11 +11,31 @@
 
   /* ---------------------------------------------------------------- Données */
   // Les vraies personnes derrière chaque chapitre (voir equipe.html).
-  const TEAM = [
-    { role: "Traduction",   who: "Taichoskii" },
-    { role: "Clean & Edit", who: "Lanor" },
-    { role: "QC",           who: "Zerox" },
-  ];
+  //
+  // Ces noms-là sont le repli. Le détail vit dans js/data/credits.js, qui peut
+  // préciser une série entière ou un chapitre isolé — une reprise, un renfort
+  // sur un gros chapitre. Si ce fichier manque (cache ancien, lecture hors
+  // ligne), l'écran de fin affiche l'équipe habituelle plutôt que rien.
+  const TEAM_DEFAUT = { trad: "Taichoskii", clean: "Lanor", edit: "Lanor", qc: "Zerox" };
+
+  /* Résout les crédits d'un chapitre en trois couches : défaut global, défaut
+     de la série, puis le chapitre lui-même. Chaque couche ne remplace que les
+     champs qu'elle cite, pour qu'un fichier de crédits reste court. */
+  function creditsFor(manga, num) {
+    const C = window.CREDITS || {};
+    const S = (C.series || {})[manga] || {};
+    const m = Object.assign({}, TEAM_DEFAUT, C.defaut || {}, S.defaut || {},
+                            (S.chapitres || {})[String(num)] || {});
+    const out = [];
+    const add = (role, who) => { who = String(who || "").trim(); if (who) out.push({ role, who }); };
+    const clean = String(m.clean || "").trim(), edit = String(m.edit || "").trim();
+    add("Traduction", m.trad);
+    // Même personne au clean et à l'edit : une seule ligne, comme avant.
+    if (clean && clean === edit) add("Clean & Edit", clean);
+    else { add("Clean", clean); add("Edit", edit); }
+    add("QC", m.qc);
+    return out;
+  }
   const DISCORD = "https://discord.gg/md37S7nhkZ";
 
   const PREF_KEY = "lt-reader-prefs";
@@ -948,7 +968,7 @@
       <div class="rd-end" id="rd-end">
         <div class="thanks">Chapitre ${A.chap.num} terminé · merci de lire avec nous</div>
         <div class="title">${esc(A.S.title)}</div>
-        <div class="rd-credits">${TEAM.map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${t.who}</div></div>`).join("")}</div>
+        <div class="rd-credits">${creditsFor(A.manga, A.chap.num).map(t => `<div class="cr"><div class="role">${t.role}</div><div class="who">${esc(t.who)}</div></div>`).join("")}</div>
         ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
         <div class="rd-mood" id="rd-mood"></div>
         ${(window.LTnotes && window.LTnotes.html(window.LTnotes.get(A.manga, A.chap.num))) || ""}
