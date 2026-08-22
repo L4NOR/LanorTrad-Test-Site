@@ -33,3 +33,20 @@ tools/.dims-cache.json
 # (scripts/build-seo.js). Le committer melangerait d'anciennes cles a la bonne.
 /*.txt
 !robots.txt
+
+# Pages de chapitre : sorties de git le 2026-08-22.
+#
+# Elles pesaient 36,19 Go sur les 36,25 Go du depot, soit 99,8 % : tout le
+# reste (code, CSS, JS, docs, 168 commits) tient dans 70 Mo. Chaque
+# reconversion -- q80, puis sans perte, puis qualite 90 -- en rajoutait une
+# copie complete dans l'historique, et le push finissait par depasser ce que
+# GitHub accepte. C'est ce qui donnait le faux « internet disconnected ».
+#
+# Le site ne se deploie PAS depuis git mais par televersement direct
+# (tools/deployer.py, commits marques [skip netlify]) : les images n'ont donc
+# jamais eu besoin d'etre versionnees.
+#
+# Ou elles vivent desormais : sur ce disque, sur Netlify, et les originaux
+# JPG dans l'ancien site (Documents/Site/LanorTrad/Manga sur C:).
+# `git checkout -- Manga/` ne les restaure plus : c'est le prix assume.
+Manga/
