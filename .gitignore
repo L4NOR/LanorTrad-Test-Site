@@ -34,18 +34,26 @@ tools/.dims-cache.json
 /*.txt
 !robots.txt
 
-# Pages de chapitre : sorties de git le 2026-08-22.
+# Pages de chapitre (Manga/) : VERSIONNEES, et il n'y a donc pas de regle ici.
 #
-# Elles pesaient 36,19 Go sur les 36,25 Go du depot, soit 99,8 % : tout le
-# reste (code, CSS, JS, docs, 168 commits) tient dans 70 Mo. Chaque
-# reconversion -- q80, puis sans perte, puis qualite 90 -- en rajoutait une
-# copie complete dans l'historique, et le push finissait par depasser ce que
-# GitHub accepte. C'est ce qui donnait le faux « internet disconnected ».
+# Ce bloc a longtemps porte une ligne `Manga/`. Elle a saute le 2026-08-22, le
+# jour meme ou les pages sont ressorties de git : elles y sont rentrees a
+# nouveau dans la foulee, par tranches. Le texte qui suit dit ce que ce choix
+# coute, pour que personne n'ait a le redecouvrir sous la pression.
 #
-# Le site ne se deploie PAS depuis git mais par televersement direct
-# (tools/deployer.py, commits marques [skip netlify]) : les images n'ont donc
-# jamais eu besoin d'etre versionnees.
+# CE QUE CA COUTE. Les images sont 99,8 % du depot : tout le reste (code, CSS,
+# JS, docs, des centaines de commits) tient dans 70 Mo. Un lot de chapitres ne
+# passe donc pas en un `git push` : GitHub coupe au-dela de ~1 Go d'un bloc
+# (« HTTP 500 / send-pack: unexpected disconnect », que GitHub Desktop traduit
+# en « internet disconnected » — ce n'est pas le reseau). Il faut pousser les
+# blobs par tranches de ~600 Mo vers une branche jetable, puis les rattacher
+# par un commit de fusion. Les 5,58 Go du commit « Chapitres » : 2 h.
+# Et chaque reconversion -- q80, puis sans perte, puis qualite 90 -- rajoute
+# une copie complete de tout dans l'historique, qu'on ne peut plus enlever.
 #
-# Ou elles vivent desormais : sur ce disque, sur Netlify, et les originaux
-# JPG dans l'ancien site (Documents/Site/LanorTrad/Manga sur C:).
-# `git checkout -- Manga/` ne les restaure plus : c'est le prix assume.
+# CE QUE CA N'APPORTE PAS. Le site ne se deploie pas depuis git mais par
+# televersement direct (tools/deployer.py, commits marques [skip netlify]) :
+# Netlify ne va jamais chercher ces fichiers ici. Ils y sont pour l'archive.
+#
+# Ou elles vivent, en plus de git : sur ce disque, sur Netlify, et les
+# originaux JPG dans l'ancien site (Documents/Site/LanorTrad/Manga sur C:).
