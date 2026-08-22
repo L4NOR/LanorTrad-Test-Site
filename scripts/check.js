@@ -32,6 +32,19 @@ const ROOT = path.join(__dirname, "..");
 const R = p => path.join(ROOT, p);
 const existe = p => fs.existsSync(R(p));
 
+/* Ce checkout est-il PARTIEL, c'est-a-dire volontairement sans les images ?
+   GitHub Actions ne descend pas /Manga/ (5,5 Go) : il pose un sparse-checkout
+   qui l'exclut, et le declare ici avec LT_CHECKOUT_PARTIEL=1. Les pages sont
+   bien dans le depot, elles ne sont juste pas sur ce disque — ce qui n'a rien
+   a voir avec un site a qui il manque vraiment ses chapitres.
+
+   C'est le workflow qui le declare, plutot que ce script qui le devine : lire
+   les entrailles de git (.git/info/sparse-checkout, core.sparseCheckout) donne
+   une reponse differente selon le mode cone, les worktrees et config.worktree.
+   Un drapeau explicite dit la meme chose sans jamais se tromper, et un CI qui
+   oublie de le poser echoue — le defaut sur, pas l'inverse. */
+const CHECKOUT_PARTIEL = process.env.LT_CHECKOUT_PARTIEL === "1";
+
 let erreurs = 0, alertes = 0, sautes = 0;
 const titre = t => console.log("\n== " + t + " ==");
 const ok = m => console.log("  ok      : " + m);
@@ -135,17 +148,20 @@ if (!ecarts) ok(`aucun écart sur ${SERIES.reduce((a, s) => a + (CHAPTERS[s.id] 
    ------------------------------------------------------------------------ */
 titre("Images");
 if (!existe("Manga")) {
-  /* Manga/ n'est plus versionne depuis le 2026-08-22 : un build lance par
-     Netlify DEPUIS GIT ne peut donc plus voir une seule page de chapitre.
-     Sauter la verification, comme on le faisait ici, laissait un tel build
-     partir au vert et publier un site sans aucun chapitre — c'est arrive une
-     fois, apres une reecriture de l'historique. En CI, c'est une ERREUR : le
-     deploiement echoue et la derniere version en ligne, elle, reste servie.
-     En local, l'outil peut tourner sans les images sans que ce soit grave. */
-  if (process.env.NETLIFY || process.env.CI) {
-    err("dossier Manga/ absent — ce site ne se deploie plus depuis git, mais " +
-        "par televersement direct (tools/Deployer.bat). Deploiement refuse " +
-        "pour ne pas publier un site sans chapitres.");
+  /* Trois absences possibles, qui n'ont pas du tout la meme gravite.
+     — Checkout PARTIEL : les images sont dans le depot, pas sur ce disque.
+       C'est le cas voulu en CI, on saute (sauter n'est pas reussir).
+     — Build de DEPLOIEMENT sans les images : la, le site partirait en ligne
+       sans une seule page de chapitre. C'est arrive une fois, apres une
+       reecriture de l'historique. On refuse : la version en ligne reste.
+     — En local, l'outil peut tourner sans les images sans que ce soit grave. */
+  if (CHECKOUT_PARTIEL) {
+    saute("dossier Manga/ absent de ce checkout partiel — pages de chapitre " +
+          "non vérifiées (voir .github/workflows/verifications.yml)");
+  } else if (process.env.NETLIFY || process.env.CI) {
+    err("dossier Manga/ absent — un site publié dans cet état n'aurait aucune " +
+        "page de chapitre. Déploiement refusé pour que la version en ligne " +
+        "reste servie.");
   } else {
     saute("dossier Manga/ absent — pages de chapitre non vérifiées (hors CI)");
   }

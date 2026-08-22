@@ -8,9 +8,12 @@
 #  Le dépôt pèse ~5,5 Go d'images. On n'en télécharge AUCUNE :
 #    • filter: blob:none    -> les fichiers ne sont récupérés qu'à la demande
 #    • sparse-checkout      -> on ne demande que le code et les données
-#  check.js s'en aperçoit et annonce les vérifications qu'il saute : la
-#  présence des 14 000 pages sur le disque, elle, est vérifiée au build
-#  Netlify, où le dépôt est complet.
+#  LT_CHECKOUT_PARTIEL=1 le DIT à check.js, qui saute alors les vérifications
+#  portant sur les pages et l'annonce (sauter n'est pas réussir). Sans ce
+#  drapeau il refuserait de valider un checkout sans images — et c'est bien
+#  ce qu'on veut ailleurs : un déploiement sans les 14 000 pages publierait un
+#  site sans un seul chapitre. Cette présence-là est vérifiée au build Netlify,
+#  où le dépôt est complet.
 # =========================================================================
 name: Vérifications
 
@@ -23,6 +26,9 @@ on:
 jobs:
   verifier:
     runs-on: ubuntu-latest
+    # Vrai pour TOUT ce job : le checkout ci-dessous exclut /Manga/.
+    env:
+      LT_CHECKOUT_PARTIEL: "1"
     steps:
       - uses: actions/checkout@v4
         with:
