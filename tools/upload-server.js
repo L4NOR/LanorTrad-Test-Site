@@ -41,7 +41,6 @@ const ROOT      = path.join(__dirname, "..");
 const MANGA_DIR = path.join(ROOT, "Manga");
 const OUT       = path.join(ROOT, "js", "data", "chapters.js");
 const PREV_NAME = "preview";                       // Manga/preview/<Serie>/<Chapitre>/
-const PREV_DIR  = path.join(MANGA_DIR, PREV_NAME);
 const isSeriesDir = n => n.toLowerCase() !== PREV_NAME;
 const PORT      = Number(process.env.PORT) || 4599;
 const IMG_EXT   = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
@@ -128,75 +127,57 @@ async function convertChapter(dir, enhance) {
     log: "Python introuvable. Installe Python puis :  py -m pip install pillow" };
 }
 
-/* ---------- vignettes d'aperçu (tools/build-previews.py) ----------
-   Page 1 de chaque chapitre -> Manga/preview/<Série>/<Chapitre NN>/001.webp.
-   Silencieux si Python/Pillow manque : le manifeste reste correct, seuls
-   les aperçus des nouveaux chapitres attendent un `py tools/build-data.py`. */
-function buildPreviews(serie) {
-  const args = [path.join(ROOT, "tools", "build-previews.py")];
-  if (serie) args.push(serie);
+/* ------------------- regeneration de l'index des chapitres -------------
+   Ce fichier ne s'ecrit PLUS ici.
+
+   js/data/chapters.js n'est qu'un INDEX (numeros, dossiers, nb de pages,
+   vignettes, dimensions) ; la liste des fichiers de chaque chapitre vit dans
+   js/data/pages/<Serie>.js, et l'index y renvoie par window.CHAPTER_PAGES.
+   Cet outil, lui, ecrivait encore l'ancien format « tout dans un seul
+   fichier ». Resultat, a chaque chapitre televerse : CHAPTER_PAGES
+   disparaissait, le lecteur ne trouvait plus aucune liste de pages et
+   affichait « La liste des pages n'a pas pu etre chargee » sur TOUS les
+   chapitres de TOUTES les series — et l'index repassait de 15 Ko a 310 Ko,
+   charges sur chaque page du site. C'est arrive le 2026-08-23.
+
+   Un seul generateur desormais : tools/build-data.py. Il fait aussi les
+   apercus (build-previews.py) et les dimensions, donc l'appel separe a
+   build-previews.py a disparu avec le reste. Les deux sont mis en cache :
+   un chapitre de plus ne remesure pas les 14 000 pages.
+
+   Si Python manque, on echoue franchement. Ecrire un index a moitie juste
+   serait pire : le site partirait en ligne illisible sans que rien ne le
+   signale. */
+function rebuildChapters() {
+  const args = [path.join(ROOT, "tools", "build-data.py")];
+  let lance = false, sortie = "";
   for (const cmd of ["py", "python", "python3"]) {
-    const r = spawnSync(cmd, args, { windowsHide: true, cwd: ROOT,
+    const r = spawnSync(cmd, args, { windowsHide: true, cwd: ROOT, encoding: "utf8",
       env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
-    if (!r.error) return r.status === 0;
+    if (r.error) continue;
+    lance = true;
+    sortie = String(r.stdout || "") + String(r.stderr || "");
+    if (r.status === 0) return compterChapitres();
+    break;
   }
-  return false;
+  if (!lance)
+    throw new Error("Python est introuvable : l'index des chapitres n'a pas ete " +
+                    "regenere. Installe Python (https://nodejs.org pour Node, " +
+                    "https://python.org pour Python) puis lance : py tools/build-data.py");
+  const extrait = sortie.trim().split(/\r?\n/).slice(-15).join("\n");
+  throw new Error("tools/build-data.py a echoue, l'index n'a pas ete regenere :" +
+                  "\n" + extrait);
 }
 
-/* ------------------- scan + génération chapters.js ------------------- */
-function scanSeries(seriesPath) {
-  const chapters = [];
-  const serie = path.basename(seriesPath);
-  const withThumb = (c, folder) => {
-    const page = c.files[0];
-    if (fs.existsSync(path.join(PREV_DIR, serie, folder, page)))
-      c.thumb = ["Manga", PREV_NAME, serie, folder, page].join("/");
-    return c;
-  };
-  const chapRoot = path.join(seriesPath, "Chapitres");
-  if (fs.existsSync(chapRoot) && fs.statSync(chapRoot).isDirectory()) {
-    for (const entry of fs.readdirSync(chapRoot)) {
-      const cdir = path.join(chapRoot, entry);
-      if (!fs.statSync(cdir).isDirectory()) continue;
-      const m = entry.match(/(\d+(?:\.\d+)?)/);
-      if (!m) continue;
-      const pages = imagesIn(cdir);
-      if (!pages.length) continue;
-      chapters.push(withThumb({ num: fmtNum(parseFloat(m[1])), sort: parseFloat(m[1]),
-        folder: "Chapitres/" + entry, pages: pages.length, files: pages }, entry));
-    }
-  } else {
-    const one = path.join(seriesPath, "Oneshot");
-    if (fs.existsSync(one) && fs.statSync(one).isDirectory()) {
-      const pages = imagesIn(one);
-      if (pages.length) chapters.push(withThumb({ num: "1", sort: 1,
-        folder: "Oneshot", pages: pages.length, files: pages }, "Oneshot"));
-    }
-  }
-  chapters.sort((a, b) => b.sort - a.sort);
-  chapters.forEach(c => delete c.sort);
-  return chapters;
+/* Compte ce que build-data.py vient d'ecrire, plutot que ce qu'on croit avoir
+   demande : les chiffres affiches viennent du fichier reellement produit. */
+function compterChapitres() {
+  const w = {};
+  new Function("window", fs.readFileSync(OUT, "utf8"))(w);
+  const data = w.CHAPTERS || {};
+  return { series: Object.keys(data).length,
+           chapters: Object.values(data).reduce((n, v) => n + v.length, 0) };
 }
-
-function rebuildChapters(serie) {
-  buildPreviews(serie ? safeName(serie) : null);
-  const data = {};
-  if (fs.existsSync(MANGA_DIR)) {
-    for (const serie of fs.readdirSync(MANGA_DIR).sort()) {
-      const sp = path.join(MANGA_DIR, serie);
-      if (!fs.statSync(sp).isDirectory() || !isSeriesDir(serie)) continue;
-      const ch = scanSeries(sp);
-      if (ch.length) data[serie] = ch;
-    }
-  }
-  fs.mkdirSync(path.dirname(OUT), { recursive: true });
-  fs.writeFileSync(OUT,
-    "// Genere automatiquement par tools/build-data.py - NE PAS EDITER A LA MAIN\n" +
-    "window.CHAPTERS = " + JSON.stringify(data, null, 1) + ";\n", "utf8");
-  const total = Object.values(data).reduce((n, v) => n + v.length, 0);
-  return { series: Object.keys(data).length, chapters: total };
-}
-
 /* ------------------------------ routes ------------------------------ */
 const server = http.createServer(async (req, res) => {
   try {
@@ -265,7 +246,7 @@ const server = http.createServer(async (req, res) => {
       const conv = await convertChapter(dir, !!enhance);
       if (!conv.ok)
         return sendJSON(res, 500, { error: "Conversion WebP échouée :\n" + conv.log });
-      const stats = rebuildChapters(series);
+      const stats = rebuildChapters();
       return sendJSON(res, 200, { ok: true, log: conv.log, ...stats });
     }
 
@@ -333,7 +314,7 @@ const server = http.createServer(async (req, res) => {
         if (fs.existsSync(fp)) fs.unlinkSync(fp);
       }
       renumberChapter(dir, imagesIn(dir));
-      const stats = rebuildChapters(series);
+      const stats = rebuildChapters();
       return sendJSON(res, 200, { ok: true, pages: imagesIn(dir).length, ...stats });
     }
 
@@ -349,7 +330,7 @@ const server = http.createServer(async (req, res) => {
       const news = all.filter(f => f.startsWith("zzz-tmp-"));
       const pos  = Math.max(0, Math.min(olds.length, parseInt(after, 10) || 0));
       renumberChapter(dir, olds.slice(0, pos).concat(news, olds.slice(pos)));
-      const stats = rebuildChapters(series);
+      const stats = rebuildChapters();
       return sendJSON(res, 200, { ok: true, log: conv.log, pages: all.length, ...stats });
     }
 
@@ -368,7 +349,7 @@ const server = http.createServer(async (req, res) => {
       const dir = chapterDir(series, chapter);
       if (!dir || !fs.existsSync(dir)) return sendJSON(res, 400, { error: "Chapitre introuvable." });
       fs.rmSync(dir, { recursive: true, force: true });
-      const stats = rebuildChapters(series);
+      const stats = rebuildChapters();
       return sendJSON(res, 200, { ok: true, ...stats });
     }
 
@@ -384,7 +365,7 @@ const server = http.createServer(async (req, res) => {
       const dst = path.join(MANGA_DIR, safeName(series), "Chapitres", folder);
       if (fs.existsSync(dst)) return sendJSON(res, 409, { error: "Le chapitre " + newChapter + " existe déjà." });
       fs.renameSync(dir, dst);
-      const stats = rebuildChapters(series);
+      const stats = rebuildChapters();
       return sendJSON(res, 200, { ok: true, folder, ...stats });
     }
 
