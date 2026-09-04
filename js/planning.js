@@ -4,41 +4,108 @@
 (function () {
   "use strict";
   const DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-  const ORDER = [1, 2, 3, 4, 5, 6, 0]; // affiche Lundi → Dimanche
 
   function init() {
     const S = (window.SERIES || []).filter(s => s.type === "manga" && s.status && s.status.toLowerCase().includes("cours"));
     const C = window.CHAPTERS || {};
 
-    // — Calendrier hebdo : chaque série sur le jour de semaine de sa dernière MàJ —
+    /* — Calendrier hebdo : la SEMAINE EN COURS, du lundi au dimanche —
+
+       Ce calendrier placait chaque serie sur le jour de semaine de sa DERNIERE
+       mise a jour, puis ecrivait « Ch. 169 a venir » dessus. Autrement dit il
+       fabriquait une promesse de sortie a partir d'une date passee : la
+       section annonce « cette semaine », le lecteur lit qu'un chapitre arrive
+       samedi, et rien ne sort. Une serie mise a jour un 11 juillet occupait
+       encore le samedi de toutes les semaines suivantes.
+
+       On ne pose donc plus que des dates REELLES, et seulement celles qui
+       tombent dans la semaine en cours. Trois sources, aucune deduction :
+       ce qui est deja sorti, ce qui est annonce, ce qui est vise. Quand la
+       semaine est vide, on le dit en une phrase au lieu d'afficher sept
+       colonnes de « Pas de sortie prevue ». */
+    // « 1er septembre », jamais « 1 septembre » : le premier du mois est le seul
+    // ordinal en francais, et il tombe forcement dans une semaine sur quatre.
+    const dateCourte = d => {
+      const jour = d.getDate() === 1 ? "1er" : String(d.getDate());
+      return jour + " " + d.toLocaleDateString("fr-FR", { month: "short" });
+    };
+
     const week = document.getElementById("week");
     if (week) {
-      const todayDow = new Date().getDay();
-      const byDay = {};
+      const JOUR = 86400000;
+      const minuit = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+      const today = minuit(new Date());
+      // Lundi de la semaine en cours (getDay : 0 = dimanche, d'ou le +6 % 7).
+      const lundi = minuit(today.getTime() - ((today.getDay() + 6) % 7) * JOUR);
+      const jours = Array.from({ length: 7 }, (_, k) => minuit(lundi.getTime() + k * JOUR));
+      const cle = d => minuit(d).getTime();
+      const dansLaSemaine = d => {
+        const t = cle(d);
+        return !isNaN(t) && t >= jours[0].getTime() && t <= jours[6].getTime();
+      };
+
+      const parJour = {};
+      const poser = (date, item) => { (parJour[cle(date)] = parJour[cle(date)] || []).push(item); };
+      const dejaPose = (date, id) => (parJour[cle(date)] || []).some(x => x.s.id === id);
+
+      // 1. Ce qui est SORTI cette semaine.
       S.forEach(s => {
-        const d = s.lastUpdate ? new Date(s.lastUpdate).getDay() : 6;
-        (byDay[d] = byDay[d] || []).push(s);
+        if (!s.lastUpdate || !dansLaSemaine(s.lastUpdate)) return;
+        poser(s.lastUpdate, { s, num: C[s.id] ? C[s.id][0].num : null, etat: "sorti" });
       });
-      week.innerHTML = ORDER.map(dow => {
-        const list = (byDay[dow] || []);
-        const items = list.length ? list.map(s => {
-          // L'atelier fait autorité sur le numéro à venir quand il est déclaré ;
-          // sinon on déduit le suivant du dernier chapitre paru.
-          const atl = window.LTatelier ? window.LTatelier.get(s.id) : null;
-          const next = atl ? atl.chapter : (C[s.id] ? parseFloat(C[s.id][0].num) + 1 : window.LT.nbChapitres(s) + 1);
-          // Aperçu : le chapitre à venir n'a pas encore de pages, on montre
-          // donc la première page du dernier chapitre paru (libellé explicite).
-          const peek = window.LTpreview ? window.LTpreview.btnFor(s, next) : "";
-          const gauge = atl ? window.LTatelier.mini(atl) : "";
-          return `<div class="pl-cell${peek ? " has-peek" : ""}${gauge ? " has-atl" : ""}" style="--accent:${s.accent}">
-            <a class="pl-item" href="${window.LT.urlSeries(s)}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
-            <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
-            <div><div class="t">${s.title}</div><div class="c">Ch. ${next} à venir</div></div></a>${gauge}${peek}</div>`;
-        }).join("") : `<div class="empty-d">Pas de sortie prévue</div>`;
-        return `<div class="day ${dow === todayDow ? "today" : ""}">
-          <div class="dh"><span class="name">${DAYS[dow]}</span>${dow === todayDow ? `<span class="tag">Aujourd'hui</span>` : ""}</div>
-          ${items}</div>`;
-      }).join("");
+
+      // 2. Ce qui est ANNONCE cette semaine (js/data/schedule.js).
+      (window.SCHEDULE || []).forEach(r => {
+        const s = r && window.LT.seriesById(r.id);
+        if (!s || !r.date || !dansLaSemaine(r.date) || dejaPose(r.date, s.id)) return;
+        poser(r.date, { s, num: r.chapters, etat: "prevu", statut: r.status });
+      });
+
+      // 3. Ce qui est VISE cette semaine : la date `eta` de l'atelier. C'est une
+      //    intention datee par la team, pas une deduction — elle a sa place ici,
+      //    mais annoncee comme telle (« vise »), jamais comme une sortie confirmee.
+      (window.SERIES || []).forEach(s => {
+        const a = window.LTatelier && window.LTatelier.get(s.id);
+        if (!a || !a.eta || !dansLaSemaine(a.eta) || dejaPose(a.eta, s.id)) return;
+        poser(a.eta, { s, num: a.chapter, etat: "vise", atl: a });
+      });
+
+      const total = Object.keys(parJour).reduce((n, k) => n + parJour[k].length, 0);
+
+      if (!total) {
+        week.classList.add("is-empty");
+        week.innerHTML = `<p class="week-none">Aucune sortie n'est prévue cette semaine.
+          Ce qui avance en ce moment est juste en dessous, à l'atelier.</p>`;
+      } else {
+        week.classList.remove("is-empty");
+        const LIB = { sorti: "sorti", prevu: "prévu", vise: "visé" };
+        week.innerHTML = jours.map(d => {
+          const liste = parJour[cle(d)] || [];
+          const estAujourdhui = cle(d) === today.getTime();
+          const items = liste.length ? liste.map(it => {
+            const s = it.s;
+            const atl = it.atl || (window.LTatelier ? window.LTatelier.get(s.id) : null);
+            // La jauge n'accompagne que ce qui n'est pas encore sorti, et
+            // seulement si l'atelier parle bien du meme chapitre.
+            const gauge = atl && it.etat !== "sorti" && String(atl.chapter) === String(it.num)
+              ? window.LTatelier.mini(atl) : "";
+            const peek = window.LTpreview ? window.LTpreview.btnFor(s, it.num) : "";
+            const href = it.etat === "sorti" && it.num != null
+              ? window.LT.urlChapter(s, it.num) : window.LT.urlSeries(s);
+            const libelle = it.num == null ? LIB[it.etat]
+              : `Ch. ${it.num} ${it.statut === "Reporté" ? "reporté" : LIB[it.etat]}`;
+            return `<div class="pl-cell${peek ? " has-peek" : ""}${gauge ? " has-atl" : ""}" style="--accent:${s.accent}">
+              <a class="pl-item is-${it.etat}" href="${href}" style="--accent:${s.accent}" data-colorize data-cover="${window.LT.cover(s.cover, 120)}">
+              <img src="${window.LT.cover(s.cover, 120)}" alt="${s.title}" data-fade loading="lazy">
+              <div><div class="t">${s.title}</div><div class="c">${libelle}</div></div></a>${gauge}${peek}</div>`;
+          }).join("") : `<div class="empty-d">Rien ce jour-là</div>`;
+          return `<div class="day ${estAujourdhui ? "today" : ""}">
+            <div class="dh"><span class="name">${DAYS[d.getDay()]}</span>
+              <span class="dnum">${dateCourte(d)}</span>
+              ${estAujourdhui ? `<span class="tag">Aujourd'hui</span>` : ""}</div>
+            ${items}</div>`;
+        }).join("");
+      }
     }
 
     // — À l'atelier : l'avancement des chapitres en fabrication —

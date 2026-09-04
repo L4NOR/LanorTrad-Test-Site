@@ -11,6 +11,20 @@
 .day .dh .name { font-family: var(--font-display); font-weight: 700; font-size: .95rem; }
 .day.today .dh .name { color: var(--violet); }
 .day .dh .tag { font-size: .65rem; color: var(--txt-mut); text-transform: uppercase; letter-spacing: .1em; }
+/* La date reelle du jour : sans elle, « Samedi » ne dit pas de quelle semaine
+   on parle, et c'est precisement la confusion qu'on veut lever. */
+.day .dh .dnum { font-size: .7rem; color: var(--txt-mut); }
+.day.today .dh .dnum { color: var(--violet); opacity: .85; }
+/* Ce qui est deja sorti se distingue de ce qui est annonce ou vise. */
+.pl-item.is-sorti .c { color: #4ade80; }
+/* Semaine sans aucune sortie : une phrase honnete plutot que sept colonnes
+   vides qui donnent l'air d'un planning en panne. */
+.week.is-empty { display: block; }
+.week-none {
+  margin: 0; padding: 22px 20px; border-radius: 14px;
+  color: var(--txt-mut); font-size: .92rem; line-height: 1.6;
+  border: 1px dashed var(--line); background: color-mix(in srgb, var(--violet) 4%, transparent);
+}
 .day .empty-d { color: var(--txt-mut); font-size: .8rem; opacity: .6; padding: 12px 2px; }
 
 .pl-item {

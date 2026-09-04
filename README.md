@@ -584,6 +584,27 @@ Bon à savoir :
   **disparaît toute seule 3 jours** après sa date `updated`.
 - `schedule.js` (les *dates*) et `atelier.js` (l'*avancement*) sont indépendants :
   tu peux n'utiliser que l'un des deux.
+- **Le calendrier hebdomadaire du planning ne montre que la semaine en cours**,
+  du lundi au dimanche, avec la date réelle sur chaque colonne. Il se remplit
+  de trois sources datées, jamais d'une déduction : ce qui est **sorti**
+  (`lastUpdate` de la série, en vert), ce qui est **prévu** (`schedule.js`) et
+  ce qui est **visé** (la date `eta` de l'atelier). Une semaine sans aucune de
+  ces trois choses affiche une phrase — *« Aucune sortie n'est prévue cette
+  semaine »* — plutôt que sept colonnes vides.
+
+  <details><summary>Ce qu'il faisait avant, et pourquoi c'était trompeur</summary>
+
+  Il posait chaque série sur le **jour de semaine de sa dernière mise à jour**,
+  puis écrivait « Ch. 169 à venir » dessus. Il fabriquait donc une promesse de
+  sortie à partir d'une date passée : la section annonce « cette semaine », le
+  lecteur lit qu'un chapitre arrive samedi, et rien ne sort. Une série mise à
+  jour un 11 juillet occupait encore le samedi de toutes les semaines
+  suivantes, indéfiniment.
+
+  Au passage, `planning.html` ne chargeait pas `js/data/schedule.js` : sur la
+  page *Planning des sorties*, les dates que tu écris dans ce fichier n'étaient
+  tout simplement jamais lues.
+  </details>
 - **Le retard se dit tout seul.** Une jauge bloquée sur « Q-check 5/6 » laisse
   croire que ça sort demain ; au bout de trois semaines de silence, ça passe
   pour de l'abandon. Quand la date `eta` est dépassée — ou, à défaut d'`eta`,
