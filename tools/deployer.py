@@ -54,7 +54,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Domaine reellement servi. A changer le jour ou le site bascule sur son
 # domaine definitif — c'est la seule ligne a toucher.
-SITE = os.environ.get("LT_SITE_URL", "https://lanortradtest.netlify.app")
+SITE = os.environ.get("LT_SITE_URL", "https://lanortrad.com")
 
 ETAPES = [
     ("Fichiers SEO", ["node", "scripts/build-seo.js"]),
