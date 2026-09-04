@@ -584,6 +584,14 @@ Bon à savoir :
   **disparaît toute seule 3 jours** après sa date `updated`.
 - `schedule.js` (les *dates*) et `atelier.js` (l'*avancement*) sont indépendants :
   tu peux n'utiliser que l'un des deux.
+- Une entrée dont le chapitre est **déjà publié disparaît aussi toute seule**.
+  L'atelier est tenu à la main, la liste des chapitres est générée : les deux
+  divergent dès qu'une sortie part sans que le fichier suive. Le site affichait
+  alors « Ch. 168 à venir » sur le planning pendant que le catalogue proposait
+  de lire le 168 — deux pages du même site en désaccord. La règle est décidée
+  par les données : un lot (`"248-249-250"`) n'est fini que quand son **dernier**
+  numéro est en ligne. `check.js` le signale en alerte pour que la team le sache,
+  au lieu de laisser l'entrée s'évaporer en silence.
 
 ---
 
@@ -1023,7 +1031,14 @@ Deux façons de ne plus les subir :
 > Netlify la fournit, ta machine non. Sans elle, les pages partiraient en
 > annonçant leurs vignettes sur `lanortrad.com`, qui ne sert pas encore le
 > site : plus aucune image de partage sur Discord. Le script la pose
-> (`LT_SITE_URL`, une seule ligne à changer le jour du basculement).
+> (`LT_SITE_URL`).
+>
+> **Le basculement est fait** : cette ligne vaut désormais
+> `https://lanortrad.com`. Pour déployer une **copie de test**, ne touche plus
+> au fichier — pose la variable le temps d'une commande :
+> `$env:LT_SITE_URL="https://lanortradtest.netlify.app"; py tools/deployer.py`.
+> `build-seo.js` recible alors les pages, et `robots.txt` passe tout seul en
+> « interdit d'indexer » : le site de test ne peut plus concurrencer le vrai.
 
 ### Un déploiement qui n'est pas `lanortrad.com`
 
@@ -1067,10 +1082,36 @@ Ce qu'il regarde :
   entrée fausse fait échouer `addAll()` en entier, donc plus de mode hors ligne
   du tout, sans le moindre message ;
 - le sitemap déclare-t-il exactement les séries et chapitres des données ;
-- la règle de slug est-elle la même dans le site et dans le sitemap.
+- la règle de slug est-elle la même dans le site et dans le sitemap ;
+- les adresses absolues des pages (`canonical`, `og:url`, `og:image`) visent-elles
+  bien le domaine servi — voir l'encadré ci-dessous ;
+- ce que le site **raconte** est-il encore vrai : calendrier des sorties, atelier,
+  dates de mise à jour (en alertes, jamais bloquant).
 
 Sortie `0` si tout va bien, `1` s'il y a une erreur. Les alertes (« signalé,
 mais pas bloquant ») ne font pas échouer.
+
+> **Pourquoi la vérification des adresses absolues existe.** Les pages statiques
+> portent leur adresse en dur, et `build-seo.js` les recible au build — mais il
+> ne sait le faire qu'**en remplaçant la chaîne `https://lanortrad.com`**. Le
+> jour où le dépôt s'est retrouvé figé sur le domaine de test (commit `54540dc`,
+> un build local commité par mégarde), le reciblage n'a plus rien trouvé à
+> remplacer : il annonçait « rien à faire » et les pages seraient parties en
+> production en déclarant le site de test — `canonical` vers un autre domaine et
+> vignettes de partage en 404 sur Discord. Aucune erreur nulle part : le
+> mécanisme censé éviter le problème le rendait invisible. La vérification porte
+> donc sur l'invariant dont il dépend.
+
+> **Pourquoi les alertes de fraîcheur.** Trois choses sont tenues à la main
+> pendant que tout le reste est généré : `schedule.js`, `atelier.js` et le champ
+> `lastUpdate` de `series.js`. Rien ne les rattachait aux chapitres réellement
+> publiés. Résultat observé : l'atelier annonçait « Ao No Exorcist 168 à venir »
+> alors que le 168 était lisible dans le catalogue, et la section « Prochaines
+> sorties » de l'accueil disparaissait sans bruit parce que toutes ses dates
+> étaient passées. Un site qui annonce une sortie pour le mois dernier a l'air
+> abandonné — l'inverse exact du message. Ces trois-là restent des **alertes** :
+> la vraie date d'une sortie ne se devine pas, elle n'appartient qu'à la team,
+> et un déploiement ne doit pas être refusé parce qu'un calendrier est vide.
 
 `.github/workflows/verifications.yml` rejoue le tout à chaque push, **sans
 télécharger les 5,5 Go d'images** (checkout partiel). `check.js` annonce alors
