@@ -290,6 +290,10 @@ titre("Fraicheur du contenu");
       warn(`atelier : ${id} annonce le chapitre ${e.chapter}, deja publie (dernier en ligne : ${publie}) — l'entree est masquee, mets-la a jour`);
       perimees++;
     } else vivantes++;
+    // La date visee est-elle derriere nous ? Le site le dit desormais tout seul
+    // au lecteur (carte « Du retard »), mais la team doit le savoir avant lui.
+    if (e.eta && jours(e.eta) > 0)
+      warn(`atelier : ${id} visait le ${e.eta}, depasse de ${jours(e.eta)} jour(s) — la carte est passee en « Du retard » sur le site`);
     if (e.updated && jours(e.updated) > 30)
       warn(`atelier : ${id} n'a pas bouge depuis ${jours(e.updated)} jours — la jauge affiche « dernier point d'etape il y a ${jours(e.updated)} jours »`);
   }

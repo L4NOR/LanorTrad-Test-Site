@@ -584,6 +584,19 @@ Bon à savoir :
   **disparaît toute seule 3 jours** après sa date `updated`.
 - `schedule.js` (les *dates*) et `atelier.js` (l'*avancement*) sont indépendants :
   tu peux n'utiliser que l'un des deux.
+- **Le retard se dit tout seul.** Une jauge bloquée sur « Q-check 5/6 » laisse
+  croire que ça sort demain ; au bout de trois semaines de silence, ça passe
+  pour de l'abandon. Quand la date `eta` est dépassée — ou, à défaut d'`eta`,
+  quand l'étape n'a pas bougé depuis **30 jours** — la carte passe en **« Du
+  retard »** (ambre, jamais rouge : rien n'est cassé, des bénévoles ont pris du
+  retard sur leur temps libre) et affiche l'explication : *« On visait le 6
+  septembre et on a débordé. Soit le chapitre demande plus de travail que
+  prévu, soit nos boulots ne nous laissent pas le temps d'avancer en ce
+  moment. »* Une `note` écrite par la team **remplace** cette phrase : elle dit
+  la vraie raison, et c'est la voix de l'équipe plutôt qu'un message
+  automatique. Une `eta` encore à venir l'emporte sur l'ancienneté de
+  `updated` : la parole la plus récente de la team fait foi. `check.js` prévient
+  en alerte pour que vous le sachiez avant les lecteurs.
 - Une entrée dont le chapitre est **déjà publié disparaît aussi toute seule**.
   L'atelier est tenu à la main, la liste des chapitres est générée : les deux
   divergent dès qu'une sortie part sans que le fichier suive. Le site affichait
