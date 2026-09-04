@@ -170,6 +170,20 @@ check("/lecture/ = chapitre sans numero",
 check("/genre/horreur/ -> genre", lu("/genre/horreur/").genre === "horreur");
 check("ancienne adresse de chapitre toujours comprise",
   lu("/reader.html?manga=Tougen%20Anki&chapter=240").chapitre === "240");
+/* Les adresses de l'ANCIEN site (celui qui servait lanortrad.com avant cette
+   version) : « /manga/tougen anki/chapitre 247 » -- minuscules, espaces, pas
+   de tiret. Ce sont les ~550 adresses que Google a en index, et elles doivent
+   continuer de mener au bon chapitre. Le separateur tolerant vit en double,
+   ici pour les robots et dans js/core.js pour les lecteurs : les deux tests
+   ci-dessous echouent si l'un des deux repart en arriere. */
+check("ancienne forme du site precedent : la serie",
+  lu("/manga/tougen%20anki").type === "serie" && lu("/manga/tougen%20anki").id === "tougen anki");
+check("ancienne forme du site precedent : le chapitre",
+  lu("/manga/tougen%20anki/chapitre%20247").chapitre === "247");
+check("ancienne forme, chapitre a un chiffre",
+  lu("/manga/ao%20no%20exorcist/chapitre%201").chapitre === "1");
+check("ancienne forme, chapitre decimal",
+  lu("/manga/tougen%20anki/chapitre%20246.5").chapitre === "246.5");
 check("ancienne adresse de fiche toujours comprise",
   lu("/manga.html?id=Tougen%20Anki").id === "Tougen Anki");
 check("catalogue sans genre : page inchangee", lu("/catalogue.html").type === "rien");

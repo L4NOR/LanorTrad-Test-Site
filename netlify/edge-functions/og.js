@@ -409,7 +409,7 @@ function lireAdresse(url) {
       id: propre[1],
       // /manga/<slug>/lecture/ : aucun chapitre precis. Le lecteur ouvrira le
       // plus ancien, c'est donc celui-la qu'on decrit.
-      chapitre: seg && !/^lecture$/i.test(seg) ? seg.replace(/^chapitre-/i, "") : null,
+      chapitre: seg && !/^lecture$/i.test(seg) ? seg.replace(/^chapitre[- _]+/i, "") : null,
     };
   }
   const genrePropre = /^\/genre\/([^/]+)\/?$/i.exec(chemin);

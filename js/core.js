@@ -55,7 +55,14 @@
     if (seg[0] === "manga" && seg[1]) {
       r.pretty = true; r.id = seg[1];
       r.page = seg[2] ? "reader.html" : "manga.html";
-      if (seg[2] && seg[2].toLowerCase() !== "lecture") r.chapter = seg[2].replace(/^chapitre-/i, "");
+      // Le separateur est tolerant, et ce n'est pas de la coquetterie : l'ancien
+      // site servait « /manga/tougen anki/chapitre 247 » (espaces, minuscules),
+      // et ces ~550 adresses sont celles que Google a en index. N'accepter que
+      // le tiret laissait wantNum a « chapitre 247 », qui ne correspond a aucun
+      // numero : le lecteur s'ouvrait VIDE, avec son menu deroulant cale sur le
+      // premier chapitre de la liste -- donc l'air de fonctionner. La meme regle
+      // vit dans netlify/edge-functions/og.js, pour le pre-rendu des robots.
+      if (seg[2] && seg[2].toLowerCase() !== "lecture") r.chapter = seg[2].replace(/^chapitre[- _]+/i, "");
     } else if (seg[0] === "genre" && seg[1]) {
       r.pretty = true; r.page = "catalogue.html"; r.genre = seg[1];
     } else {
