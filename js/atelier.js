@@ -45,6 +45,16 @@
     return i == null ? 0 : i;
   }
 
+  /* Le plus grand numero declare (« 45-45.5-46 » -> 46) est-il deja publie ? */
+  function dejaPublie(id, chapitre) {
+    const nums = String(chapitre == null ? "" : chapitre)
+      .split(/[^0-9.]+/).map(parseFloat).filter(n => !isNaN(n));
+    if (!nums.length) return false;
+    const vise = Math.max.apply(null, nums);
+    const liste = (window.CHAPTERS || {})[id] || [];
+    return liste.some(c => parseFloat(c.num) >= vise);
+  }
+
   function get(id) {
     const raw = (window.ATELIER || {})[id];
     const s = window.LT && window.LT.seriesById(id);
@@ -52,6 +62,20 @@
 
     const i = stepIndex(raw.step);
     const done = i === STEPS.length - 1;
+    // Le chapitre annonce est-il DEJA en ligne ? Alors cette entree ment.
+    //
+    // L'atelier est tenu a la main, la liste des chapitres est generee : les
+    // deux divergent des qu'une sortie part sans que le fichier suive. Le site
+    // affichait alors « Ch. 168 a venir » sur le planning pendant que le
+    // catalogue proposait de lire le 168 — deux pages du meme site en
+    // desaccord, sans la moindre erreur nulle part.
+    //
+    // On tranche par les donnees : le plus grand numero annonce est-il dans la
+    // liste publiee ? Un lot (« 248-249-250 ») n'est fini que quand son dernier
+    // chapitre est sorti. C'est la meme logique que l'expiration ci-dessus :
+    // une entree perimee disparait toute seule plutot que d'induire en erreur.
+    if (dejaPublie(id, raw.chapter)) return null;
+
     // Une sortie annoncée il y a longtemps n'a plus rien à faire ici.
     if (done && raw.updated && Date.now() - new Date(raw.updated).getTime() > KEEP_DAYS * DAY) return null;
 
