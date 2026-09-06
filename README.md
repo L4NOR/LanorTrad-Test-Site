@@ -273,6 +273,11 @@ Les **dimensions** servent au lecteur à réserver la place de chaque planche
 avant qu'elle n'arrive. Sans elles, en mode webtoon, le scroll sautait sous les
 doigts à chaque image chargée (score CLS mesuré : 4,49 → 0,002).
 
+Elles servent depuis à deux autres choses, toujours avant le chargement de
+l'image : **ne jamais agrandir une page au-delà de son fichier** (réglage
+« Netteté », voir § 9) et **reconnaître les doubles pages** (une planche plus
+large que haute) pour leur proposer la loupe et l'ouvrir au bon cadrage.
+
 Elles sont mises en cache dans `tools/.dims-cache.json`, donc seules les pages
 **nouvelles** sont mesurées : le premier passage prend quelques minutes (14 000
 pages), les suivants sont instantanés. `--no-dims` saute complètement l'étape —
@@ -1176,6 +1181,22 @@ vérifiée.
 - **Adresses lisibles** : `/manga/tougen-anki/chapitre-240/` plutôt que
   `reader.html?manga=…&chapter=…` (§ 1). Réécritures Netlify, anciennes adresses
   toujours valables, `canonical` vers la nouvelle forme.
+- **Loupe** dans le lecteur (bouton 🔍 du rail, touche `Z`, double-tap sur une
+  page, ou le bouton « Agrandir la double page » qui apparaît de lui-même sur
+  les planches doubles). La page sort de la mise en page : elle peut déborder
+  de l'écran, se déplacer au doigt, se pincer, et tourner d'un quart de tour
+  pour qui lit avec la rotation bloquée. Une double page sur téléphone s'ouvre
+  d'emblée à hauteur d'écran, calée du côté où commence la lecture — chaque
+  planche fait alors ~556 px de large au lieu de ~187.
+- **Netteté** (préférences du lecteur) : par défaut, une page n'est plus jamais
+  affichée **plus grande que son fichier**. C'est ce qui faisait qu'une planche
+  paraissait plus molle dans le lecteur que dans le dossier du chapitre : les
+  pages d'Ao No Exorcist font 784 px de large, la zone de lecture 900 — le
+  navigateur inventait les 116 px manquants. « Remplir la largeur » rétablit
+  l'ancien comportement. Dans la même veine, le filtre de luminosité n'est posé
+  sur la visionneuse **que** lorsqu'il ne vaut pas 100 % : même neutre, il
+  isolait la page dans une couche de composition que plusieurs navigateurs
+  mobiles rastérisent en dessous de la définition de l'écran.
 - **« X lecteurs en ce moment »** sur la fiche série et dans le lecteur
   (`js/presence.js`, `supabase/presence.sql`). Anonyme, oublié au bout de deux
   minutes, jamais affiché en dessous de 2 — le premier lecteur, c'est toi.

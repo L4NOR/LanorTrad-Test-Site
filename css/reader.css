@@ -90,11 +90,17 @@ body.reader-body {
 
 /* --------------------------------------------------------------- Visionneuse */
 .rd-viewer {
-  filter: brightness(var(--rd-bright, 1));
   min-height: 100dvh;
   padding-top: calc(var(--rd-top-h) + var(--rd-safe-t));
 }
 .rd-track { margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+
+/* Luminosité : le filtre n'est posé que lorsqu'il vaut autre chose que 100 %
+   (classe posée par applyVars). Un filter, même neutre, isole la visionneuse
+   dans sa propre couche de composition, que plusieurs navigateurs mobiles
+   rastérisent à une définition inférieure : les pages paraissent alors plus
+   molles qu'elles ne le sont vraiment. */
+.rd.bright-adj .rd-viewer { filter: brightness(var(--rd-bright, 1)); }
 
 /* Image : transitions douces + sécurité anti-débordement */
 .rd-track img { max-width: 100%; user-select: none; -webkit-user-drag: none; }
@@ -155,6 +161,18 @@ body.reader-body {
   .rd.mode-webtoon .rd-track img { transition: none; opacity: 1; }
   .rd.mode-page .rd-track img, .rd.mode-double .rd-track img { animation: none; }
 }
+
+/* -------------------------------------------------------------- Netteté
+   Une page ne contient que les pixels qu'elle contient : affichée plus large
+   que son fichier, elle est interpolée, et le texte devient mou — c'est la
+   différence qu'on voit entre la page ouverte depuis le dossier du chapitre
+   et la même page dans le lecteur. La variable --nw porte la largeur réelle
+   du fichier (posée image par image par js/reader.js, d'après js/data/pages/),
+   et ces règles s'en servent comme plafond. Elles viennent APRÈS les règles de
+   mode : à spécificité égale, c'est la dernière qui gagne.
+   Réglage « Remplir la largeur » : la classe .no-upscale saute. */
+.rd.no-upscale .rd-track img { max-width: min(100%, var(--nw, 100%)); }
+.rd.no-upscale.mode-double .rd-track img { max-width: min(50%, var(--nw, 100%)); }
 
 /* Zoom (mode page/double) */
 .rd-track img.zoomable { touch-action: none; }
@@ -280,6 +298,111 @@ body.reader-body {
 .rd-reset { width: 100%; margin-top: 4px; padding: 11px; border-radius: 12px; border: 1px solid var(--line);
   color: var(--txt-soft); font-weight: 600; transition: .2s; }
 .rd-reset:hover { color: var(--txt); background: var(--glass); }
+
+/* --------------------------------------------------- Appel « double page »
+   Apparaît quand la page courante est une double page affichée plus petite
+   que son fichier : à cet endroit-là, et seulement là, la loupe change tout. */
+.rd-spread-cta {
+  position: fixed; z-index: 118; left: 50%; bottom: calc(96px + var(--rd-safe-b));
+  /* visibility, et pas seulement opacity : sans ca le bouton resterait
+     atteignable a la tabulation alors qu'il est invisible. */
+  transform: translate(-50%, 14px); opacity: 0; visibility: hidden; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  max-width: min(320px, calc(100vw - 110px));
+  padding: 9px 15px 9px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-1) 86%, transparent);
+  backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--rd-accent) 55%, var(--line-strong));
+  box-shadow: 0 16px 40px -18px #000;
+  color: var(--txt); font-weight: 600; font-size: .84rem; white-space: nowrap;
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.rd-spread-cta.on { opacity: 1; visibility: visible; transform: translate(-50%, 0); pointer-events: auto; }
+.rd-spread-cta svg { flex: none; color: var(--rd-accent); }
+.rd-spread-cta:hover { border-color: var(--rd-accent); }
+@media (max-width: 600px) {
+  .rd-spread-cta { bottom: calc(88px + var(--rd-safe-b)); font-size: .8rem; padding: 8px 13px 8px 10px; }
+}
+
+/* -------------------------------------------------------------------- Loupe
+   Surface dédiée, hors mise en page : la page peut y déborder de l'écran,
+   se déplacer au doigt et tourner. C'est le seul endroit du lecteur où une
+   image a le droit d'être plus grande que ce qu'on voit. */
+.rd-lens {
+  position: fixed; inset: 0; z-index: 240;
+  background: color-mix(in srgb, var(--rd-bg, #0b0b16) 96%, #000);
+  opacity: 0; transition: opacity .22s var(--ease);
+  overscroll-behavior: contain;
+}
+.rd-lens.open { opacity: 1; }
+.rd-lens[hidden] { display: none !important; }
+.rd-lens-stage {
+  position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab;
+}
+.rd-lens-stage:active { cursor: grabbing; }
+/* Ni flex, ni grid, ni marges automatiques pour centrer : ici l'image est
+   PLUS GRANDE que l'écran, et c'est le cas normal. Les conteneurs flex/grid
+   recalent alors l'élément sur leur bord (protection anti-perte de contenu),
+   et les marges automatiques ne prennent pas de valeur négative sur l'axe
+   horizontal. On accroche donc l'image à un point sans dimension posé au
+   centre exact, et le transform fait le reste (voir lensApply). */
+.rd-lens-hub { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.rd-lens-stage img {
+  position: absolute; left: 0; top: 0;
+  max-width: none; max-height: none; display: block;
+  transform-origin: 50% 50%; will-change: transform;
+  -webkit-user-drag: none; user-select: none;
+}
+.rd-lens-stage img.anim { transition: transform .28s var(--ease); }
+
+.rd-lens-bar {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(14px + var(--rd-safe-b)); z-index: 2;
+  display: flex; align-items: center; gap: 4px; padding: 7px 9px; border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-1) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(170%); -webkit-backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid var(--line-strong); box-shadow: var(--shadow-card);
+  transition: opacity .25s var(--ease), transform .3s var(--ease);
+  max-width: calc(100vw - 20px);
+}
+.rd-lens.bar-off .rd-lens-bar { opacity: 0; transform: translate(-50%, 130%); pointer-events: none; }
+.rd-lens-b {
+  width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center;
+  background: var(--glass); border: 1px solid var(--line); color: var(--txt); transition: .2s;
+}
+.rd-lens-b:hover:not(:disabled) { border-color: color-mix(in srgb, var(--rd-accent) 60%, transparent); background: var(--glass-2); }
+.rd-lens-b:disabled { opacity: .32; cursor: default; }
+.rd-lens-b.close { background: var(--grad); border-color: transparent; color: #fff; }
+.rd-lens-num, .rd-lens-pct {
+  font-size: .78rem; font-weight: 700; color: var(--txt-soft);
+  font-variant-numeric: tabular-nums; padding: 0 6px; white-space: nowrap;
+}
+.rd-lens-pct { min-width: 54px; text-align: center; }
+.rd-lens-sep { width: 1px; height: 24px; background: var(--line-strong); margin: 0 4px; flex: none; }
+
+.rd-lens-tip {
+  position: absolute; left: 50%; transform: translate(-50%, -8px); z-index: 2;
+  top: calc(14px + var(--rd-safe-t));
+  max-width: min(440px, calc(100vw - 28px)); padding: 9px 14px; border-radius: 13px;
+  background: color-mix(in srgb, var(--bg-1) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line-strong);
+  color: var(--txt-soft); font-size: .8rem; line-height: 1.4; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.rd-lens-tip.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 600px) {
+  .rd-lens-b { width: 38px; height: 38px; }
+  .rd-lens-num { display: none; }          /* le numéro reste dans le dock du lecteur */
+  .rd-lens-bar { gap: 3px; padding: 6px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rd-lens-stage img.anim, .rd-lens, .rd-lens-bar, .rd-lens-tip { transition: none; }
+}
+
+/* Texte d'explication sous un réglage de la feuille de préférences. */
+.rd-hint-txt { margin: 9px 2px 0; font-size: .78rem; line-height: 1.5; color: var(--txt-mut); }
 
 /* ------------------------------------------------------------- Aide raccourcis */
 .rd-help { position: fixed; inset: 0; z-index: 220; display: grid; place-items: center; padding: 20px;

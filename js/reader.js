@@ -68,17 +68,19 @@
   const DISCORD = "https://discord.gg/md37S7nhkZ";
 
   const PREF_KEY = "lt-reader-prefs";
-  const DEFAULTS = { mode: "webtoon", dir: "ltr", fit: "height", width: 900, gap: 0, bright: 1, bg: "#0b0b16" };
+  const DEFAULTS = { mode: "webtoon", dir: "ltr", fit: "height", width: 900, gap: 0, bright: 1, bg: "#0b0b16",
+                     qual: "sharp" };   // sharp = jamais agrandie au-dela du fichier
   const SWATCHES = ["#0b0b16", "#000000", "#11111f", "#1a1410", "#e9dcc3", "#f5f5f7"];
   const NARROW = 760;   // sous cette largeur, « double » → page simple
 
   /* ---------------------------------------------------------------- État */
   const A = {
     manga: null, S: null, chapters: [], chap: null,
-    imgs: [], idx: 0, total: 0, view: "webtoon", lastDir: 1,
+    imgs: [], dims: [], idx: 0, total: 0, view: "webtoon", lastDir: 1,
     chromeOff: false, autoOn: false, autoRAF: 0, autoSpeed: 1.4,
     preloadIO: null, trackIO: null, scrollPending: false,
     prefetched: null, sb: null, me: null, resumePage: 0,
+    tapT: 0, tapX: 0, tapY: 0,
   };
   let prefs = loadPrefs();
 
@@ -132,6 +134,7 @@
     sel.addEventListener("change", () => goChapter(sel.value));
 
     wireControls();
+    wireLens();
     wirePrefs();
     startMarathon();
 
@@ -209,6 +212,7 @@
       <div class="rd-hint r" aria-hidden="true">${ic("right")}</div>
 
       <div class="rd-rail" id="rd-rail">
+        <button class="rd-fab" id="rd-lens-btn" title="Loupe (Z)" aria-label="Agrandir la page">${ic("zoom")}</button>
         <button class="rd-fab" id="rd-auto" title="Défilement auto (A)" aria-label="Défilement automatique">${ic("auto")}</button>
         <button class="rd-fab" id="rd-full" title="Plein écran (F)" aria-label="Plein écran">${ic("full")}</button>
         <button class="rd-fab" id="rd-dl" title="Télécharger le chapitre" aria-label="Télécharger">${ic("dl")}</button>
@@ -227,7 +231,10 @@
         <button class="rd-chap primary" id="rd-next" title="Chapitre suivant"><span class="lbl">Suiv.</span>${ic("right")}</button>
       </nav>
 
+      <button class="rd-spread-cta" id="rd-spread-cta" type="button">${ic("zoom")}<span>Agrandir la double page</span></button>
+
       <div class="rd-veil" id="rd-veil"></div>
+      ${lensHTML()}
       ${sheetHTML()}
       ${helpHTML()}
     </div>`;
@@ -270,6 +277,16 @@
           <input type="range" id="rg-width" min="560" max="1200" step="20">
         </div>
 
+        <div class="rd-grp"><div class="lab">Qualité d'affichage</div>
+          <div class="rd-seg" id="seg-qual">
+            <button data-v="sharp">Netteté</button>
+            <button data-v="fill">Remplir la largeur</button>
+          </div>
+          <p class="rd-hint-txt">« Netteté » n'agrandit jamais une page au-delà de sa taille réelle : tu la
+          vois exactement comme le fichier du chapitre, sans flou d'agrandissement. « Remplir la largeur »
+          occupe toute la place réglée ci-dessus, quitte à étirer les petites pages.</p>
+        </div>
+
         <div class="rd-grp" id="grp-gap"><div class="lab">Espacement (défilement) <span class="val" id="val-gap"></span></div>
           <input type="range" id="rg-gap" min="0" max="40" step="2">
         </div>
@@ -301,6 +318,7 @@
         <div class="row"><span>Défilement automatique</span><kbd>A</kbd></div>
         <div class="row"><span>Plein écran</span><kbd>F</kbd></div>
         <div class="row"><span>Zoom (mode page)</span><span>double-clic / molette</span></div>
+        <div class="row"><span>Loupe plein écran (tous les modes)</span><span><kbd>Z</kbd> / double-tap</span></div>
         <div class="row"><span>Cette aide</span><kbd>?</kbd></div>
       </div>
     </div>`;
@@ -329,11 +347,18 @@
     // AVANT le chargement : sans ça, en mode webtoon, le scroll saute sous les
     // doigts du lecteur à chaque page qui arrive.
     const defDim = A.chap.w ? [A.chap.w, A.chap.h] : null;
+    A.dims = urls.map((_, i) => (pg.odd && pg.odd[i]) || defDim || null);
 
     A.imgs = urls.map((src, i) => {
       const im = document.createElement("img");
-      const dim = (pg.odd && pg.odd[i]) || defDim;
-      if (dim) { im.setAttribute("width", dim[0]); im.setAttribute("height", dim[1]); }
+      const dim = A.dims[i];
+      if (dim) {
+        im.setAttribute("width", dim[0]); im.setAttribute("height", dim[1]);
+        // Taille réelle du fichier, donnée au CSS : elle sert à ne JAMAIS
+        // afficher une page plus grande qu'elle n'est (voir .rd.no-upscale).
+        im.style.setProperty("--nw", dim[0] + "px");
+        if (dim[0] > dim[1] * 1.2) im.classList.add("rd-spread");
+      }
       im.src = src;
       im.alt = `${A.S.title} — Chapitre ${A.chap.num} — page ${i + 1}`;
       im.loading = i < 2 ? "eager" : "lazy";
@@ -456,6 +481,7 @@
     rd.classList.remove("mode-webtoon", "mode-page", "mode-double", "dir-ltr", "dir-rtl",
                         "fit-height", "fit-width", "fit-orig", "scrolled");
     rd.classList.add("mode-" + A.view, "dir-" + prefs.dir, "fit-" + prefs.fit);
+    rd.classList.toggle("no-upscale", prefs.qual !== "fill");
     setChrome(true);   // un changement de mode réaffiche toujours l'interface
 
     // Le réglage « ajustement » ne concerne que le mode page
@@ -592,6 +618,7 @@
     const cur = A.view === "webtoon" ? currentWebtoonIndex() : Math.min(A.idx, A.total - 1);
     if (document.activeElement !== range) range.value = cur + 1;
     count.textContent = (cur + 1) + " / " + A.total;
+    updateSpreadCta(cur);
   }
   function scrubPreview(i) {
     const box = $("rd-preview"), img = $("rd-preview-img"), num = $("rd-preview-num"), range = $("rd-range");
@@ -620,6 +647,8 @@
      ===================================================================== */
   function wireControls() {
     $("rd-open-prefs").addEventListener("click", openSheet);
+    $("rd-lens-btn").addEventListener("click", () => openLens(curIndex()));
+    $("rd-spread-cta").addEventListener("click", () => openLens(+$("rd-spread-cta").dataset.i || 0));
     $("rd-top-btn").addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
     $("rd-full").addEventListener("click", toggleFull);
     $("rd-dl").addEventListener("click", downloadChapter);
@@ -665,6 +694,17 @@
 
     // Clavier
     addEventListener("keydown", e => {
+      // La loupe passe avant tout le reste : tant qu'elle est ouverte, les
+      // flèches feuillettent DANS la loupe et rien ne bouge derrière.
+      if (lensOpen()) {
+        if (e.key === "Escape" || e.key.toLowerCase() === "z") { e.preventDefault(); closeLens(); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); lensGo(prefs.dir === "rtl" ? L.i - 1 : L.i + 1); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); lensGo(prefs.dir === "rtl" ? L.i + 1 : L.i - 1); }
+        else if (e.key === "+" || e.key === "=") { e.preventDefault(); lensZoom(1.4, null, null, true); }
+        else if (e.key === "-") { e.preventDefault(); lensZoom(1 / 1.4, null, null, true); }
+        else if (e.key.toLowerCase() === "r") { L.rot = (L.rot + 90) % 360; lensFrame(); }
+        return;
+      }
       if ($("rd-sheet").classList.contains("open") || $("rd-help").classList.contains("open")) {
         if (e.key === "Escape") { closeSheet(); toggleHelp(false); } return;
       }
@@ -675,6 +715,7 @@
       else if (e.key === "ArrowLeft") prefs.dir === "rtl" ? nextPage() : prevPage();
       else if (e.key === "ArrowDown" || e.key === " ") { if (A.view !== "webtoon") { e.preventDefault(); nextPage(); } }
       else if (e.key === "ArrowUp") { if (A.view !== "webtoon") { e.preventDefault(); prevPage(); } }
+      else if (k === "z") openLens(curIndex());
       else if (k === "f") toggleFull();
       else if (k === "a") toggleAuto();
       else if (e.key === "?") toggleHelp();
@@ -713,7 +754,20 @@
       // Tap (pas de glissement)
       if (moved || Date.now() - t0 > 500) return;
       const zone = e.clientX / innerWidth;   // 0..1
-      if (A.view === "webtoon") { toggleChrome(); return; }
+      if (A.view === "webtoon") {
+        // Deuxième tap rapide sur une page : la loupe. Le premier tap avait
+        // déjà basculé l'interface — on la remet comme elle était, pour que
+        // le geste n'ait qu'un seul effet.
+        const img = e.target.tagName === "IMG" ? e.target : null;
+        const now = Date.now();
+        if (img && now - A.tapT < 320 && Math.hypot(e.clientX - A.tapX, e.clientY - A.tapY) < 32) {
+          A.tapT = 0; toggleChrome();
+          openLens(+img.dataset.i || 0);
+          return;
+        }
+        A.tapT = now; A.tapX = e.clientX; A.tapY = e.clientY;
+        toggleChrome(); return;
+      }
       if (zone < 0.33) prefs.dir === "rtl" ? nextPage() : prevPage();
       else if (zone > 0.67) prefs.dir === "rtl" ? prevPage() : nextPage();
       else toggleChrome();
@@ -813,6 +867,251 @@
   }
 
   /* ========================================================================
+     LOUPE — zoom plein écran, disponible dans TOUS les modes
+     ---------------------------------------------------------------------
+     Le zoom ci-dessus ne fonctionne qu'en mode page : il agit sur l'image
+     courante, dans une visionneuse qui la rogne. Or le problème se pose
+     surtout ailleurs — en mode défilement, sur téléphone, une double page
+     tient dans ~390 px de large : chaque page fait moins de 200 px, et il
+     n'y a plus rien à lire. La loupe sort donc la page de la mise en page :
+     elle l'ouvre dans une surface dédiée où elle peut déborder de l'écran,
+     se déplacer au doigt, tourner d'un quart de tour (une double page mise
+     à l'horizontale remplit alors tout l'écran d'un téléphone tenu droit).
+
+     Les dimensions viennent de js/data/pages/ : on connaît la taille réelle
+     de chaque page AVANT de la charger, donc le cadrage d'ouverture est bon
+     du premier coup, sans attendre le décodage de l'image.
+     ===================================================================== */
+  const L = { i: 0, s: 1, s0: 1, fit: 1, x: 0, y: 0, rot: 0, nw: 0, nh: 0,
+              pts: new Map(), pd: 0, drag: null, tap: null, lastTap: 0, tapTimer: 0, tipTimer: 0,
+              opener: null };
+
+  const dimOf = i => (A.dims && A.dims[i]) || null;
+  const isSpread = i => { const d = dimOf(i); return !!d && d[0] > d[1] * 1.2; };
+  const curIndex = () => (A.view === "webtoon" ? currentWebtoonIndex() : Math.min(A.idx, Math.max(0, A.total - 1)));
+  const lensOpen = () => { const e = $("rd-lens"); return !!e && e.classList.contains("open"); };
+
+  function lensHTML() {
+    return `
+    <div class="rd-lens" id="rd-lens" role="dialog" aria-modal="true" aria-label="Page agrandie" hidden>
+      <div class="rd-lens-stage" id="rd-lens-stage"><div class="rd-lens-hub"><img id="rd-lens-img" alt="" draggable="false"></div></div>
+      <div class="rd-lens-tip" id="rd-lens-tip" aria-live="polite"></div>
+      <div class="rd-lens-bar" id="rd-lens-bar">
+        <button class="rd-lens-b" id="rd-lens-prev" title="Page précédente" aria-label="Page précédente">${ic("left")}</button>
+        <span class="rd-lens-num" id="rd-lens-num">1 / 1</span>
+        <button class="rd-lens-b" id="rd-lens-next" title="Page suivante" aria-label="Page suivante">${ic("right")}</button>
+        <span class="rd-lens-sep"></span>
+        <button class="rd-lens-b" id="rd-lens-out" title="Dézoomer" aria-label="Dézoomer">${ic("minus")}</button>
+        <span class="rd-lens-pct" id="rd-lens-pct">100 %</span>
+        <button class="rd-lens-b" id="rd-lens-in" title="Zoomer" aria-label="Zoomer">${ic("plus")}</button>
+        <button class="rd-lens-b" id="rd-lens-rot" title="Pivoter d'un quart de tour" aria-label="Pivoter">${ic("rot")}</button>
+        <button class="rd-lens-b close" id="rd-lens-close" title="Fermer (Échap)" aria-label="Fermer la loupe">${ic("close")}</button>
+      </div>
+    </div>`;
+  }
+
+  /* -------- Géométrie : tout se calcule à partir de la taille affichée -------- */
+  function lensBox() { const st = $("rd-lens-stage"); return { w: st.clientWidth, h: st.clientHeight }; }
+  function lensSize(s) {   // taille à l'écran, rotation comprise
+    const swap = L.rot % 180 !== 0;
+    return { w: (swap ? L.nh : L.nw) * s, h: (swap ? L.nw : L.nh) * s };
+  }
+  function lensFit()   { const b = lensBox(), d = lensSize(1); return Math.min(b.w / d.w, b.h / d.h); }
+  function lensCover() { const b = lensBox(), d = lensSize(1); return Math.max(b.w / d.w, b.h / d.h); }
+  function lensMax()   { return Math.max(L.fit * 6, 4); }
+
+  /* Cadrage d'ouverture.
+     Règle : la loupe ne montre JAMAIS la page plus petite que le lecteur ne le
+     faisait déjà — sinon l'ouvrir serait un recul. On part donc de la taille
+     réelle du fichier (100 %) ; si la page tient de toute façon en entier à
+     l'écran on l'agrandit jusqu'à le remplir, et si même là elle déborde, on
+     la ramène à ce qui rentre. Ce qui dépasse s'ouvre du bon côté : le haut
+     pour une page, le début de la lecture pour une double page. */
+  function lensFrame() {
+    L.fit = lensFit();
+    L.s = L.s0 = Math.max(L.fit, Math.min(1, lensCover()));
+    const b = lensBox(), d = lensSize(L.s);
+    L.x = (d.w > b.w + 1 && isSpread(L.i)) ? (prefs.dir === "rtl" ? -1 : 1) * (d.w - b.w) / 2 : 0;
+    L.y = d.h > b.h + 1 ? (d.h - b.h) / 2 : 0;
+    lensApply(true);
+  }
+  function lensApply(anim) {
+    const img = $("rd-lens-img"); if (!img) return;
+    const b = lensBox(), d = lensSize(L.s);
+    const mx = Math.max(0, (d.w - b.w) / 2), my = Math.max(0, (d.h - b.h) / 2);
+    L.x = Math.max(-mx, Math.min(mx, L.x));
+    L.y = Math.max(-my, Math.min(my, L.y));
+    img.classList.toggle("anim", !!anim);
+    // -50 % : l'image est accrochée par son coin au centre exact de la scène
+    // (le « hub ») ; ce demi-recul la recentre, sans rien devoir au moteur de
+    // mise en page ni au débordement. Le reste (déplacement, échelle, rotation)
+    // s'applique ensuite autour de ce centre.
+    img.style.transform = `translate(-50%, -50%) translate(${L.x}px, ${L.y}px) scale(${L.s}) rotate(${L.rot}deg)`;
+    // 100 % = un pixel du fichier pour un pixel de l'écran
+    $("rd-lens-pct").textContent = Math.round(L.s * 100) + " %";
+  }
+  /* Zoom ancré : le point visé (doigt, curseur, centre de la pince) ne bouge pas. */
+  function lensZoom(k, px, py, anim) {
+    const s0 = L.s, s1 = Math.max(L.fit * 0.92, Math.min(lensMax(), s0 * k));
+    if (Math.abs(s1 - s0) < 1e-4) return;
+    const b = lensBox(), r = s1 / s0;
+    if (px != null) {
+      L.x = px - b.w / 2 - (px - b.w / 2 - L.x) * r;
+      L.y = py - b.h / 2 - (py - b.h / 2 - L.y) * r;
+    }
+    L.s = s1;
+    lensApply(!!anim);
+  }
+
+  function lensTip(txt) {
+    const t = $("rd-lens-tip"); if (!t) return;
+    t.textContent = txt; t.classList.add("on");
+    clearTimeout(L.tipTimer);
+    L.tipTimer = setTimeout(() => t.classList.remove("on"), 3000);
+  }
+
+  function openLens(i) {
+    const src = A.imgs[i]; if (!src || !$("rd-lens")) return;
+    const el = $("rd-lens"), img = $("rd-lens-img");
+    L.i = i; L.rot = 0;
+    const d = dimOf(i);
+    L.nw = (d && d[0]) || src.naturalWidth || 800;
+    L.nh = (d && d[1]) || src.naturalHeight || 1200;
+    img.src = src.currentSrc || src.src;
+    img.alt = src.alt || "";
+    if (!lensOpen()) L.opener = document.activeElement;   // pour lui rendre le focus en sortant
+    el.hidden = false;
+    el.classList.remove("bar-off");
+    void el.offsetWidth;            // force le calcul : sans ça, l'apparition ne se joue pas
+    el.classList.add("open");
+    $("rd-lens-num").textContent = (i + 1) + " / " + A.total;
+    $("rd-lens-prev").disabled = i <= 0;
+    $("rd-lens-next").disabled = i >= A.total - 1;
+    lensFrame();
+    updateSpreadCta();
+    lensTip(isSpread(i)
+      ? "Fais glisser pour parcourir la double page · pince pour zoomer · ⟳ la met à l'horizontale"
+      : "Pince ou double-tape pour zoomer · fais glisser pour te déplacer");
+    $("rd-lens-close").focus({ preventScroll: true });
+  }
+  function closeLens() {
+    const el = $("rd-lens"); if (!el || !el.classList.contains("open")) return;
+    el.classList.remove("open");
+    L.pts.clear(); L.drag = null; L.pd = 0; L.tap = null;
+    clearTimeout(L.tapTimer);
+    setTimeout(() => { if (!el.classList.contains("open")) { el.hidden = true; $("rd-lens-img").removeAttribute("src"); } }, 240);
+    // On repart de la page qu'on regardait dans la loupe, pas de celle qu'on
+    // avait quittée : feuilleter dans la loupe, c'est feuilleter le chapitre.
+    if (L.i !== curIndex()) scrubJump(L.i, true);
+    updateSpreadCta();
+    if (L.opener && document.contains(L.opener)) L.opener.focus({ preventScroll: true });
+    L.opener = null;
+  }
+  function lensGo(i) { if (i >= 0 && i < A.total) openLens(i); }
+  /* Double-tap : va-et-vient entre le cadrage d'ouverture et un zoom franc,
+     toujours ancré sur l'endroit tapé — c'est la bulle qu'on vise qui reste
+     sous le doigt. */
+  function lensToggleZoom(px, py) {
+    const gros = Math.max(lensCover(), L.s0 * 2, L.fit * 2.6);
+    lensZoom((L.s > L.s0 * 1.08 ? L.s0 : gros) / L.s, px, py, true);
+  }
+
+  function wireLens() {
+    const el = $("rd-lens"), st = $("rd-lens-stage"), img = $("rd-lens-img");
+    if (!el) return;
+
+    $("rd-lens-close").addEventListener("click", closeLens);
+    $("rd-lens-in").addEventListener("click", () => lensZoom(1.4, null, null, true));
+    $("rd-lens-out").addEventListener("click", () => lensZoom(1 / 1.4, null, null, true));
+    $("rd-lens-prev").addEventListener("click", () => lensGo(L.i - 1));
+    $("rd-lens-next").addEventListener("click", () => lensGo(L.i + 1));
+    $("rd-lens-rot").addEventListener("click", () => {
+      L.rot = (L.rot + 90) % 360; lensFrame();
+      lensTip(L.rot % 180 ? "Page à l'horizontale — tourne ton téléphone pour la lire en grand" : "Page remise droite");
+    });
+
+    // La molette zoome, et ne fait jamais défiler la page qui est derrière.
+    el.addEventListener("wheel", e => {
+      e.preventDefault();
+      lensZoom(e.deltaY > 0 ? 0.86 : 1.16, e.clientX, e.clientY, false);
+    }, { passive: false });
+
+    st.addEventListener("pointerdown", e => {
+      st.setPointerCapture(e.pointerId);
+      L.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (L.pts.size === 1) {
+        L.drag = { x: e.clientX - L.x, y: e.clientY - L.y };
+        L.tap = { x: e.clientX, y: e.clientY, t: Date.now(), onImg: e.target === img };
+      } else { L.drag = null; L.pd = 0; L.tap = null; }
+    });
+    st.addEventListener("pointermove", e => {
+      if (!L.pts.has(e.pointerId)) return;
+      L.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (L.tap && Math.hypot(e.clientX - L.tap.x, e.clientY - L.tap.y) > 12) L.tap = null;
+      if (L.pts.size >= 2) {
+        const [a, b] = [...L.pts.values()];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (L.pd) lensZoom(d / L.pd, (a.x + b.x) / 2, (a.y + b.y) / 2, false);
+        L.pd = d;
+      } else if (L.drag) { L.x = e.clientX - L.drag.x; L.y = e.clientY - L.drag.y; lensApply(false); }
+    });
+    const up = e => {
+      L.pts.delete(e.pointerId);
+      if (L.pts.size < 2) L.pd = 0;
+      // Fin de pince avec un doigt encore posé : le glissement doit repartir
+      // d'ici, sinon l'image saute.
+      if (L.pts.size === 1) { const p = [...L.pts.values()][0]; L.drag = { x: p.x - L.x, y: p.y - L.y }; }
+      if (!L.pts.size) L.drag = null;
+
+      const t = L.tap; L.tap = null;
+      if (!t || Date.now() - t.t > 450) return;
+      const now = Date.now();
+      if (now - L.lastTap < 300) {                 // double-tap / double-clic : zoom
+        clearTimeout(L.tapTimer); L.lastTap = 0;
+        lensToggleZoom(e.clientX, e.clientY);
+        return;
+      }
+      L.lastTap = now;
+      // Tap simple : hors de l'image on ferme, sur l'image on escamote la
+      // barre — mais on laisse sa chance au deuxième tap avant d'agir.
+      clearTimeout(L.tapTimer);
+      L.tapTimer = setTimeout(() => {
+        if (!t.onImg) closeLens();
+        else el.classList.toggle("bar-off");
+      }, 310);
+    };
+    st.addEventListener("pointerup", up);
+    st.addEventListener("pointercancel", e => { L.pts.delete(e.pointerId); L.drag = null; L.pd = 0; L.tap = null; });
+
+    // Un changement de taille (rotation de l'écran, plein écran) recadre.
+    let rz;
+    addEventListener("resize", () => {
+      if (!lensOpen()) return;
+      clearTimeout(rz); rz = setTimeout(() => {
+        // Recadre si on n'avait pas zoomé ; sinon on garde le zoom et on se
+        // contente de remettre l'image dans les clous du nouvel écran.
+        if (L.s <= L.s0 * 1.08) lensFrame(); else { L.fit = lensFit(); lensApply(true); }
+      }, 150);
+    }, { passive: true });
+  }
+
+  /* -------- Invitation contextuelle : « cette page est plus grande que ce
+     que tu vois ». Elle n'apparaît que quand c'est vrai — double page affichée
+     plus petite que son fichier — et disparaît dès qu'on la quitte. -------- */
+  function updateSpreadCta(idx) {
+    const cta = $("rd-spread-cta"); if (!cta) return;
+    const i = idx == null ? curIndex() : idx;
+    const im = A.imgs[i], d = dimOf(i);
+    let show = false;
+    if (im && d && !lensOpen() && isSpread(i)) {
+      const w = im.getBoundingClientRect().width;
+      show = w > 0 && w < d[0] * 0.92;
+    }
+    cta.dataset.i = i;
+    cta.classList.toggle("on", show);
+  }
+
+  /* ========================================================================
      PRÉFÉRENCES
      ===================================================================== */
   function applyVars() {
@@ -822,6 +1121,12 @@
     r.setProperty("--rd-bright", prefs.bright);
     r.setProperty("--rd-bg", prefs.bg);
     if (A.S && A.S.accent) r.setProperty("--rd-accent", A.S.accent);
+    // Le filtre de luminosité n'est posé QUE s'il change quelque chose : même
+    // neutre, un filter isole la visionneuse dans sa propre couche de
+    // composition, que plusieurs navigateurs rastérisent à une définition
+    // inférieure — les pages paraissent alors plus molles qu'elles ne sont.
+    const rd = $("rd");
+    if (rd) rd.classList.toggle("bright-adj", Math.abs(prefs.bright - 1) > 0.001);
     document.body.style.background = prefs.bg;
     const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.content = prefs.bg;
     applyReaderAmbiance();
@@ -856,6 +1161,12 @@
     });
     bindSeg("seg-dir", v => { prefs.dir = v; savePrefs(); applyMode(); });
     bindSeg("seg-fit", v => { prefs.fit = v; savePrefs(); applyMode(); });
+    bindSeg("seg-qual", v => {
+      prefs.qual = v; savePrefs(); applyMode();
+      window.LT.toast(v === "fill"
+        ? "Les pages remplissent la largeur, même quand le fichier est plus petit."
+        : "Les pages s'affichent à leur taille réelle : pas d'agrandissement, pas de flou.");
+    });
 
     bindRange("rg-width", "val-width", "width", v => v + " px");
     bindRange("rg-gap", "val-gap", "gap", v => v + " px");
@@ -890,6 +1201,7 @@
   }
   function syncPrefUI() {
     setSeg("seg-mode", prefs.mode); setSeg("seg-dir", prefs.dir); setSeg("seg-fit", prefs.fit);
+    setSeg("seg-qual", prefs.qual);
     setRange("rg-width", "val-width", prefs.width, v => v + " px");
     setRange("rg-gap", "val-gap", prefs.gap, v => v + " px");
     setRange("rg-bright", "val-bright", prefs.bright, v => Math.round(v * 100) + " %");
@@ -1207,6 +1519,10 @@
       case "auto":  return svg(`<path d="M12 5v14M6 13l6 6 6-6"/>`);
       case "dl":    return svg(`<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>`, 20);
       case "off":   return svg(`<path d="M20 17.6A4.5 4.5 0 0 0 17.5 9h-1.3A7 7 0 1 0 4.3 15.9"/><path d="M12 11v9M8.5 16.5 12 20l3.5-3.5"/>`, 20);
+      case "zoom":  return svg(`<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8M10.5 7.8v5.4M7.8 10.5h5.4"/>`);
+      case "plus":  return svg(`<path d="M12 6v12M6 12h12"/>`);
+      case "minus": return svg(`<path d="M6 12h12"/>`);
+      case "rot":   return svg(`<path d="M4 9h11a4.5 4.5 0 0 1 0 9h-3"/><path d="M7 6 4 9l3 3"/>`);
       case "help":  return svg(`<circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.5-2.8 2.5"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>`);
       case "gear":  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.6 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4 13.6H3.9a2 2 0 1 1 0-4H4a1.6 1.6 0 0 0 1.5-2.6l-.1-.1A2 2 0 1 1 8.1 4l.1.1A1.6 1.6 0 0 0 10 4.4V4a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1A2 2 0 1 1 19.7 8l-.1.1a1.6 1.6 0 0 0-.2 1.7"/></svg>`;
       default: return "";
