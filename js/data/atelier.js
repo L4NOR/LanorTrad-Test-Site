@@ -22,7 +22,7 @@
 // a la main. Une serie sans entree ici n'affiche simplement rien.
 window.ATELIER = {
   "Tougen Anki":      { chapter: "248-249-250", step: "qcheck", updated: "2026-08-03", eta: "2026-09-13" },
-  "Ao No Exorcist":   { chapter: "169",         step: "edit",   updated: "2026-09-04", eta: "2026-09-07" },
+  "Ao No Exorcist":   { chapter: "169",         step: "sortie", updated: "2026-09-06", eta: "2026-09-07" },
   "Catenaccio":       { chapter: "57-66",       step: "edit",   updated: "2026-09-04",
                         note: "Pas de date, nous travaillons sur tous les chapitres. Nous essayerons de les sortir au plus vite !" },
   "Tokyo Underworld": { chapter: "45-45.5-46",  step: "edit",   updated: "2026-08-03", eta: "2026-09-13" },
