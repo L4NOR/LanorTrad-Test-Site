@@ -41,5 +41,12 @@ html[data-perf="lite"] .series-backdrop { filter: blur(14px) saturate(115%) !imp
       On le rend statique et discret. */
 html[data-perf="lite"] .btn-primary::after { filter: blur(8px) !important; }
 
+/* 5) Renfort du trait dans le lecteur : une convolution 3x3 recalculée sur
+      chaque planche affichée, et en mode Défilement il y en a des dizaines à
+      l'écran. C'est le réglage le plus cher du lecteur — il saute en mode
+      léger, et le texte du réglage le dit. */
+html[data-perf="lite"] .rd .rd-track img,
+html[data-perf="lite"] .rd .rd-lens-stage img { filter: none !important; }
+
 /* Le marquee de genres et les skeletons de chargement restent : simples
    translations/gradients, peu coûteux et utiles visuellement. */

@@ -1197,6 +1197,47 @@ vérifiée.
   sur la visionneuse **que** lorsqu'il ne vaut pas 100 % : même neutre, il
   isolait la page dans une couche de composition que plusieurs navigateurs
   mobiles rastérisent en dessous de la définition de l'écran.
+- **Renfort du trait** (préférences du lecteur, `Aucun` par défaut) : une fois
+  l'agrandissement supprimé, le lecteur affiche la planche **au pixel près** —
+  il n'y a plus rien à récupérer côté affichage, et le fichier de l'onglet ne
+  paraît plus net que parce que le navigateur le *réduit* pour le faire tenir
+  dans la fenêtre. Ce réglage durcit le trait au rendu (masque de convolution
+  3 × 3, `js/reader.js` → `sharpenHTML`, `.rd.sharp-*` dans `css/reader.css`),
+  en deux forces. Il ne touche **aucun fichier**, il vit dans le navigateur du
+  lecteur et disparaît dès qu'on le décoche — c'est la même règle que la case
+  « Netteté légère » du convertisseur (§ 3) : jamais actif d'office sur une
+  planche. Les noyaux somment à 1 et travaillent en `sRGB`, donc la luminosité
+  moyenne et les gris ne bougent pas ; seul le contraste local monte. C'est le
+  réglage le plus coûteux du lecteur (convolution non accélérée, recalculée à
+  chaque repaint) : `css/perf.css` le neutralise en **mode Fluidité**, et le
+  message de confirmation le dit quand c'est le cas.
+  Il existe parce qu'un quart de la bibliothèque est scannée sous 1000 px de
+  large (1 040 pages sous 800, 2 718 entre 800 et 999) : Ao No Exorcist est
+  passé de 1200 × 1884 au chapitre 138 à 784 × 1145 au 139 et n'en est plus
+  ressorti, Tougen Anki traîne 2 459 pages en 835 × 1200. Aucun réglage
+  d'affichage ne rend des pixels qui n'ont jamais été scannés : le seul vrai
+  remède reste de meilleures sources.
+- **Lecture plein écran sur ordinateur** (le défaut, `fit: height`). Le lecteur
+  était réglé pour le téléphone, où la planche remplit la largeur et se trouve
+  donc *réduite* de moitié — c'est de là que vient sa netteté. Sur un
+  1920 × 1080 la même page restait une colonne de 784 px au milieu de l'écran,
+  affichée au pixel près et **plus haute que l'écran** : jamais une planche
+  entière sous les yeux, et aucun lissage. L'ajustement « Hauteur » s'applique
+  désormais aussi en mode **Défilement** : 692 × 1010 au lieu de 784 × 1145,
+  page entière visible, réduction de 12 % — donc plus net. « Largeur » rétablit
+  l'ancien affichage en un clic, et le réglage n'est plus caché hors du mode
+  Page.
+  Deux garde-fous dans `css/reader.css` : la règle est sous
+  `@media (min-width: 900px) and (min-height: 640px)` — en paysage sur un
+  téléphone, plafonner par la hauteur donnerait une planche de 267 px — et elle
+  pose `width: auto`, sans quoi le `width: 100%` du mode Défilement écrase la
+  hauteur **sans** toucher à la largeur et sort la planche déformée.
+  En complément, `--rd-top-fit` / `--rd-dock-fit` valent zéro quand l'interface
+  est masquée (`.chrome-off`) en mode Page et Double : les barres sont sorties
+  de l'écran, leur place revient à la planche (729 × 1064 au lieu de 629 × 918
+  sur un 1920 × 1080). Volontairement pas en Défilement : y toucher
+  redimensionnerait toutes les pages au moment précis où le chrome se retire,
+  c'est-à-dire pendant le scroll.
 - **« X lecteurs en ce moment »** sur la fiche série et dans le lecteur
   (`js/presence.js`, `supabase/presence.sql`). Anonyme, oublié au bout de deux
   minutes, jamais affiché en dessous de 2 — le premier lecteur, c'est toi.

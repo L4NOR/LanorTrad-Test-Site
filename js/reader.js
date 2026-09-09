@@ -69,7 +69,8 @@
 
   const PREF_KEY = "lt-reader-prefs";
   const DEFAULTS = { mode: "webtoon", dir: "ltr", fit: "height", width: 900, gap: 0, bright: 1, bg: "#0b0b16",
-                     qual: "sharp" };   // sharp = jamais agrandie au-dela du fichier
+                     qual: "sharp",     // sharp = jamais agrandie au-dela du fichier
+                     sharpen: "off" };  // renfort de trait au rendu — jamais actif d'office
   const SWATCHES = ["#0b0b16", "#000000", "#11111f", "#1a1410", "#e9dcc3", "#f5f5f7"];
   const NARROW = 760;   // sous cette largeur, « double » → page simple
 
@@ -237,7 +238,32 @@
       ${lensHTML()}
       ${sheetHTML()}
       ${helpHTML()}
+      ${sharpenHTML()}
     </div>`;
+  }
+
+  /* Renfort de trait, applique au RENDU (voir .rd.sharp-* dans css/reader.css).
+     Aucune page n'est modifiee : le filtre vit dans le navigateur du lecteur et
+     saute des qu'on le decoche. Il existe parce qu'un quart de la bibliotheque
+     est scannee sous 1000 px de large — Ao No Exorcist est passe de 1200 a
+     784 px au chapitre 139 — et qu'a cette taille le lecteur affiche deja la
+     page au pixel pres : il n'y a plus rien a recuperer cote affichage.
+     Deux details qui comptent :
+       - color-interpolation-filters="sRGB" : sans ca le navigateur convolue en
+         linearRGB et les gris partent, ce qu'on refuse sur une planche ;
+       - la somme du noyau vaut 1 (2,0 - 4 x 0,25 ; 2,4 - 4 x 0,35), donc la
+         luminosite moyenne ne bouge pas — on durcit le trait, on ne corrige
+         aucun ton. */
+  function sharpenHTML() {
+    const noyau = (c, b) => `
+      <filter id="rd-sharpen-${c}" x="0" y="0" width="100%" height="100%"
+              color-interpolation-filters="sRGB">
+        <feConvolveMatrix order="3" preserveAlpha="true"
+          kernelMatrix="0 ${-b} 0  ${-b} ${(1 + 4 * b).toFixed(2)} ${-b}  0 ${-b} 0"/>
+      </filter>`;
+    return `<svg class="rd-filters" width="0" height="0" aria-hidden="true" focusable="false">
+      ${noyau("soft", 0.25)}${noyau("hard", 0.35)}
+    </svg>`;
   }
 
   function sheetHTML() {
@@ -265,12 +291,17 @@
           </div>
         </div>
 
-        <div class="rd-grp" id="grp-fit"><div class="lab">Ajustement (mode page)</div>
+        <div class="rd-grp" id="grp-fit"><div class="lab">Ajustement de la page</div>
           <div class="rd-seg" id="seg-fit">
             <button data-v="height">Hauteur</button>
             <button data-v="width">Largeur</button>
             <button data-v="orig">Réel</button>
           </div>
+          <p class="rd-hint-txt">« Hauteur » fait tenir la planche entière dans l'écran. Sur un
+          ordinateur c'est ce qui change tout : la page est <em>réduite</em> pour rentrer, et une
+          réduction est plus nette qu'un affichage au pixel près — c'est déjà ce qui se passe sur
+          téléphone. « Largeur » et « Réel » laissent la page à sa taille, quitte à la faire
+          dépasser de l'écran.</p>
         </div>
 
         <div class="rd-grp"><div class="lab">Largeur des pages <span class="val" id="val-width"></span></div>
@@ -285,6 +316,18 @@
           <p class="rd-hint-txt">« Netteté » n'agrandit jamais une page au-delà de sa taille réelle : tu la
           vois exactement comme le fichier du chapitre, sans flou d'agrandissement. « Remplir la largeur »
           occupe toute la place réglée ci-dessus, quitte à étirer les petites pages.</p>
+        </div>
+
+        <div class="rd-grp"><div class="lab">Renfort du trait</div>
+          <div class="rd-seg" id="seg-sharpen">
+            <button data-v="off">Aucun</button>
+            <button data-v="soft">Léger</button>
+            <button data-v="hard">Net</button>
+          </div>
+          <p class="rd-hint-txt">Durcit le trait à l'affichage, sans toucher aux fichiers ni aux tons.
+          Utile sur les chapitres scannés petit, où la page est déjà montrée au pixel près. Sur les
+          planches aux gris doux, ça peut charger le rendu : c'est fait pour être essayé et retiré.
+          Inactif tant que le mode Fluidité est en marche.</p>
         </div>
 
         <div class="rd-grp" id="grp-gap"><div class="lab">Espacement (défilement) <span class="val" id="val-gap"></span></div>
@@ -475,6 +518,30 @@
   /* ========================================================================
      MODES
      ===================================================================== */
+  /* Renfort du trait : une classe sur le lecteur, rien de plus (les filtres
+     eux-memes sont poses par sharpenHTML). Separe d'applyMode parce qu'on en
+     change sans rien recharger — un aller-retour « Net / Aucun » doit se voir
+     tout de suite, sans repasser par showPage ni par le preload. */
+  function applySharpen() {
+    const rd = $("rd");
+    if (!rd) return;
+    rd.classList.remove("sharp-soft", "sharp-hard");
+    if (prefs.sharpen === "soft" || prefs.sharpen === "hard") rd.classList.add("sharp-" + prefs.sharpen);
+  }
+
+  /* Quels réglages ont un sens ici. L'ajustement ne servait qu'en mode Page ;
+     il compte autant en Défilement sur un écran d'ordinateur, où « Hauteur »
+     fait enfin tenir une planche entière (voir la media query de reader.css).
+     Sur un petit écran la règle CSS ne s'applique pas : on cache le réglage
+     plutôt que d'offrir un bouton qui ne fait rien. */
+  const fitUtile = () => A.view === "page" ||
+                         (A.view === "webtoon" && innerWidth >= 900 && innerHeight >= 640);
+  function syncPrefGroups() {
+    const f = $("grp-fit"), g = $("grp-gap");
+    if (f) f.style.display = fitUtile() ? "" : "none";
+    if (g) g.style.display = (prefs.mode === "webtoon") ? "" : "none";
+  }
+
   function applyMode() {
     A.view = effMode();
     const rd = $("rd");
@@ -482,11 +549,10 @@
                         "fit-height", "fit-width", "fit-orig", "scrolled");
     rd.classList.add("mode-" + A.view, "dir-" + prefs.dir, "fit-" + prefs.fit);
     rd.classList.toggle("no-upscale", prefs.qual !== "fill");
+    applySharpen();
     setChrome(true);   // un changement de mode réaffiche toujours l'interface
 
-    // Le réglage « ajustement » ne concerne que le mode page
-    $("grp-fit").style.display = (A.view === "page") ? "" : "none";
-    $("grp-gap").style.display = (prefs.mode === "webtoon") ? "" : "none";
+    syncPrefGroups();
 
     if (A.view !== "webtoon") {
       showPage(A.idx);
@@ -690,7 +756,15 @@
 
     // Re-bascule double <-> page quand on franchit le seuil de largeur
     let rz;
-    addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (effMode() !== A.view) applyMode(); }, 150); }, { passive: true });
+    addEventListener("resize", () => {
+      clearTimeout(rz);
+      rz = setTimeout(() => {
+        if (effMode() !== A.view) applyMode();
+        // Une fenêtre qu'on rétrécit peut faire sortir « Ajustement » du champ
+        // d'application de sa règle CSS, sans changer de mode pour autant.
+        else syncPrefGroups();
+      }, 150);
+    }, { passive: true });
 
     // Clavier
     addEventListener("keydown", e => {
@@ -1167,6 +1241,16 @@
         ? "Les pages remplissent la largeur, même quand le fichier est plus petit."
         : "Les pages s'affichent à leur taille réelle : pas d'agrandissement, pas de flou.");
     });
+    bindSeg("seg-sharpen", v => {
+      prefs.sharpen = v; savePrefs(); applySharpen();
+      // Le mode léger neutralise le filtre (css/perf.css) : le dire, sinon on
+      // clique sur « Net » et il ne se passe rien, sans savoir pourquoi.
+      const lite = !!(window.LTperf && window.LTperf.isLite());
+      window.LT.toast(v === "off"
+        ? "Trait rendu tel quel, exactement comme le fichier."
+        : lite ? "Réglage gardé, mais sans effet tant que le mode Fluidité est en marche."
+               : "Trait renforcé à l'affichage. Les fichiers, eux, ne bougent pas.");
+    });
 
     bindRange("rg-width", "val-width", "width", v => v + " px");
     bindRange("rg-gap", "val-gap", "gap", v => v + " px");
@@ -1201,7 +1285,7 @@
   }
   function syncPrefUI() {
     setSeg("seg-mode", prefs.mode); setSeg("seg-dir", prefs.dir); setSeg("seg-fit", prefs.fit);
-    setSeg("seg-qual", prefs.qual);
+    setSeg("seg-qual", prefs.qual); setSeg("seg-sharpen", prefs.sharpen);
     setRange("rg-width", "val-width", prefs.width, v => v + " px");
     setRange("rg-gap", "val-gap", prefs.gap, v => v + " px");
     setRange("rg-bright", "val-bright", prefs.bright, v => Math.round(v * 100) + " %");

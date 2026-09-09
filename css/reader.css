@@ -21,6 +21,12 @@ body.reader-body {
   --rd-accent: var(--violet);
   --rd-top-h: 58px;
   --rd-dock-space: 88px;   /* place réservée en bas pour le dock (mode page/double) */
+  /* Place que les barres prennent VRAIMENT à la planche. Elle vaut leur
+     hauteur tant qu'elles sont là, et zéro en lecture immersive : voir le
+     bloc .chrome-off plus bas. Séparée de --rd-top-h, qui reste la hauteur
+     de la barre elle-même et ne doit pas bouger. */
+  --rd-top-fit: var(--rd-top-h);
+  --rd-dock-fit: var(--rd-dock-space);
   --rd-safe-t: env(safe-area-inset-top, 0px);
   --rd-safe-b: env(safe-area-inset-bottom, 0px);
   --rd-safe-l: env(safe-area-inset-left, 0px);
@@ -35,6 +41,16 @@ body.reader-body {
 .rd.chrome-off .rd-dock { transform: translate(-50%, 160%); opacity: 0; pointer-events: none; }
 .rd.chrome-off .rd-rail { opacity: 0; transform: translateX(120%); pointer-events: none; }
 .rd.chrome-off .rd-progress { opacity: 0; }
+
+/* Les barres sont sorties de l'écran : leur place revient à la planche. Sans
+   ça, en mode Page sur un 1920 x 1080, la page restait plafonnée à 918 px de
+   haut alors que 1080 étaient libres — 162 px de vide en haut et en bas, et
+   une planche plus petite que nécessaire.
+   Réservé à Page et Double, où la visionneuse ne défile pas (overflow: hidden).
+   En Défilement, toucher à cette réserve déplacerait le contenu sous le doigt
+   au moment précis où le chrome se retire, c'est-à-dire pendant le scroll. */
+.rd.chrome-off.mode-page,
+.rd.chrome-off.mode-double { --rd-top-fit: 0px; --rd-dock-fit: 0px; }
 
 /* --------------------------------------------------------- Barre progrès */
 .rd-progress {
@@ -91,7 +107,7 @@ body.reader-body {
 /* --------------------------------------------------------------- Visionneuse */
 .rd-viewer {
   min-height: 100dvh;
-  padding-top: calc(var(--rd-top-h) + var(--rd-safe-t));
+  padding-top: calc(var(--rd-top-fit) + var(--rd-safe-t));
 }
 .rd-track { margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
 
@@ -119,13 +135,40 @@ body.reader-body {
 }
 .rd.mode-webtoon .rd-track img.loaded { opacity: 1; }
 
+/* Ajustement « Hauteur » en Défilement — le défaut, et le remède au vrai
+   problème d'ordinateur. Sur un 1920 x 1080, une planche de 784 x 1145 tenait
+   dans une colonne de 784 px perdue au milieu de l'écran, et dépassait quand
+   même en hauteur : on ne voyait jamais une page entière, et elle était
+   affichée au pixel près, donc sans le lissage d'une réduction. Ici la planche
+   tient dans l'écran : elle est RÉDUITE, ce qui la rend plus nette — c'est
+   exactement ce qui se passe sur téléphone, où la même page est réduite de
+   moitié pour tenir dans 374 px.
+   Deux précautions :
+     - écran large ET haut seulement : en paysage sur un téléphone (844 x 390),
+       plafonner par la hauteur donnerait une planche de 267 px de large ;
+     - la réserve du haut reste --rd-top-h, jamais --rd-top-fit : la recalculer
+       quand le chrome se retire redimensionnerait toutes les pages en plein
+       défilement, et le scroll sauterait sous le doigt.
+   Le width: auto n'est pas décoratif : avec le width: 100% du mode Défilement,
+   un max-height écrase la hauteur SANS toucher à la largeur, et la planche
+   sort écrasée (784 x 1010 au lieu de 692 x 1010). En laissant les deux
+   dimensions libres, le navigateur applique le plafond en gardant le rapport.
+   Le max-width n'est pas redéclaré ici : celui de .no-upscale continue donc de
+   valoir, et une petite page n'est toujours jamais agrandie. */
+@media (min-width: 900px) and (min-height: 640px) {
+  .rd.mode-webtoon.fit-height .rd-track img {
+    width: auto; height: auto;
+    max-height: calc(100dvh - var(--rd-top-h) - var(--rd-safe-t) - 12px);
+  }
+}
+
 /* ---- Mode page (une page à la fois) ---- */
 .rd.mode-page .rd-viewer,
 .rd.mode-double .rd-viewer { height: 100dvh; overflow: hidden; }
 .rd.mode-page .rd-track {
-  min-height: calc(100dvh - var(--rd-top-h) - var(--rd-safe-t));
+  min-height: calc(100dvh - var(--rd-top-fit) - var(--rd-safe-t));
   justify-content: center; padding: 10px;
-  padding-bottom: calc(var(--rd-dock-space) + var(--rd-safe-b)); box-sizing: border-box;
+  padding-bottom: calc(var(--rd-dock-fit) + var(--rd-safe-b)); box-sizing: border-box;
 }
 .rd.mode-page .rd-track img {
   display: none; margin: auto; border-radius: 4px;
@@ -133,9 +176,12 @@ body.reader-body {
   animation: rdFlip .42s var(--ease);
 }
 .rd.mode-page .rd-track img.cur { display: block; }
+/* La planche grandit au rythme où les barres s'en vont, pas d'un coup sec. */
+.rd.mode-page.fit-height .rd-track img,
+.rd.mode-double .rd-track img { transition: max-height .4s var(--ease); }
 
 /* Ajustement (fit) en mode page */
-.rd.mode-page.fit-height .rd-track img { max-height: calc(100dvh - var(--rd-top-h) - var(--rd-safe-t) - var(--rd-dock-space) - 16px); width: auto; max-width: 100%; }
+.rd.mode-page.fit-height .rd-track img { max-height: calc(100dvh - var(--rd-top-fit) - var(--rd-safe-t) - var(--rd-dock-fit) - 16px); width: auto; max-width: 100%; }
 .rd.mode-page.fit-width  .rd-track img { width: min(var(--rd-w, 900px), 100%); height: auto; }
 .rd.mode-page.fit-orig   .rd-track img { width: auto; height: auto; max-width: 100%; }
 .rd.mode-page.fit-width .rd-track,
@@ -146,12 +192,12 @@ body.reader-body {
 /* ---- Mode double (deux pages côte à côte) ---- */
 .rd.mode-double .rd-track {
   flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center;
-  gap: 2px; min-height: calc(100dvh - var(--rd-top-h) - var(--rd-safe-t)); padding: 10px;
-  padding-bottom: calc(var(--rd-dock-space) + var(--rd-safe-b)); box-sizing: border-box;
+  gap: 2px; min-height: calc(100dvh - var(--rd-top-fit) - var(--rd-safe-t)); padding: 10px;
+  padding-bottom: calc(var(--rd-dock-fit) + var(--rd-safe-b)); box-sizing: border-box;
 }
 .rd.mode-double.dir-rtl .rd-track { flex-direction: row-reverse; }
 .rd.mode-double .rd-track img {
-  display: none; max-height: calc(100dvh - var(--rd-top-h) - var(--rd-safe-t) - var(--rd-dock-space) - 16px);
+  display: none; max-height: calc(100dvh - var(--rd-top-fit) - var(--rd-safe-t) - var(--rd-dock-fit) - 16px);
   width: auto; max-width: 50%; animation: rdFlip .42s var(--ease);
 }
 .rd.mode-double .rd-track img.cur { display: block; }
@@ -173,6 +219,27 @@ body.reader-body {
    Réglage « Remplir la largeur » : la classe .no-upscale saute. */
 .rd.no-upscale .rd-track img { max-width: min(100%, var(--nw, 100%)); }
 .rd.no-upscale.mode-double .rd-track img { max-width: min(50%, var(--nw, 100%)); }
+
+/* ------------------------------------------------- Renfort du trait (opt-in)
+   La regle ci-dessus enleve le flou d'agrandissement, elle ne cree pas de
+   detail : une planche scannee en 784 px reste une planche de 784 px. Ce
+   reglage-la durcit le trait au rendu, pour les chapitres scannes petit. Il
+   est DECOCHE par defaut et ne touche aucun fichier : c'est le navigateur du
+   lecteur qui convolue, et decocher rend la page telle qu'elle est.
+   Les noyaux sont definis par js/reader.js (sharpenHTML), somme = 1, donc
+   aucun ton n'est corrige.
+   Le filtre est pose sur les IMAGES, jamais sur .rd-viewer : un filtre sur la
+   visionneuse isolerait toute la colonne dans une couche de composition que
+   plusieurs navigateurs mobiles rasterisent moins finement — on rendrait les
+   pages plus molles en croyant les rendre nettes (meme raison que .bright-adj
+   plus haut). */
+.rd.sharp-soft .rd-track img,
+.rd.sharp-soft .rd-lens-stage img { filter: url(#rd-sharpen-soft); }
+.rd.sharp-hard .rd-track img,
+.rd.sharp-hard .rd-lens-stage img { filter: url(#rd-sharpen-hard); }
+
+/* Le <svg> ne porte que des <filter> : il ne doit rien occuper ni rien capter. */
+.rd-filters { position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: hidden; pointer-events: none; }
 
 /* Zoom (mode page/double) */
 .rd-track img.zoomable { touch-action: none; }
