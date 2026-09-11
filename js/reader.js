@@ -65,7 +65,7 @@
       : esc(t.who);
     return `<div class="cr"><div class="role">${t.role}</div><div class="who">${nom}</div></div>`;
   }
-  const DISCORD = "https://discord.gg/md37S7nhkZ";
+  const DISCORD = "https://discord.gg/kM9Z8pKNuq";
 
   const PREF_KEY = "lt-reader-prefs";
   const DEFAULTS = { mode: "webtoon", dir: "ltr", fit: "height", width: 900, gap: 0, bright: 1, bg: "#0b0b16",

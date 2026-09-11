@@ -14,7 +14,7 @@
     { label: "Bibliothèque", href: "bibliotheque.html" },
     { label: "Équipe",       href: "equipe.html" },
   ];
-  const DISCORD = "https://discord.gg/md37S7nhkZ";
+  const DISCORD = "https://discord.gg/kM9Z8pKNuq";
   const TWITTER = "https://x.com/LanorTrad";
 
   const $  = (s, r = document) => r.querySelector(s);
