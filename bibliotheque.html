@@ -47,6 +47,12 @@
       <div id="reader-card-mount"></div>
     </section>
 
+    <!-- Proposition de notifications : remplie par js/push.js, et seulement
+         si l'appareil sait les recevoir et qu'elles ne sont pas deja actives.
+         C'est la page ou l'on vient pour ses series suivies : le seul endroit
+         ou la proposition tombe au bon moment. -->
+    <section class="wrap" style="padding-top:14px"><div id="push-mount"></div></section>
+
     <section class="section" id="follow-section" style="padding-top:30px">
       <div class="wrap">
         <div class="section-head" data-reveal>
@@ -70,6 +76,7 @@
   <script defer src="js/data/chapters.js"></script>
   <script defer src="js/store.js"></script>
   <script defer src="js/palette.js"></script>
+  <script defer src="js/push-config.js"></script>
   <script defer src="js/core.js"></script>
   <script defer src="js/cards.js"></script>
   <script defer src="js/tilt.js"></script>

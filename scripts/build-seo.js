@@ -157,6 +157,46 @@ ${items}
   console.log(`[seo] feed.xml — ${(xml.match(/<item>/g) || []).length} entrées`);
 }
 
+/* ------------------------- push/latest.json -------------------------
+   Le carnet de bord des notifications. Quand un chapitre sort, le serveur
+   envoie aux abonnes un ping VIDE (voir netlify/functions/) : transporter le
+   texte dans le push imposerait de le chiffrer de bout en bout, une centaine
+   de lignes de cryptographie pour transmettre ce qui est deja public.
+
+   C'est donc le service worker qui vient lire CE fichier pour savoir quoi
+   annoncer, et qui le compare a ce que l'appareil a deja vu passer. D'ou la
+   `sig` : une signature « serie#chapitre » qui change des qu'un chapitre sort,
+   et elle seule sert de comparaison — pas la date, qui peut etre retouchee.
+
+   Les chapitres sont ranges du plus recent au plus ancien par
+   tools/build-data.py : l'index 0 est la derniere sortie de la serie. */
+function buildPush(series, chapters) {
+  const sorties = series
+    .map(s => {
+      const c = (chapters[s.id] || [])[0];
+      if (!c) return null;
+      return {
+        id: s.id,                                   // identifiant interne = celui des suivis
+        titre: s.title,
+        num: String(c.num),
+        sig: s.id + "#" + c.num,
+        date: c.d || s.lastUpdate || "",
+        // Adresse RELATIVE : le meme fichier sert sur lanortrad.com comme sur
+        // une preview Netlify, et le service worker la recolle a son origine.
+        url: "/manga/" + slugFile(s.id) + "/chapitre-" + enc(c.num) + "/",
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 40);
+
+  const dossier = path.join(ROOT, "push");
+  if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
+  ecrire(path.join(dossier, "latest.json"),
+    JSON.stringify({ t: new Date().toISOString(), sorties }, null, 1) + "\n");
+  console.log(`[seo] push/latest.json — ${sorties.length} serie(s)`);
+}
+
 /* ---------------------------- sitemap.xml ---------------------------
    sitemap.xml est un INDEX qui pointe vers un fichier par série, plus un
    fichier pour les pages fixes. Un seul gros sitemap marche aussi, mais la
@@ -518,6 +558,7 @@ async function pingIndexNow(series, chapters) {
   recibleHtml();
   buildRobots();
   buildFeed(series, chapters);
+  buildPush(series, chapters);
   buildSitemap(series, chapters);
   buildOgMeta(series, chapters, ratings, notes);
   await pingIndexNow(series, chapters);

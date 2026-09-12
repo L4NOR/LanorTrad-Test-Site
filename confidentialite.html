@@ -65,6 +65,7 @@
               <li><strong>Tes réglages</strong> — thème (sombre / OLED / clair), préférences du lecteur (mode, sens de lecture, largeur, luminosité), mode Fluidité.</li>
               <li><strong>Ton confort</strong> — recherches récentes, visite guidée déjà vue, couleurs dominantes des couvertures (pour éviter de les recalculer), scores du mini-jeu hors ligne.</li>
               <li><strong>Ton choix de mesure d'audience</strong> — oui ou non, pour ne pas te reposer la question.</li>
+              <li><strong>Tes notifications</strong> — si tu les as activées sur cet appareil, et le bandeau de la bibliothèque que tu as masqué.</li>
             </ul>
             <p>Pour tout effacer : vide les données du site dans les réglages de ton
                navigateur, ou utilise une fenêtre de navigation privée. Rien n'est
@@ -90,7 +91,36 @@
           </section>
 
           <section>
-            <h2>3. Le compte du forum (facultatif)</h2>
+            <h2>3. Les notifications de sortie (facultatives)</h2>
+            <p>Tu peux demander à être prévenu·e quand un chapitre sort. Rien n'est activé
+               sans que tu l'aies demandé, et la question ne se pose jamais d'elle-même :
+               il faut ouvrir le panneau « Notifications » et cliquer.</p>
+            <h3>Ce qui est enregistré</h3>
+            <ul>
+              <li>l'<strong>adresse de notification</strong> que ton navigateur fabrique pour ce
+                  site — une longue URL technique, fournie par Google, Mozilla ou Apple selon
+                  ton navigateur, plus les deux clés qui vont avec ;</li>
+              <li>la liste des <strong>séries que tu suis</strong>, uniquement pour ne pas te
+                  réveiller pour une série que tu ne lis pas.</li>
+            </ul>
+            <p>Ni adresse e-mail, ni pseudo, ni compte : cet abonnement n'est rattaché à
+               <strong>rien d'autre</strong>, pas même à ton compte du forum si tu en as un.
+               Nous ne pouvons pas savoir qui est derrière une adresse de notification.</p>
+            <h3>Ce qui est envoyé, et quand</h3>
+            <p>Un signal <strong>vide</strong>, quand un chapitre sort. Le texte de la
+               notification est composé par ton propre navigateur, à partir de la liste
+               publique des sorties : le contenu du message ne transite donc par aucun
+               service extérieur.</p>
+            <h3>Arrêter</h3>
+            <p>Le même panneau, bouton « Désactiver » : la ligne est <strong>supprimée</strong>
+               immédiatement, pas désactivée. Bloquer les notifications dans ton navigateur
+               marche aussi — et un abonnement devenu invalide (navigateur réinitialisé,
+               application retirée de l'écran d'accueil) est effacé de lui-même au premier
+               envoi qui échoue.</p>
+          </section>
+
+          <section>
+            <h2>4. Le compte du forum (facultatif)</h2>
             <p>Créer un compte n'est nécessaire que pour participer au forum, commenter un
                chapitre, noter une série ou retrouver ta progression d'un appareil à l'autre.
                Lire ne demande rien.</p>
@@ -113,7 +143,7 @@
           </section>
 
           <section>
-            <h2>4. Mesure d'audience</h2>
+            <h2>5. Mesure d'audience</h2>
             <p>Nous aimerions savoir combien de personnes passent et quelles séries
                intéressent, pour décider quoi traduire ensuite. Pour ça, le site peut charger
                <strong>Google Analytics 4</strong> — un outil américain qui dépose des
@@ -139,7 +169,7 @@
           </section>
 
           <section>
-            <h2>4. Services extérieurs</h2>
+            <h2>6. Services extérieurs</h2>
             <p>Afficher une page implique de contacter quelques serveurs tiers, qui voient
                alors ton adresse IP — c'est le fonctionnement normal du web :</p>
             <ul>
@@ -160,7 +190,7 @@
           </section>
 
           <section>
-            <h2>5. Tes droits</h2>
+            <h2>7. Tes droits</h2>
             <p>Le règlement européen (RGPD) te donne le droit d'accéder à tes données, de les
                corriger, de les faire effacer, de t'opposer à leur traitement et d'en demander
                une copie.</p>
@@ -174,7 +204,7 @@
           </section>
 
           <section>
-            <h2>6. Mineurs</h2>
+            <h2>8. Mineurs</h2>
             <p>Le forum est ouvert à partir de 15 ans, âge à partir duquel on peut consentir
                seul au traitement de ses données en France. En dessous, l'accord d'un parent
                est nécessaire pour créer un compte. Lire le site ne demande, lui, aucun compte
@@ -182,13 +212,13 @@
           </section>
 
           <section>
-            <h2>7. Modifications</h2>
+            <h2>9. Modifications</h2>
             <p>Si cette page change de façon significative, la date ci-dessous est mise à jour
                et le bandeau de consentement réapparaît quand le changement touche la mesure
                d'audience.</p>
           </section>
 
-          <p class="updated">Dernière mise à jour : 3 août 2026.</p>
+          <p class="updated">Dernière mise à jour : 12 septembre 2026.</p>
         </div>
       </div>
     </section>
@@ -196,6 +226,7 @@
 
   <script defer src="js/data/series.js"></script><script defer src="js/data/covers.js"></script>
   <script defer src="js/store.js"></script><script defer src="js/palette.js"></script>
+  <script defer src="js/push-config.js"></script>
   <script defer src="js/core.js"></script>
   <script defer src="js/offline.js"></script>
 </body>

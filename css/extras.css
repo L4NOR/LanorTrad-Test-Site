@@ -467,3 +467,78 @@ img[data-fade].loaded { opacity: 1; }
 .legal dt { color: var(--txt); font-weight: 600; }
 .legal dd { color: var(--txt-soft); }
 @media (max-width: 560px) { .legal dl { grid-template-columns: 1fr; gap: 2px 0; } .legal dd { margin-bottom: 10px; } }
+
+/* =========================================================================
+   Notifications de sortie (js/push.js)
+   Deux surfaces seulement : le panneau d'explication (ouvert par la cloche du
+   menu) et le bandeau de la Bibliotheque. Le panneau reprend la matiere du
+   .cmdk pour que ca reste la meme maison.
+   ========================================================================= */
+.push-modal { position: fixed; inset: 0; z-index: 320; display: grid; place-items: center; padding: 18px; }
+.push-scrim { position: absolute; inset: 0; background: rgba(4,4,12,.66); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.push-box {
+  position: relative; width: min(100%, 460px); max-height: 88vh; overflow-y: auto;
+  padding: 30px 26px 22px; text-align: center;
+  background: var(--bg-2); border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
+  box-shadow: 0 40px 100px -30px #000;
+  animation: pushIn .32s var(--ease-back) both;
+}
+@keyframes pushIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.push-x {
+  position: absolute; top: 12px; right: 14px; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--txt-mut); background: none; border: none; cursor: pointer;
+}
+.push-x:hover { color: var(--txt); background: var(--bg-3); }
+.push-cloche { font-size: 2.6rem; line-height: 1; margin-bottom: 8px; }
+.push-box h2 { font-size: 1.45rem; margin-bottom: 6px; }
+.push-p { color: var(--txt-soft); font-size: .94rem; line-height: 1.6; margin: 10px 0 4px; }
+.push-p.push-ok { color: var(--txt); }
+.push-ol { text-align: left; margin: 12px 0 4px 20px; display: flex; flex-direction: column; gap: 8px; color: var(--txt-soft); font-size: .92rem; line-height: 1.5; }
+.push-note { margin-top: 14px; font-size: .76rem; color: var(--txt-mut); line-height: 1.5; }
+
+/* Le choix « mes suivis » / « tout ». Des cartes plutot que des puces : sur
+   telephone, une pastille radio de 14 px se rate une fois sur trois. */
+.push-choix { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 16px; text-align: left; }
+.push-opt {
+  display: flex; align-items: flex-start; gap: 12px; padding: 13px 15px; cursor: pointer;
+  border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--glass);
+  transition: border-color .2s, background .2s;
+}
+.push-opt:hover { border-color: var(--line-strong); }
+.push-opt:has(input:checked) { border-color: var(--violet); background: color-mix(in srgb, var(--violet) 12%, transparent); }
+.push-opt:has(input:disabled) { opacity: .55; cursor: not-allowed; }
+.push-opt input { margin-top: 3px; accent-color: var(--violet); flex-shrink: 0; }
+.push-opt span { display: flex; flex-direction: column; gap: 2px; }
+.push-opt strong { font-size: .95rem; }
+.push-opt em { font-style: normal; font-size: .8rem; color: var(--txt-mut); line-height: 1.4; }
+.push-go { width: 100%; justify-content: center; }
+.push-off { display: block; margin: 14px auto 0; font-size: .84rem; color: var(--txt-mut); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.push-off:hover { color: var(--txt); }
+body.push-open { overflow: hidden; }
+
+/* Cloche du menu radial, une fois les notifications actives. */
+.rn-item.push-on { color: var(--violet); border-color: var(--violet); }
+
+/* Bandeau de la Bibliotheque : une proposition, pas un mur. Il se masque
+   definitivement si on le refuse (voir « lt-push-banniere »). */
+.push-bandeau {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--glass);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.push-bandeau-ic { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.push-bandeau-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.push-bandeau-txt strong { font-size: .96rem; }
+.push-bandeau-txt span { font-size: .82rem; color: var(--txt-mut); line-height: 1.45; }
+.push-bandeau-x {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center; color: var(--txt-mut); background: none; border: none; cursor: pointer;
+}
+.push-bandeau-x:hover { color: var(--txt); background: var(--bg-3); }
+@media (max-width: 560px) {
+  .push-bandeau { flex-wrap: wrap; }
+  .push-bandeau-txt { flex-basis: calc(100% - 90px); }
+  .push-bandeau .btn { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) { .push-box { animation: none; } }

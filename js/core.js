@@ -113,6 +113,31 @@
     btn.classList.toggle("perf-lite", window.LTperf.get() === "lite");
   }
 
+  /* ---------- Notifications de sortie (js/push.js, a la demande) ----------
+     Le fichier n'est charge que si quelqu'un s'y interesse : un clic sur la
+     cloche, ou une page qui affiche la proposition (la Bibliotheque). Ca evite
+     de faire payer a chaque visiteur un fichier que la plupart n'ouvriront
+     jamais — et le service worker le garde en cache des la premiere fois. */
+  let pushEnCours = null;
+  function chargerPush() {
+    if (window.LTpush) return Promise.resolve(true);
+    if (pushEnCours) return pushEnCours;
+    pushEnCours = new Promise(resolu => {
+      const sc = document.createElement("script");
+      sc.src = "/js/push.js";   // depuis la racine : la page peut vivre a une adresse profonde
+      sc.onload = () => resolu(true);
+      sc.onerror = () => { pushEnCours = null; resolu(false); };
+      document.head.appendChild(sc);
+    });
+    return pushEnCours;
+  }
+  function ouvrirPush() {
+    chargerPush().then(ok => {
+      if (ok && window.LTpush) window.LTpush.ouvrir();
+      else toast("Notifications indisponibles pour le moment.");
+    });
+  }
+
   /* ---------- Shell : fond + navbar + drawer + footer ---------- */
   const minimal = document.body.dataset.shell === "minimal";
 
@@ -150,6 +175,10 @@
       { type: "search", label: "Recherche", ic: "search" },
       { type: "theme",  label: "Thème",     ic: "theme" },
       { type: "perf",   label: "Fluidité",  ic: "gauge" },
+      // Notifications : l'entree n'existe que si la cle publique du push a ete
+      // posee dans js/push-config.js. Tant qu'elle est vide, le site se
+      // comporte exactement comme avant — rien a desactiver ailleurs.
+      ...(self.LT_PUSH && self.LT_PUSH.publicKey ? [{ type: "push", label: "Notifications", ic: "bell" }] : []),
       { label: "Discord", href: DISCORD, ic: "discord", external: true },
     ];
     // Bulles : icône seule (le nom s'affiche dans la légende au survol/appui).
@@ -161,6 +190,14 @@
         return `<button type="button" class="rn-item rn-action" data-action="theme" ${attr}><span class="rn-ic"><span class="theme-ico">☾</span></span></button>`;
       if (it.type === "perf")
         return `<button type="button" class="rn-item rn-action" data-action="perf" ${attr}><span class="rn-ic">${icon("gauge")}</span></button>`;
+      if (it.type === "push") {
+        // L'etat « activees » est lu directement dans le stockage local : la
+        // cloche doit etre juste des le premier affichage, sans attendre le
+        // chargement de js/push.js (qui, lui, ne vient qu'a la demande).
+        let on = false;
+        try { on = !!(JSON.parse(localStorage.getItem("lt-push-v1") || "{}").on); } catch {}
+        return `<button type="button" class="rn-item rn-action ${on ? "push-on" : ""}" data-action="push" ${attr}><span class="rn-ic">${icon("bell")}</span></button>`;
+      }
       if (it.external)
         return `<a class="rn-item" href="${it.href}" target="_blank" rel="noopener" data-external ${attr}><span class="rn-ic">${icon(it.ic)}</span></a>`;
       const cls = `rn-item ${it.href === page ? "current" : ""}`;
@@ -285,6 +322,7 @@
       const act = it.dataset.action;
       if (act === "theme")  { e.preventDefault(); cycleTheme(); return; }      // garde le menu ouvert
       if (act === "perf")   { e.preventDefault(); cyclePerf(); return; }        // garde le menu ouvert
+      if (act === "push")   { e.preventDefault(); setOpen(false); ouvrirPush(); return; }
       if (act === "search") { e.preventDefault(); setOpen(false); openPalette(); return; }
       if (it.classList.contains("current")) e.preventDefault();                // déjà sur cette page
       setOpen(false);                                                          // page → transition + ferme
@@ -613,6 +651,7 @@
       apps:   `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>`,
       close:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
       sparkle:`<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l1.9 5.1 5.1 1.9-5.1 1.9L12 16.2l-1.9-5.1L5 9.2l5.1-1.9z"/><path d="M18.5 14l.85 2.3 2.3.85-2.3.85L18.5 20.3l-.85-2.3-2.3-.85 2.3-.85z"/></svg>`,
+      bell:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>`,
       gauge:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17.5a9 9 0 1 1 15 0"/><path d="M12 13a1.6 1.6 0 1 0 0-3.2A1.6 1.6 0 0 0 12 13Z"/><path d="m13.2 10.4 3-3"/></svg>`,
     };
     return I[name] || "";
@@ -911,6 +950,9 @@
       if (e.target.closest("[data-reopen-consent]")) { e.preventDefault(); reopenConsent(); }
     });
     wireFollows();
+    // Une page qui prevoit un emplacement pour la proposition de notifications
+    // (la Bibliotheque) a besoin du fichier tout de suite, sans clic.
+    if (document.getElementById("push-mount")) chargerPush();
     updateFollowBadge();
     document.addEventListener("lt:store", updateFollowBadge);
     document.addEventListener("lt:perf", syncPerfIcon);   // la sonde FPS peut basculer en léger

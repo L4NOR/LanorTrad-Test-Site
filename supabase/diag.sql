@@ -111,7 +111,12 @@ as $$
 
     'presence.sql',
       (to_regclass('public.presence') is not null
-       and to_regprocedure('public.presence_ping(text, text)') is not null)
+       and to_regprocedure('public.presence_ping(text, text)') is not null),
+
+    'push.sql',
+      (to_regclass('public.push_subs') is not null
+       and to_regclass('public.push_state') is not null
+       and to_regprocedure('public.push_subscribe(text, text, text, jsonb)') is not null)
   );
 $$;
 

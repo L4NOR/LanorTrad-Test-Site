@@ -130,6 +130,13 @@
       cibles: [{ k: "fn", n: "presence_ping", args: { p_id: "", p_scope: "" } }],
     },
     {
+      f: "push.sql", titre: "Notifications de sortie",
+      pour: "Les abonnements aux notifications « nouveau chapitre » (table fermee au client).",
+      // push_subs repond mais ne renvoie jamais rien (RLS sans policy) : sa
+      // simple existence suffit a prouver que le script est passe.
+      cibles: [{ k: "table", n: "push_subs" }, { k: "fn", n: "push_stats", args: {} }],
+    },
+    {
       f: "podium.sql", titre: "Couronne du podium",
       pour: "Le 👑 des trois premiers de la semaine passée.",
       cibles: [{ k: "fn", n: "podium_last_week", args: {} }],

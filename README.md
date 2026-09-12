@@ -24,6 +24,7 @@ quel sur Netlify ou GitHub Pages.
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
    · [7 bis. Mode hors ligne + mini-jeu](#7-bis-mode-hors-ligne--mini-jeu--oni-runner-)
+   · [7 ter. Notifications de sortie (push)](#7-ter-notifications-de-sortie-push)
 8. [Déploiement](#8-déploiement) · [depuis ta machine](#déployer-depuis-ta-machine-et-pourquoi)
    · [8 bis. Vérifications automatiques](#8-bis-vérifications-automatiques)
 9. [État actuel du site](#9-état-actuel-du-site)
@@ -972,6 +973,117 @@ l'équivalent maison du dinosaure de Chrome.
 
 ---
 
+## 7 ter. Notifications de sortie (push)
+
+Une notification « **nouveau chapitre** » sur le téléphone ou le PC du lecteur,
+**même site fermé**. Sans compte, sans email, sans appli à installer (sauf sur
+iPhone, voir plus bas) : c'est le navigateur lui-même qui apporte le message.
+
+### Ce qui marche, et où
+
+| Appareil | Navigateur fermé ? |
+|---|---|
+| **Android** (Chrome, Firefox, Samsung, Edge) | ✅ oui, même application fermée |
+| **Windows / macOS / Linux** | ✅ tant que le navigateur tourne en tâche de fond (Chrome et Edge le font par défaut sur Windows). Site **installé** = plus fiable |
+| **macOS Safari** | ✅ sans rien installer |
+| **iPhone / iPad** | ⚠️ **uniquement** si le site a été ajouté à l'écran d'accueil (décision d'Apple, iOS 16.4+) |
+
+Le site détecte le cas iPhone tout seul et affiche la marche à suivre au lieu
+d'un bouton qui ne marcherait pas.
+
+### Installation (une seule fois, ~10 min)
+
+**1. Générer les clés** — sur ta machine :
+
+```
+node scripts/push-keys.js
+```
+
+Il affiche deux clés et la liste de ce qu'il faut coller où. Garde cette sortie
+sous les yeux pour les deux étapes suivantes.
+
+> ⚠️ **Ne regénère jamais ces clés une fois le site en ligne** : tous les
+> abonnements existants deviendraient muets, sans message d'erreur nulle part.
+
+**2. La clé publique** → dans [`js/push-config.js`](js/push-config.js) :
+
+```js
+self.LT_PUSH = {
+  publicKey: "BPx…la longue chaîne…"
+};
+```
+
+Tant que ce champ est vide, **rien ne change sur le site** : la cloche ne
+s'affiche même pas. C'est ce qui permet de déployer le code avant d'avoir
+décidé d'ouvrir la fonctionnalité.
+
+**3. La base de données** → Supabase → SQL Editor → New query → colle tout
+[`supabase/push.sql`](supabase/push.sql) → **Run**. Puis re-lance aussi
+[`supabase/diag.sql`](supabase/diag.sql) pour que `/diag.html` sache le voir.
+
+**4. Les variables Netlify** → *Site configuration → Environment variables* :
+
+| Variable | Valeur |
+|---|---|
+| `VAPID_PRIVATE` | la clé privée affichée à l'étape 1 — **jamais dans le dépôt** |
+| `VAPID_SUBJECT` | `mailto:lanortradprofessionnel@gmail.com` |
+| `SUPABASE_URL` | l'adresse du projet Supabase |
+| `SUPABASE_SERVICE_ROLE` | Supabase → Project Settings → API → `service_role` |
+| `PUSH_SECRET` | le mot de passe du déclenchement manuel (généré à l'étape 1) |
+
+**5. Déploie.** C'est tout : le guetteur se met à tourner tout seul.
+
+### Comment ça marche (en trois phrases)
+
+1. `scripts/build-seo.js` écrit **`push/latest.json`** à chaque déploiement : la
+   dernière sortie de chaque série, avec une signature `série#chapitre`.
+2. Toutes les 15 minutes, la fonction planifiée
+   [`netlify/functions/push-watch.js`](netlify/functions/push-watch.js) compare ce
+   fichier à ce qui a **déjà été annoncé** (table `push_state`). Rien de
+   nouveau → rien n'est envoyé. Du nouveau → elle réveille les abonnés
+   **concernés** (ceux qui suivent la série, ou qui ont demandé tout).
+3. Le message envoyé est **vide** : c'est le service worker ([`sw.js`](sw.js))
+   qui relit `push/latest.json` et compose la notification. Transporter le texte
+   dans le push imposerait de le chiffrer de bout en bout — une centaine de
+   lignes de cryptographie pour transmettre ce qui est déjà public.
+
+Le premier passage du guetteur **n'envoie rien** : il mémorise l'état du jour
+(sinon les abonnés recevraient les dix dernières sorties d'un coup).
+
+### Tester sans attendre 15 minutes
+
+```
+curl "https://lanortrad.com/.netlify/functions/push-send?secret=<PUSH_SECRET>&etat=1"
+```
+
+répond ce qui est branché et combien d'appareils sont abonnés, **sans notifier
+personne**. Pour un envoi réel à tous les abonnés (ça sonne vraiment) :
+
+```
+curl -X POST "https://lanortrad.com/.netlify/functions/push-send?secret=<PUSH_SECRET>&forcer=1"
+```
+
+Les notifications **ne se testent pas en local** : le service worker y est
+volontairement désactivé (§ 1). Le panneau le dit d'ailleurs lui-même.
+
+### Bon à savoir
+
+- **On ne demande jamais la permission tout seul.** Un refus est *définitif* —
+  le navigateur ne repose plus la question. D'où le panneau qui explique avant,
+  ouvert par la cloche du menu ou par le bandeau de la Bibliothèque.
+- **Ce qui est stocké** : l'adresse de push fabriquée par le navigateur et la
+  liste des séries suivies. Pas d'email, pas de compte, aucun lien avec le
+  forum. La table est fermée au navigateur (RLS sans policy) : tout passe par
+  trois fonctions (`push_subscribe`, `push_unsubscribe`, `push_stats`).
+- **Ménage automatique** : un abonnement mort (appli désinstallée, navigateur
+  réinitialisé) répond 404/410 au premier envoi et sa ligne est supprimée.
+- **Changer de séries suivies** met l'abonnement à jour tout seul, à la volée.
+- **Coût** : la fonction planifiée tourne 4 fois par heure (~2 900 appels par
+  mois, très en dessous du palier gratuit Netlify), et un passage sans
+  nouveauté ne fait qu'une lecture de fichier.
+
+---
+
 ## 8. Déploiement
 
 Le dossier `F:\LanorTrad-Test-Site` est autonome et prêt à déployer (Netlify :
@@ -1172,6 +1284,10 @@ vérifiée.
 - **Forum** + **Gamification (XP / classement / missions / cosmétiques)** branchés
   sur Supabase.
 - **Visite guidée** au premier passage (rejouable).
+- **Notifications de sortie** (§ 7 ter) : une notification « nouveau chapitre »
+  sur l'appareil du lecteur, **même site fermé**, pour ses séries suivies ou pour
+  tout. Sans compte ni email. Dormante tant que la clé publique n'est pas posée
+  dans `js/push-config.js`.
 - **Hors ligne** : bandeau d'alerte + mini-jeu **Oni Runner** (façon dino Chrome)
   et page de repli `offline.html` quand une page non cachée est demandée.
 - **PWA** : `manifest.json` + `sw.js` (lecture hors-ligne des chapitres déjà lus,

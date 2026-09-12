@@ -40,6 +40,24 @@
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,VAPID_SUBJECT,URL,DEPLOY_URL,DEPLOY_PRIME_URL"
 
 # =========================================================================
+# Notifications de sortie : le guetteur (netlify/functions/push-watch.js).
+#
+# Netlify reveille cette fonction toutes les 15 minutes. Elle compare les
+# sorties publiees (push/latest.json) a ce qui a deja ete annonce, et n'envoie
+# des notifications que s'il y a vraiment du nouveau. Un passage sans nouveaute
+# ne fait qu'une lecture de fichier : c'est volontairement bete et pas cher.
+#
+# Pourquoi une horloge plutot que la fin du deploiement : au moment ou le build
+# se termine, le site n'est pas encore en ligne. Une notification envoyee la
+# renverrait vers un chapitre que le serveur ne sert pas encore.
+#
+# Une fonction planifiee n'est pas joignable depuis l'exterieur. Pour un envoi
+# manuel (test, rattrapage), voir netlify/functions/push-send.js.
+# =========================================================================
+[functions."push-watch"]
+  schedule = "*/15 * * * *"
+
+# =========================================================================
 # Adresses lisibles (reecritures, statut 200 : l'URL affichee ne change pas)
 #
 #   /manga/tougen-anki/                -> manga.html?id=tougen-anki
@@ -191,6 +209,14 @@
   for = "/js/data/*"
   [headers.values]
     Cache-Control = "public, max-age=60, stale-while-revalidate=86400"
+
+# Carnet des sorties lu par le service worker au moment d'afficher une
+# notification. Servi sans cache : une notification qui annonce le chapitre
+# precedent est pire que pas de notification du tout.
+[[headers]]
+  for = "/push/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 # Le service worker doit pouvoir se mettre à jour
 [[headers]]

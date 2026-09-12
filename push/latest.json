@@ -1,0 +1,85 @@
+{
+ "t": "2026-09-12T11:10:40.298Z",
+ "sorties": [
+  {
+   "id": "Ao No Exorcist",
+   "titre": "Ao No Exorcist",
+   "num": "169",
+   "sig": "Ao No Exorcist#169",
+   "date": "2026-09-06",
+   "url": "/manga/ao-no-exorcist/chapitre-169/"
+  },
+  {
+   "id": "Tougen Anki",
+   "titre": "Tougen Anki",
+   "num": "247",
+   "sig": "Tougen Anki#247",
+   "date": "2026-07-12",
+   "url": "/manga/tougen-anki/chapitre-247/"
+  },
+  {
+   "id": "Tokyo Underworld",
+   "titre": "Tokyo Underworld",
+   "num": "43",
+   "sig": "Tokyo Underworld#43",
+   "date": "2026-07-11",
+   "url": "/manga/tokyo-underworld/chapitre-43/"
+  },
+  {
+   "id": "Catenaccio",
+   "titre": "Catenaccio",
+   "num": "56",
+   "sig": "Catenaccio#56",
+   "date": "2026-03-28",
+   "url": "/manga/catenaccio/chapitre-56/"
+  },
+  {
+   "id": "Satsudou",
+   "titre": "Satsudou",
+   "num": "18",
+   "sig": "Satsudou#18",
+   "date": "2026-02-23",
+   "url": "/manga/satsudou/chapitre-18/"
+  },
+  {
+   "id": "Countdown",
+   "titre": "Countdown",
+   "num": "1",
+   "sig": "Countdown#1",
+   "date": "2025-12-25",
+   "url": "/manga/countdown/chapitre-1/"
+  },
+  {
+   "id": "Gestation of Kalavinka",
+   "titre": "Gestation of Kalavinka",
+   "num": "1",
+   "sig": "Gestation of Kalavinka#1",
+   "date": "2025-12-25",
+   "url": "/manga/gestation-of-kalavinka/chapitre-1/"
+  },
+  {
+   "id": "In the White",
+   "titre": "In the White",
+   "num": "1",
+   "sig": "In the White#1",
+   "date": "2025-12-25",
+   "url": "/manga/in-the-white/chapitre-1/"
+  },
+  {
+   "id": "Sake to Sakana",
+   "titre": "Sake to Sakana",
+   "num": "1",
+   "sig": "Sake to Sakana#1",
+   "date": "2025-12-25",
+   "url": "/manga/sake-to-sakana/chapitre-1/"
+  },
+  {
+   "id": "Second Coming",
+   "titre": "Second Coming",
+   "num": "1",
+   "sig": "Second Coming#1",
+   "date": "",
+   "url": "/manga/second-coming/chapitre-1/"
+  }
+ ]
+}

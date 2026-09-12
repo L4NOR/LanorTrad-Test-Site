@@ -500,6 +500,70 @@ if (!existe("sitemap.xml")) {
 }
 
 /* ------------------------------------------------------------------------
+   9. Notifications de sortie : la chaine tient-elle debout ?
+
+   Cette fonctionnalite est faite de cinq morceaux qui doivent se repondre :
+   une cle publique, un service worker qui sait recevoir, un carnet de sorties
+   publie, une fonction d'envoi et une table. Si un seul manque, personne ne
+   recoit rien ET personne ne s'en apercoit : un push qui ne part pas ne
+   provoque aucune erreur visible. D'ou cette verification.
+
+   Tant que la cle n'est pas posee, tout est simplement « saute » : le site
+   marche exactement comme avant, la cloche ne s'affiche meme pas.
+   ------------------------------------------------------------------------ */
+titre("Notifications de sortie");
+{
+  let cle = "";
+  try {
+    const brut = fs.readFileSync(R("js/push-config.js"), "utf8");
+    const m = brut.match(/publicKey:\s*"([^"]*)"/);
+    cle = m ? m[1].trim() : "";
+  } catch { err("js/push-config.js est absent — la cloche ne peut pas s'afficher"); }
+
+  if (!cle) {
+    saute("notifications non configurees (js/push-config.js sans cle) — rien a verifier");
+  } else {
+    // Une cle VAPID, c'est un point de courbe non compresse : 65 octets, donc
+    // 87 caracteres en base64url, et le premier vaut toujours « B ».
+    if (!/^B[A-Za-z0-9_-]{85,86}$/.test(cle))
+      err(`js/push-config.js — la cle publique n'a pas la forme attendue (relance node scripts/push-keys.js)`);
+    else ok("cle publique VAPID bien formee");
+
+    if (!/addEventListener\("push"/.test(sw)) err("sw.js ne sait pas recevoir de push — les notifications n'arriveraient nulle part");
+    else ok("sw.js ecoute les push");
+    if (!/addEventListener\("notificationclick"/.test(sw)) err("sw.js n'a pas de gestionnaire de clic — une notification cliquee n'ouvrirait rien");
+    else ok("sw.js ouvre la bonne page au clic");
+
+    for (const f of ["js/push.js", "netlify/push-lib.js", "netlify/functions/push-watch.js", "supabase/push.sql"]) {
+      if (!existe(f)) err(`${f} est absent — la chaine des notifications est cassee`);
+    }
+
+    if (!/\[functions\."push-watch"\]/.test(fs.readFileSync(R("netlify.toml"), "utf8")))
+      err("netlify.toml ne planifie plus push-watch — plus rien ne serait envoye automatiquement");
+    else ok("le guetteur est planifie dans netlify.toml");
+
+    // Le carnet que le service worker vient lire au moment d'afficher la
+    // notification. Genere juste avant par build-seo.js : s'il manque, c'est
+    // que la generation a echoue.
+    if (!existe("push/latest.json")) err("push/latest.json absent — le service worker n'aurait rien a annoncer");
+    else {
+      try {
+        const j = JSON.parse(fs.readFileSync(R("push/latest.json"), "utf8"));
+        const sorties = j.sorties || [];
+        if (!sorties.length) err("push/latest.json ne contient aucune sortie");
+        else {
+          const inconnues = sorties.filter(x => !SERIES.some(s => s.id === x.id));
+          if (inconnues.length) err(`push/latest.json cite ${inconnues.length} serie(s) qui n'existe(nt) pas : ${inconnues.map(x => x.id).join(", ")}`);
+          const malFormees = sorties.filter(x => !/^\/manga\/[^/]+\/chapitre-[^/]+\/$/.test(x.url || ""));
+          if (malFormees.length) err(`push/latest.json : ${malFormees.length} adresse(s) de chapitre mal formee(s)`);
+          if (!inconnues.length && !malFormees.length) ok(`${sorties.length} sortie(s) annoncables, series et adresses valides`);
+        }
+      } catch (e) { err("push/latest.json illisible — " + e.message); }
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------
    Bilan
    ------------------------------------------------------------------------ */
 console.log("");
