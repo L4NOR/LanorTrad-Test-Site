@@ -94,7 +94,16 @@
       headers: { "Content-Type": "application/json", apikey: c.anonKey, Authorization: "Bearer " + c.anonKey },
       body: JSON.stringify(corps || {}),
     });
-    if (!r.ok) throw new Error("HTTP " + r.status);
+    if (!r.ok) {
+      // On retient le code de PostgREST : « PGRST202 » (fonction absente) ne
+      // veut pas dire la meme chose qu'un 500, et le lecteur n'a pas a lire
+      // « reessaie dans un instant » quand rien ne s'arrangera tout seul.
+      let code = "";
+      try { code = (await r.clone().json()).code || ""; } catch { /* pas du JSON */ }
+      const e = new Error("RPC " + nom + " : HTTP " + r.status + (code ? " " + code : ""));
+      e.http = r.status; e.code = code;
+      throw e;
+    }
     return r;
   }
 
@@ -289,6 +298,24 @@
       <button type="button" class="btn btn-primary push-go" data-push-act="on">Activer les notifications</button>`;
   }
 
+  /* Pourquoi ca a echoue, en francais. Ce qui a manque le jour du premier
+     essai en ligne : « Echec de l'activation » pour un script SQL pas encore
+     colle, c'est une demi-heure perdue a chercher au mauvais endroit. */
+  function messageErreur(err) {
+    const m = String((err && err.message) || "");
+    const n = String((err && err.name) || "");
+    if (m === "refusé" || n === "NotAllowedError") return "Refusé par le navigateur — voir les explications.";
+    if (m === "ignoré") return "Demande fermée : rien n'a été activé.";
+    if (err && err.code === "PGRST202") return "Les notifications ne sont pas encore ouvertes côté serveur.";
+    if (err && err.http) return "Le serveur a refusé l'enregistrement (" + err.http + "). Réessaie plus tard.";
+    // Brave coupe le service de push par defaut, et d'autres navigateurs le
+    // laissent desactiver. Reessayer n'y changera jamais rien : on dit ou.
+    if (n === "AbortError" || /push service|registration failed|permission denied/i.test(m))
+      return "Ton navigateur bloque le service de push. Sur Brave : Réglages → Confidentialité → « Google services for push messaging ».";
+    if (m === "Supabase non configuré") return "Configuration du site incomplète — préviens l'équipe.";
+    return "Échec de l'activation. Réessaie dans un instant.";
+  }
+
   let panneau = null;
   function fermer() {
     if (!panneau) return;
@@ -344,10 +371,10 @@
           rendre(); majCloche();
           if (act === "on") setTimeout(fermer, 1400);
         } catch (err) {
-          const m = String(err && err.message);
-          T(m === "refusé" ? "Refusé par le navigateur — voir les explications."
-            : m === "ignoré" ? "Demande fermée : rien n'a été activé."
-            : "Échec de l'activation. Réessaie dans un instant.");
+          // La cause exacte va dans la console : sans elle, toute panne se
+          // presente comme « reessaie », y compris celles qui n'en sont pas.
+          if (!/^(refusé|ignoré)$/.test(String(err && err.message))) console.error("[LTpush]", err);
+          T(messageErreur(err));
           rendre();
         }
       }
