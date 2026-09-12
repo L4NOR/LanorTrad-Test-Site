@@ -203,11 +203,16 @@ async function guetter(opts) {
   const memoire = await lireEtat("last");
   if (!memoire || !memoire.sigs) {
     await ecrireEtat("last", { sigs: courant });
-    journal("amorçage : état mémorisé, aucune notification envoyée");
-    return { ok: true, amorcage: true, series: Object.keys(courant).length };
+    journal("amorçage : état du jour mémorisé");
+    // Sauf demande expresse : un envoi forcé sert justement à vérifier que la
+    // chaîne marche, on ne va pas lui répondre « reviens plus tard ». Sans ce
+    // cas, la toute première commande de test ne sonne jamais et on la croit
+    // cassée.
+    if (!o.forcer) return { ok: true, amorcage: true, series: Object.keys(courant).length };
   }
 
-  const nouvelles = sorties.filter(s => memoire.sigs[s.id] !== s.sig);
+  const connues = (memoire && memoire.sigs) || courant;
+  const nouvelles = sorties.filter(s => connues[s.id] !== s.sig);
   if (!nouvelles.length && !o.forcer) return { ok: true, rien: true };
 
   const concernees = new Set(nouvelles.map(s => s.id));

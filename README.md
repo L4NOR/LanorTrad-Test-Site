@@ -1048,7 +1048,9 @@ décidé d'ouvrir la fonctionnalité.
    lignes de cryptographie pour transmettre ce qui est déjà public.
 
 Le premier passage du guetteur **n'envoie rien** : il mémorise l'état du jour
-(sinon les abonnés recevraient les dix dernières sorties d'un coup).
+(sinon les abonnés recevraient les dix dernières sorties d'un coup). L'envoi
+**forcé** ci-dessous fait exception et sonne dès le premier appel — c'est tout
+son intérêt : vérifier que la chaîne marche.
 
 ### Tester sans attendre 15 minutes
 
