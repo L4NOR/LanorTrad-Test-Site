@@ -88,7 +88,7 @@
     },
     {
       f: "views.sql", titre: "Compteurs de lectures",
-      pour: "« X lectures » sur les fiches, badge « Tendance », section Tendances.",
+      pour: "« X lectures » sur les fiches, section Tendances.",
       cibles: [{ k: "table", n: "series_views" }],
     },
     {

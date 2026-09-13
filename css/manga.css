@@ -70,6 +70,17 @@
 .chap-item.locked { opacity: .5; pointer-events: none; }
 .chap-item.read::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--grad); }
 .chap-item .resume-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 10px var(--violet); }
+/* « Nouveau » (sorti il y a moins de 7 jours, voir js/manga.js) : étiquette
+   suspendue au bord haut de la case. En ligne, elle pousserait le numéro et le
+   nombre de pages, qui tiennent déjà juste dans une case d'environ 130 px. */
+.chap-item.new { border-color: color-mix(in srgb, var(--violet) 45%, var(--line)); }
+.chap-item .chap-new {
+  position: absolute; top: 0; right: 10px; pointer-events: none;
+  padding: 2px 7px 3px; border-radius: 0 0 7px 7px; line-height: 1.2;
+  background: var(--grad); color: #fff;
+  font-family: var(--font-display); font-size: .56rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--violet) 80%, transparent);
+}
 
 .notice { padding: 16px 20px; border-radius: var(--radius-sm); background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fcd9a0; margin-bottom: 20px; font-size: .92rem; }
 

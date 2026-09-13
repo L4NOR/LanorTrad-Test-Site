@@ -135,6 +135,14 @@
     const rangesEl = document.getElementById("chap-ranges");
     const RANGE = 50;
     const blockOf = num => Math.floor((Math.ceil(parseFloat(num)) - 1) / RANGE);
+    // « Nouveau » : sorti il y a moins de 7 jours. `d` est la vraie date de
+    // sortie, figée par tools/build-data.py le jour où le chapitre arrive (voir
+    // README, « Les dates de sortie »). Un chapitre antérieur à ce système n'a
+    // pas de date : il n'est jamais « nouveau », ce qui est exact.
+    // Le badge reste sur un chapitre déjà lu : il dit ce qui vient de sortir,
+    // pas ce qu'il te reste à lire (ça, c'est le liseré « lu » et la reprise).
+    const NOUVEAU_JOURS = 7;
+    const estNouveau = c => !!c.d && Date.now() - new Date(c.d + "T00:00:00").getTime() < NOUVEAU_JOURS * 864e5;
 
     if (!chapters.length) {
       notice.innerHTML = `<div class="notice">⏳ On prépare les <b>${nbCh.officiels}</b> chapitres de cette série. Le Discord te préviendra dès qu'ils tombent.</div>`;
@@ -168,7 +176,9 @@
         const isRead = progress && parseFloat(c.num) < parseFloat(progress.chapter);
         const isCur = progress && c.num === progress.chapter;
         const href = window.LT.urlChapter(s, c.num);
-        const item = `<a class="chap-item ${isRead ? "read" : ""}" href="${href}">
+        const neuf = estNouveau(c);
+        const item = `<a class="chap-item ${isRead ? "read" : ""} ${neuf ? "new" : ""}" href="${href}"${neuf ? ` title="Sorti ${window.LT.timeAgo(c.d)}"` : ""}>
+            ${neuf ? `<span class="chap-new">Nouveau</span>` : ""}
             <span class="n">Ch. ${c.num}</span>
             ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.pages} p.</span>`}
           </a>`;

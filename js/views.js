@@ -11,14 +11,14 @@
   const C = {};
   try { Object.assign(C, JSON.parse(localStorage.getItem(CACHE_KEY) || "{}")); } catch {}
 
-  let loaded = false, _top = null;
+  let loaded = false;
   const waiters = [];
 
   const cfg = () => window.LT_SUPABASE || {};
   const ok = () => { const c = cfg(); return !!(c.url && c.anonKey && !/VOTRE_|YOUR_/i.test(c.url + c.anonKey)); };
   const headers = () => { const c = cfg(); return { apikey: c.anonKey, Authorization: "Bearer " + c.anonKey }; };
 
-  function save() { _top = null; try { localStorage.setItem(CACHE_KEY, JSON.stringify(C)); } catch {} }
+  function save() { try { localStorage.setItem(CACHE_KEY, JSON.stringify(C)); } catch {} }
   function flush() { while (waiters.length) { try { waiters.shift()(); } catch {} } }
 
   async function load() {
@@ -57,18 +57,15 @@
   function trending(n = 6) {
     return Object.keys(C).filter(id => C[id] > 0).sort((a, b) => (C[b] || 0) - (C[a] || 0)).slice(0, n);
   }
-  function topSet() { if (!_top) _top = new Set(trending(3).filter(id => (C[id] || 0) >= 5)); return _top; }
-  function isTrending(id) { return topSet().has(id); }
-
   const eye = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>`;
 
-  // Ajoute badge « Tendance » + compteur de vues aux cartes déjà rendues.
+  // Ajoute le compteur de vues aux cartes déjà rendues.
+  // Il n'y a plus de badge « Tendance » : dans la section Tendances il répétait
+  // le titre, et ailleurs (À découvrir, catalogue) il ajoutait une étiquette
+  // de plus sur des cartes qui en portent déjà deux (statut, suivre).
   function decorate() {
     document.querySelectorAll(".m-card[data-id]").forEach(card => {
-      const id = card.dataset.id, v = C[id];
-      const flags = card.querySelector(".card-flags");
-      if (flags && isTrending(id) && !flags.querySelector(".trend"))
-        flags.insertAdjacentHTML("afterbegin", `<span class="badge trend">🔥 Tendance</span>`);
+      const v = C[card.dataset.id];
       const row = card.querySelector(".meta .row");
       if (row && v != null && !row.querySelector(".views"))
         row.insertAdjacentHTML("beforeend", `<span class="views" title="${v} lectures">${eye} ${fmt(v)}</span>`);
@@ -76,7 +73,7 @@
   }
 
   window.LTviews = {
-    get: id => C[id], fmt, trending, isTrending, eye,
+    get: id => C[id], fmt, trending, eye,
     ready: fn => { loaded ? fn() : waiters.push(fn); },
     load, bump, decorate
   };

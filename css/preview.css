@@ -25,6 +25,9 @@
 .chap-cell:hover .chap-item,
 .chap-cell:hover .peek-btn { transform: translateY(-3px); }
 .chap-cell:hover .chap-item { border-color: rgba(168,85,247,.5); background: var(--glass-2); }
+/* Chapitre « Nouveau » : le liseré violet fait le tour de la case entière,
+   bouton d'aperçu compris (voir css/manga.css). */
+.chap-cell .chap-item.new + .peek-btn:not(:hover):not(:focus-visible) { border-color: color-mix(in srgb, var(--violet) 45%, var(--line)); }
 
 /* Planning / accueil : l'œil se pose en surimpression sur la carte */
 .peek-over {
