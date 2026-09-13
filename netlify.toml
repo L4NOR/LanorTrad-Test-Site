@@ -58,6 +58,49 @@
   schedule = "*/15 * * * *"
 
 # =========================================================================
+# Ancienne adresse -> domaine officiel
+#
+#   https://lanortrad.netlify.app/manga/tougen-anki/?x=1
+#     -> 301 -> https://lanortrad.com/manga/tougen-anki/?x=1
+#
+# Netlify sert le meme site sous les deux adresses, et ne renvoie PAS de
+# lui-meme le sous-domaine netlify.app vers le domaine principal (verifie :
+# les deux repondaient 200). Sans ces regles, les vieux liens et favoris
+# restaient sur lanortrad.netlify.app : un second site identique aux yeux des
+# moteurs, et des lecteurs coupes en deux populations.
+#
+# A savoir : le stockage du navigateur (historique, bibliotheque, session) est
+# propre a chaque domaine. Ce qu'un lecteur avait garde en local sur l'ancienne
+# adresse n'est pas transporte — il se reconnecte sur lanortrad.com, et la
+# synchro de compte fait revenir ce qui etait synchronise.
+#
+# 301 = definitif : les moteurs reportent le referencement sur lanortrad.com.
+# Le chemin (:splat) et les parametres (?id=…) sont conserves.
+#
+# force = true : la regle s'applique AUSSI quand un fichier reel existe
+# (index.html, les images…), sinon seules les adresses sans fichier seraient
+# renvoyees. D'ou sa place EN TETE : Netlify applique la premiere regle qui
+# correspond, et les reecritures ci-dessous ne doivent jamais passer avant.
+#
+# Seul CE nom d'hote est vise. Le site de test (lanortradtest.netlify.app), les
+# deploy previews (deploy-preview-12--lanortrad.netlify.app) et les branch
+# deploys ont une autre adresse : ils restent consultables tels quels.
+#
+# La version http:// evite un aller-retour de plus (http -> https -> .com).
+# =========================================================================
+[[redirects]]
+  from = "https://lanortrad.netlify.app/*"
+  to = "https://lanortrad.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://lanortrad.netlify.app/*"
+  to = "https://lanortrad.com/:splat"
+  status = 301
+  force = true
+
+# =========================================================================
 # Adresses lisibles (reecritures, statut 200 : l'URL affichee ne change pas)
 #
 #   /manga/tougen-anki/                -> manga.html?id=tougen-anki

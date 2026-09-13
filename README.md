@@ -750,7 +750,7 @@ Menu de gauche → **SQL Editor** → **New query**, puis exécute dans l'ordre 
 ### 5.4 Autoriser ton site (emails de confirmation)
 
 1. Menu → **Authentication** → **URL Configuration**.
-2. **Site URL** : l'adresse de ton site (ex. `https://lanortrad.netlify.app`).
+2. **Site URL** : l'adresse de ton site (ex. `https://lanortrad.com`).
 3. **Redirect URLs** : la même URL + `…/forum.html`
    (en local, ajoute aussi `http://localhost:8779`).
 
@@ -1100,6 +1100,22 @@ node scripts/build-seo.js && node scripts/check.js && node scripts/test-og.mjs
 
 Les deux dernières **font échouer le déploiement** si elles trouvent une
 incohérence. C'est délibéré (voir § 8 bis).
+
+### `lanortrad.netlify.app` renvoie vers `lanortrad.com`
+
+Netlify sert le site sous ses deux adresses et ne redirige pas tout seul
+l'ancienne. Deux règles en tête de `netlify.toml` le font : toute page de
+`lanortrad.netlify.app` répond **301** vers la même page sur `lanortrad.com`,
+chemin et paramètres compris. Seul ce nom-là est visé : le site de test
+(`lanortradtest.netlify.app`) et les deploy previews restent consultables.
+
+Pour vérifier après un déploiement :
+
+```bash
+curl -I https://lanortrad.netlify.app/manga/tougen-anki/
+```
+
+La réponse doit être `301` avec `location: https://lanortrad.com/manga/tougen-anki/`.
 
 ---
 
