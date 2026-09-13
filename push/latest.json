@@ -1,6 +1,22 @@
 {
- "t": "2026-09-12T12:04:38.521Z",
+ "t": "2026-09-13T08:57:23.484Z",
  "sorties": [
+  {
+   "id": "Tougen Anki",
+   "titre": "Tougen Anki",
+   "num": "250",
+   "sig": "Tougen Anki#250",
+   "date": "2026-09-12",
+   "url": "/manga/tougen-anki/chapitre-250/"
+  },
+  {
+   "id": "Tokyo Underworld",
+   "titre": "Tokyo Underworld",
+   "num": "46",
+   "sig": "Tokyo Underworld#46",
+   "date": "2026-09-12",
+   "url": "/manga/tokyo-underworld/chapitre-46/"
+  },
   {
    "id": "Ao No Exorcist",
    "titre": "Ao No Exorcist",
@@ -8,22 +24,6 @@
    "sig": "Ao No Exorcist#169",
    "date": "2026-09-06",
    "url": "/manga/ao-no-exorcist/chapitre-169/"
-  },
-  {
-   "id": "Tougen Anki",
-   "titre": "Tougen Anki",
-   "num": "247",
-   "sig": "Tougen Anki#247",
-   "date": "2026-07-12",
-   "url": "/manga/tougen-anki/chapitre-247/"
-  },
-  {
-   "id": "Tokyo Underworld",
-   "titre": "Tokyo Underworld",
-   "num": "43",
-   "sig": "Tokyo Underworld#43",
-   "date": "2026-07-11",
-   "url": "/manga/tokyo-underworld/chapitre-43/"
   },
   {
    "id": "Catenaccio",

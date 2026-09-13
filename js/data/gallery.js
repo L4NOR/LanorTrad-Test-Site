@@ -119,7 +119,10 @@ window.GALLERY = {
    "images/Galerie/Tougen Anki/Tomes/Tome 30.jpg"
   ],
   "colors": [
-   "images/Galerie/Tougen Anki/Colors/Chapitre 228.png"
+   "images/Galerie/Tougen Anki/Colors/Chapitre 228.png",
+   "images/Galerie/Tougen Anki/Colors/Chapitre 250.1.png",
+   "images/Galerie/Tougen Anki/Colors/Chapitre 250.2.png",
+   "images/Galerie/Tougen Anki/Colors/Chapitre 250.3.png"
   ]
  }
 };
