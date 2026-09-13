@@ -38,6 +38,9 @@ window.GALLERY = {
    "images/Galerie/Ao No Exorcist/Tomes/Tome 32.jpg",
    "images/Galerie/Ao No Exorcist/Tomes/Tome 33.jpg",
    "images/Galerie/Ao No Exorcist/Tomes/Tome 34.jpg"
+  ],
+  "colors": [
+   "images/Galerie/Ao No Exorcist/Colors/Chapitre 167.png"
   ]
  },
  "Catenaccio": {
@@ -76,6 +79,10 @@ window.GALLERY = {
    "images/Galerie/Tokyo Underworld/Tomes/Tome 10.jpg",
    "images/Galerie/Tokyo Underworld/Tomes/Tome 11.jpg",
    "images/Galerie/Tokyo Underworld/Tomes/Tome 12.jpg"
+  ],
+  "colors": [
+   "images/Galerie/Tokyo Underworld/Colors/Chapitre 43.png",
+   "images/Galerie/Tokyo Underworld/Colors/Chapitre 44.png"
   ]
  },
  "Tougen Anki": {
@@ -112,8 +119,7 @@ window.GALLERY = {
    "images/Galerie/Tougen Anki/Tomes/Tome 30.jpg"
   ],
   "colors": [
-   "images/Galerie/Tougen Anki/Colors/Color 01.jpg",
-   "images/Galerie/Tougen Anki/Colors/Color 02.jpg"
+   "images/Galerie/Tougen Anki/Colors/Chapitre 228.png"
   ]
  }
 };
