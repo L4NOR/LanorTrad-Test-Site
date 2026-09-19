@@ -70,3 +70,49 @@
 .lb-quiz-opt.good { background: rgba(74, 222, 128, .13); color: #4ade80; font-weight: 600; }
 .lb-quiz-opt.bad { background: rgba(248, 113, 113, .12); color: #f87171; }
 .lb-quiz-score { font-family: var(--font-display); font-weight: 800; font-size: 1rem; padding: 4px 2px; }
+
+/* ---------- Devine la case (js/devine.js) ----------
+   La case à gauche, le jeu à droite ; l'un sous l'autre sur téléphone.
+   Le canvas garde un rendu net quand on l'agrandit (pixelated serait laid
+   sur du trait de manga : on laisse le lissage par défaut). */
+.dv { margin-bottom: 26px; }
+.dv-n { font-size: .8em; color: var(--txt-mut); font-weight: 600; }
+.dv-body {
+  display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start;
+  padding: 16px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line);
+}
+.dv-case { position: relative; }
+.dv-case canvas { display: block; width: 100%; height: auto; border-radius: 12px; background: #fff; border: 1px solid var(--line-strong); }
+.dv-zoom {
+  position: absolute; left: 10px; bottom: 10px; padding: 3px 9px; border-radius: 999px;
+  font-size: .72rem; font-weight: 700; color: #fff; background: rgba(0, 0, 0, .6);
+}
+.dv-q { font-size: 1.02rem; margin: 2px 0 12px; line-height: 1.45; }
+.dv-series { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.dv-s {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 6px; border-radius: 12px; cursor: pointer; text-align: left;
+  font: 600 .84rem var(--font-body); color: var(--txt); background: var(--bg-2); border: 1px solid var(--line-strong);
+  transition: border-color .2s, transform .2s var(--ease-back);
+}
+.dv-s img { width: 30px; height: 42px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.dv-s:not(:disabled):hover { border-color: var(--violet); transform: translateY(-2px); }
+.dv-s.bad { opacity: .45; text-decoration: line-through; cursor: default; border-color: #ef4444; }
+.dv-form { display: flex; gap: 8px; }
+.dv-form input {
+  width: 130px; padding: 9px 12px; border-radius: 10px; font: 600 1rem var(--font-body);
+  background: var(--bg-1); color: var(--txt); border: 1px solid var(--line-strong);
+}
+.dv-form input:focus { outline: none; border-color: var(--violet); }
+.dv-essais { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+.dv-essais li { font-size: .9rem; color: var(--txt-soft); }
+.dv-essais b { color: var(--txt); margin-right: 6px; }
+.dv-aide { font-size: .8rem; color: var(--txt-mut); margin: 12px 0 0; }
+.dv-score { display: flex; align-items: baseline; gap: 10px; margin: 14px 0 4px; }
+.dv-score b { font: 800 2rem var(--font-display); }
+.dv-score span { color: var(--txt-mut); font-size: .84rem; }
+.dv-xp { color: var(--violet); font-weight: 700; margin: 0 0 12px; min-height: 1.2em; }
+.dv-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 720px) {
+  .dv-body { grid-template-columns: 1fr; }
+  .dv-case { max-width: 360px; width: 100%; margin: 0 auto; }
+}

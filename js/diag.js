@@ -151,6 +151,13 @@
       pour: "Les questions de la team sur le prochain chapitre (Classement, fin du dernier chapitre).",
       cibles: [{ k: "table", n: "predictions" }, { k: "fn", n: "predictions_list", args: { p_manga: "diagnostic" } }],
     },
+    {
+      f: "devine.sql", titre: "XP de « Devine la case »",
+      pour: "Le jeu quotidien du Classement : sans ce script, il se joue mais ne rapporte pas d'XP.",
+      // Sans compte, la fonction répond « not_authenticated » avant toute
+      // écriture : la sonde reste en lecture seule.
+      cibles: [{ k: "fn", n: "claim_devine", args: { p_day: "diagnostic", p_score: 0 } }],
+    },
   ];
 
   /* ---------------------------------------------------------------- Outils */

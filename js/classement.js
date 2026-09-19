@@ -39,6 +39,7 @@
     mount.innerHTML = `
       <div id="lb-missions"></div>
       <div id="lb-quiz"></div>
+      <div id="lb-devine"></div>
       <div id="lb-pronos"></div>
       <div class="lb-tabs" id="lb-tabs" role="tablist">
         <button class="lb-tab on" data-tab="week" role="tab">Cette semaine</button>
@@ -57,6 +58,8 @@
 
     loadMissions();
     loadQuiz();
+    // Devine la case (js/devine.js) : le jeu du jour.
+    if (window.LTdevine) window.LTdevine.mount($("#lb-devine"));
     // Pronostics de chapitre (js/pronos.js), avec les outils de la team.
     if (window.LTpronos) window.LTpronos.mount($("#lb-pronos"), { staffTools: true });
     loadSelf();

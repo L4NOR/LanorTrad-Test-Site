@@ -879,6 +879,12 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
     Valider », « Supprimer ». Côté lecteurs : page Classement, et écran de fin
     du **dernier** chapitre paru de la série. Pour qui n'est pas à jour, la
     question reste floutée : elle pourrait spoiler)
+20. `supabase/devine.sql` (l'**XP de « Devine la case »**, le jeu quotidien de la
+    page Classement — RPC `claim_devine`. Le jeu tourne dans le navigateur :
+    la case du jour est tirée du catalogue à partir de la date, la même pour
+    tout le monde, jamais dans le cinquième le plus récent d'une série. La base
+    ne fait que créditer les points, une fois par jour et 50 XP au plus. Sans
+    lui, on joue quand même, sans XP)
 
 **Tu ne sais plus lesquels sont passés ?** Ouvre `/diag.html` sur le site : elle
 te le dit script par script (§ 10).
