@@ -184,6 +184,11 @@ function buildPush(series, chapters) {
         // Adresse RELATIVE : le meme fichier sert sur lanortrad.com comme sur
         // une preview Netlify, et le service worker la recolle a son origine.
         url: "/manga/" + slugFile(s.id) + "/chapitre-" + enc(c.num) + "/",
+        // Pour l'annonce Discord (netlify/discord-lib.js) : la vignette de
+        // partage 1200x630 de la serie et sa couleur d'univers. Chemin
+        // relatif, pour la meme raison que `url`.
+        image: ogCard(s.id),
+        accent: s.accent || "",
       };
     })
     .filter(Boolean)

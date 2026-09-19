@@ -243,4 +243,17 @@ async function guetter(opts) {
   };
 }
 
-module.exports = { configure, manque, guetter, abonnes, envoyerA, contexteSignature };
+/* ------------------------------------------ Partagé avec l'annonce Discord
+   (netlify/discord-lib.js) : le même carnet de sorties et la même table de
+   mémoire, sous une autre clé. Discord n'a besoin que de Supabase, pas des
+   clés VAPID — il doit pouvoir marcher même si le push est coupé. */
+const supabasePret = () => !!(SUPABASE && SERVICE);
+
+async function lireSorties(site) {
+  const r = await fetch(site.replace(/\/+$/, "") + "/push/latest.json", { signal: AbortSignal.timeout(10000) });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return (await r.json()).sorties || [];
+}
+
+module.exports = { configure, manque, guetter, abonnes, envoyerA, contexteSignature,
+                   supabasePret, lireSorties, lireEtat, ecrireEtat };

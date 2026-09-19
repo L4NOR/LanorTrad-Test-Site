@@ -18,6 +18,9 @@
 
      # Forcer un envoi à TOUS les abonnés (test réel : ça sonne vraiment)
      curl -X POST "https://<site>/.netlify/functions/push-send?secret=<secret>&forcer=1"
+
+     # Annonce Discord : reposter la dernière sortie dans le salon (test)
+     curl -X POST "https://<site>/.netlify/functions/push-send?secret=<secret>&discord=1&forcer=1"
    ========================================================================= */
 "use strict";
 const push = require("../push-lib.js");
@@ -44,6 +47,7 @@ exports.handler = async (event) => {
         ok: push.configure(),
         manque: push.manque(),
         abonnes: push.configure() ? (await push.abonnes().catch(() => [])).length : null,
+        discord_manque: require("../discord-lib.js").manque(),
         site: process.env.URL || null,
       }, null, 1),
     };
@@ -51,6 +55,18 @@ exports.handler = async (event) => {
 
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ ok: false, raison: "POST attendu (ou ?etat=1)" }) };
+  }
+
+  // Annonce Discord (netlify/discord-lib.js) plutôt que push. Avec &forcer=1,
+  // reposte la dernière sortie même déjà annoncée : c'est le test.
+  if (q.discord) {
+    const journal = [];
+    const d = await require("../discord-lib.js").annoncer({ forcer: !!q.forcer, journal: m => { journal.push(m); console.log("[discord] " + m); } });
+    return {
+      statusCode: d.ok ? 200 : 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ journal }, d), null, 1),
+    };
   }
 
   const lignes = [];

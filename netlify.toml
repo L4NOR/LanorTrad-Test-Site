@@ -57,6 +57,13 @@
 [functions."push-watch"]
   schedule = "*/15 * * * *"
 
+# Annonce des sorties dans le salon Discord (netlify/functions/discord-watch.js).
+# Meme carnet, meme horloge, mais une fonction a part : Discord doit etre
+# prevenu meme si le push est coupe, et une panne de l'un ne retarde pas
+# l'autre. Ne fait rien tant que DISCORD_WEBHOOK n'est pas pose (README § 7 ter).
+[functions."discord-watch"]
+  schedule = "*/15 * * * *"
+
 # =========================================================================
 # Ancienne adresse -> domaine officiel
 #

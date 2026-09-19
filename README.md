@@ -1088,6 +1088,40 @@ volontairement désactivé (§ 1). Le panneau le dit d'ailleurs lui-même.
   mois, très en dessous du palier gratuit Netlify), et un passage sans
   nouveauté ne fait qu'une lecture de fichier.
 
+### Annonce automatique sur Discord
+
+Même carnet de sorties, même horloge : `netlify/functions/discord-watch.js`
+poste une carte dans un salon Discord à chaque nouveau chapitre (titre, lien
+direct, vignette de la série, couleur de l'univers). Fonction à part du push :
+le salon est prévenu même si les notifications sont coupées.
+
+**Installation (5 min)** :
+
+1. Discord → paramètres du salon d'annonces → **Intégrations** → **Webhooks** →
+   **Nouveau webhook** → **Copier l'URL du webhook**.
+2. Netlify → **Site configuration → Environment variables** :
+   - `DISCORD_WEBHOOK` = l'URL copiée. **C'est un secret** : qui la connaît peut
+     poster dans le salon. Ne la colle nulle part dans le code.
+   - `DISCORD_ROLE` (facultatif) = l'identifiant d'un rôle à mentionner, par
+     exemple un rôle « Notifs sorties » (clic droit sur le rôle → *Copier
+     l'identifiant*, mode développeur activé). Sans lui, personne n'est mentionné.
+   - `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE` : déjà posées pour le push. La
+     mémoire des annonces vit dans la même table `push_state`, sous la clé
+     `discord`.
+3. Redéploie.
+
+**Premier passage** : la fonction mémorise l'état du jour **sans rien poster**
+(sinon le salon recevrait d'un coup dix annonces, dont des chapitres de mars).
+Seules les sorties suivantes sont annoncées.
+
+**Tester sans attendre** (reposte la dernière sortie dans le salon) :
+
+```
+curl -X POST "https://lanortrad.com/.netlify/functions/push-send?secret=<PUSH_SECRET>&discord=1&forcer=1"
+```
+
+`?etat=1` indique aussi ce qui manque côté Discord (`discord_manque`).
+
 ---
 
 ## 8. Déploiement
