@@ -63,6 +63,16 @@
       </div>
     </section>
 
+    <!-- « Ma liste » : les séries rangées par le lecteur (Je lis, À lire…),
+         depuis le bouton du même nom sur chaque fiche. Voir js/store.js. -->
+    <section class="section" id="list-section" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head" data-reveal><div><span class="eyebrow">Rangée à ta façon</span><h2>Ma liste</h2></div></div>
+        <div class="list-tabs" id="list-tabs" role="tablist" aria-label="Ma liste"></div>
+        <div class="card-grid cards-row" id="list-grid"></div>
+      </div>
+    </section>
+
     <section class="section" style="padding-top:0">
       <div class="wrap">
         <div class="section-head" data-reveal><div><span class="eyebrow">À reprendre</span><h2>Lectures en cours</h2></div></div>
@@ -127,6 +137,8 @@
       markBtn.hidden = nNew === 0;
       markBtn.onclick = () => { store.markAllSeen(); window.LT.toast("Tout est marqué comme vu"); };
 
+      renderList();
+
       // Reprise
       const grid = document.getElementById("resume-grid");
       const rows = window.LTstore.history().map(({ s, p }) => {
@@ -151,6 +163,54 @@
       document.dispatchEvent(new Event("lt:cards"));
       window.LT._scanReveals && window.LT._scanReveals();
     }
+    // Ma liste : un onglet par statut, l'onglet choisi est retenu sur l'appareil.
+    let listTab = null;
+    function renderList() {
+      const store = window.LTstore, ST = store.STATUTS || [];
+      const tabsEl = document.getElementById("list-tabs"), grid = document.getElementById("list-grid");
+      if (!tabsEl || !grid || !ST.length) return;
+      const m = store.statuses();
+      const par = {};
+      ST.forEach(x => { par[x.v] = []; });
+      Object.keys(m).forEach(id => { const s = window.LT.seriesById(id); if (s && par[m[id]]) par[m[id]].push(s); });
+      if (listTab === null) { try { listTab = localStorage.getItem("lt-status-tab"); } catch (e) {} }
+      if (!par[listTab]) listTab = (ST.find(x => par[x.v].length) || ST[0]).v;
+
+      tabsEl.innerHTML = ST.map(x => `<button type="button" class="list-tab${x.v === listTab ? " on" : ""}" role="tab" aria-selected="${x.v === listTab}" data-st="${x.v}">
+          <span aria-hidden="true">${x.ic}</span> ${x.label}<span class="list-n">${par[x.v].length}</span></button>`).join("");
+      tabsEl.onclick = e => {
+        const b = e.target.closest("[data-st]");
+        if (!b || b.dataset.st === listTab) return;
+        listTab = b.dataset.st;
+        try { localStorage.setItem("lt-status-tab", listTab); } catch (e) {}
+        renderList();
+        document.dispatchEvent(new Event("lt:cards"));
+      };
+
+      const list = par[listTab];
+      if (list.length) { grid.innerHTML = list.map(LTcard).join(""); return; }
+
+      const cur = ST.find(x => x.v === listTab);
+      const vide = !Object.keys(m).length;
+      // Liste encore jamais utilisée : on propose de ranger d'un clic ce que
+      // le lecteur a déjà commencé, plutôt que de lui montrer un trou.
+      const deja = vide ? store.history().map(h => h.s) : [];
+      grid.innerHTML = `<div class="lib-empty" style="grid-column:1/-1"><div class="big">${cur.ic}</div>
+        <p>${vide
+          ? "Range tes séries avec le bouton « Ajouter à ma liste » de leur fiche : ce que tu lis, ce que tu gardes pour plus tard, ce que tu as lâché."
+          : `Aucune série « ${cur.label} » pour l'instant.`}</p>
+        ${deja.length ? `<p class="list-deja">Tu as déjà commencé ${deja.slice(0, 3).map(s => `<b>${s.title}</b>`).join(", ")}${deja.length > 3 ? ` et ${deja.length - 3} autre${deja.length > 4 ? "s" : ""}` : ""}.</p>
+          <button type="button" class="btn btn-primary" id="list-fill" style="margin-top:14px">📖 Les ranger dans « Je lis »</button>` : ""}
+      </div>`;
+      const fill = document.getElementById("list-fill");
+      if (fill) fill.onclick = () => {
+        listTab = "je-lis";          // on montre tout de suite où elles sont parties
+        try { localStorage.setItem("lt-status-tab", listTab); } catch (e) {}
+        deja.forEach(s => store.setStatus(s.id, "je-lis"));
+        window.LT.toast(`📖 ${deja.length} série${deja.length > 1 ? "s rangées" : " rangée"} dans « Je lis »`);
+      };
+    }
+
     document.addEventListener("lt:ready", () => { renderLibrary(); loadCardIdentity(); });
     document.addEventListener("lt:store", renderLibrary);
   </script>

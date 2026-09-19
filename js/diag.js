@@ -141,6 +141,11 @@
       pour: "Le 👑 des trois premiers de la semaine passée.",
       cibles: [{ k: "fn", n: "podium_last_week", args: {} }],
     },
+    {
+      f: "library.sql", titre: "Ma liste",
+      pour: "Les statuts « Je lis », « À lire »… de la Bibliothèque, partagés entre appareils.",
+      cibles: [{ k: "table", n: "user_library" }],
+    },
   ];
 
   /* ---------------------------------------------------------------- Outils */

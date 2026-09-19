@@ -830,6 +830,10 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
     liste)
 17. `supabase/diag.sql` (facultatif mais recommandé — la fonction `lt_diag()`
     qui permet à `diag.html` de répondre exactement, triggers compris. Voir § 10)
+18. `supabase/library.sql` (**« Ma liste »** de la Bibliothèque — table
+    `user_library`, une ligne par membre, RLS « sa ligne uniquement ». Les statuts
+    Je lis / À lire / En pause / Fini / Abandonné suivent d'un appareil à
+    l'autre, règle « le plus récent gagne ». Sans lui, la liste reste locale)
 
 **Tu ne sais plus lesquels sont passés ?** Ouvre `/diag.html` sur le site : elle
 te le dit script par script (§ 10).

@@ -1,5 +1,5 @@
 /* =========================================================================
-   LanorTrad — Synchro multi-appareils (progression de lecture + suivis).
+   LanorTrad — Synchro multi-appareils (progression de lecture, suivis, Ma liste).
    Additif : localStorage reste la source de vérité locale ; pour les membres
    connectés on réconcilie avec Supabase, règle « le plus récent gagne »
    (horodatage client `t`). No-op si déconnecté ou Supabase absent.
@@ -86,6 +86,23 @@
     } catch {}
   }
 
+  /* ---------- « Ma liste » (statuts de lecture) : même règle que les suivis ----
+     Table user_library (supabase/library.sql). Absente, les appels échouent
+     sans bruit et la liste reste simplement locale. */
+  const LT_KEY = "lt-status-t";
+  async function pushStatuses() {
+    if (!(await session())) return;
+    const c = sb(); if (!c) return;
+    const t = +localStorage.getItem(LT_KEY) || Date.now();
+    try { localStorage.setItem(LT_KEY, String(t)); } catch {}
+    try {
+      await c.from("user_library").upsert({
+        user_id: sess.user.id, statuses: readLS("lt-status", {}),
+        t, updated_at: new Date().toISOString()
+      });
+    } catch {}
+  }
+
   /* ---------- Réconciliation au chargement (et à la connexion) ---------- */
   let pulled = false;
   async function pull() {
@@ -125,6 +142,22 @@
       }
     } catch {}
 
+    try {
+      const { data: l, error } = await c.from("user_library").select("statuses,t").maybeSingle();
+      if (!error) {
+        const localT = +localStorage.getItem(LT_KEY) || 0;
+        const srvT = l ? (l.t || 0) : -1;
+        const local = readLS("lt-status", {});
+        if (srvT > localT) {
+          writeLS("lt-status", l.statuses && typeof l.statuses === "object" ? l.statuses : {});
+          try { localStorage.setItem(LT_KEY, String(srvT)); } catch {}
+          changed = true;
+        } else if (localT > Math.max(srvT, 0) || (srvT < 0 && Object.keys(local).length)) {
+          pushStatuses();
+        }
+      }
+    } catch {}
+
     if (changed) document.dispatchEvent(new Event("lt:store"));
   }
 
@@ -137,6 +170,6 @@
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushBeacon(); });
   window.addEventListener("pagehide", flushBeacon);
 
-  window.LTsync = { queueProgress, pushFollows, pull, flush };
+  window.LTsync = { queueProgress, pushFollows, pushStatuses, pull, flush };
   document.addEventListener("lt:ready", boot);
 })();

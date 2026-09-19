@@ -234,6 +234,39 @@
     });
     syncFollow();
 
+    // « Ma liste » : le lecteur range la série (Je lis, À lire…). Un <select>
+    // natif plutôt qu'un menu maison : clavier, lecteur d'écran et roulette
+    // du téléphone marchent d'office.
+    const ST = window.LTstore.STATUTS || [];
+    if (ST.length) {
+      actions.insertAdjacentHTML("beforeend", `
+        <label class="status-pick" title="Ranger cette série dans ta liste">
+          <span class="status-ic" aria-hidden="true"></span>
+          <select id="status-pick" aria-label="Ma liste">
+            <option value="">Ajouter à ma liste</option>
+            ${ST.map(x => `<option value="${x.v}">${x.label}</option>`).join("")}
+          </select>
+        </label>`);
+      const pick = document.getElementById("status-pick");
+      const box = pick.closest(".status-pick");
+      const syncPick = () => {
+        const v = window.LTstore.status(s.id) || "";
+        const it = ST.find(x => x.v === v);
+        pick.value = v;
+        box.classList.toggle("on", !!it);
+        box.querySelector(".status-ic").textContent = it ? it.ic : "＋";
+        pick.options[0].textContent = it ? "Retirer de ma liste" : "Ajouter à ma liste";
+      };
+      pick.addEventListener("change", () => {
+        const it = ST.find(x => x.v === window.LTstore.setStatus(s.id, pick.value));
+        syncPick();
+        window.LT.toast(it ? `${it.ic} Rangée dans « ${it.label} »` : "Retirée de ta liste");
+      });
+      syncPick();
+      // La synchro peut ramener un statut posé sur un autre appareil.
+      document.addEventListener("lt:store", syncPick);
+    }
+
     // Collaboration : équipes partenaires (hors LanorTrad)
     if (s.partners && s.partners.length) {
       const cards = s.partners.map(p => {

@@ -257,3 +257,29 @@ a.ep-tile { cursor: pointer; }
   #rate-block { text-align: center; }
   .series-desc { margin-inline: auto; }
 }
+
+/* ---------- « Ma liste » (statut de lecture, voir js/manga.js) ----------
+   Un vrai <select>, habillé comme les boutons fantômes voisins. La flèche
+   est dessinée en CSS : celle du système change d'un navigateur à l'autre. */
+.status-pick {
+  position: relative; display: inline-flex; align-items: center; gap: 8px;
+  padding: 0 38px 0 18px; border-radius: 999px; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--line-strong); color: var(--txt);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  transition: border-color .25s var(--ease), box-shadow .25s var(--ease), transform .35s var(--ease-back);
+}
+.status-pick:hover { transform: translateY(-3px); border-color: rgba(168,85,247,.6); box-shadow: 0 12px 30px -16px rgba(168,85,247,.8); }
+.status-pick:focus-within { border-color: var(--violet); }
+.status-pick::after {
+  content: ""; position: absolute; right: 17px; top: 50%; width: 7px; height: 7px; margin-top: -5px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg);
+  opacity: .7; pointer-events: none;
+}
+.status-pick select {
+  appearance: none; -webkit-appearance: none; background: transparent; border: 0; color: inherit;
+  font-family: var(--font-display); font-weight: 700; font-size: .95rem; padding: 13px 0; cursor: pointer;
+}
+.status-pick select:focus { outline: none; }
+.status-pick select option { color: var(--txt); background: var(--bg-2); }
+.status-ic { font-size: 1rem; line-height: 1; }
+.status-pick.on { color: var(--accent, #a855f7); border-color: color-mix(in srgb, var(--accent, #a855f7) 50%, transparent); }

@@ -72,6 +72,32 @@
       .sort((a, b) => (b.p.t || 0) - (a.p.t || 0));
   }
 
+  /* — « Ma liste » : où en est-on avec chaque série —
+       Distinct du suivi (qui repère les sorties) et de la progression (qui
+       sait à quelle page on est) : ici, c'est le lecteur qui range. Les
+       libellés évitent exprès « En cours » et « Terminé », déjà pris par le
+       statut de PUBLICATION affiché sur chaque carte. — */
+  const STATUS = "lt-status";
+  const STATUTS = [
+    { v: "je-lis",    label: "Je lis",    ic: "📖" },
+    { v: "a-lire",    label: "À lire",    ic: "🔖" },
+    { v: "pause",     label: "En pause",  ic: "⏸️" },
+    { v: "fini",      label: "Fini",      ic: "✅" },
+    { v: "abandonne", label: "Abandonné", ic: "🚪" },
+  ];
+  const statutValide = v => STATUTS.some(x => x.v === v);
+  function statuses() { const m = read(STATUS, {}); return m && typeof m === "object" ? m : {}; }
+  function status(id) { const v = statuses()[id]; return statutValide(v) ? v : null; }
+  // v vide ou inconnu = retirer la série de la liste.
+  function setStatus(id, v) {
+    const m = statuses();
+    if (statutValide(v)) m[id] = v; else delete m[id];
+    write(STATUS, m);
+    try { localStorage.setItem("lt-status-t", String(Date.now())); } catch {}
+    window.LTsync && window.LTsync.pushStatuses && window.LTsync.pushStatuses();
+    return status(id);
+  }
+
   /* — Recherches récentes — */
   function recents() { return read(RECENTS, []); }
   function addRecent(term) {
@@ -86,6 +112,7 @@
   window.LTstore = {
     follows, isFollowing, toggleFollow,
     isNew, markSeen, markAllSeen, newCount, followedNewCount,
-    progress, setProgress, history, recents, addRecent, clearRecents
+    progress, setProgress, history, recents, addRecent, clearRecents,
+    STATUTS, statuses, status, setStatus
   };
 })();

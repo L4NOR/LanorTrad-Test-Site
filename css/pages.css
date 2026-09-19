@@ -55,3 +55,25 @@
 .resume .info .ch { color: var(--violet); font-weight: 700; margin-top: 4px; }
 .resume .pbar { height: 5px; border-radius: 5px; background: var(--bg-3); margin-top: 10px; overflow: hidden; }
 .resume .pbar i { display: block; height: 100%; background: var(--grad); border-radius: 5px; }
+
+/* ---------- Bibliothèque : « Ma liste » (onglets par statut) ---------- */
+.list-tabs {
+  display: flex; gap: 8px; margin: 0 0 22px; overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 4px; -webkit-overflow-scrolling: touch;
+}
+.list-tabs::-webkit-scrollbar { display: none; }
+.list-tab {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 15px; border-radius: 999px; cursor: pointer;
+  font: 600 .88rem var(--font-body); color: var(--txt-soft);
+  background: var(--glass); border: 1px solid var(--line-strong);
+  transition: color .2s, border-color .2s, background .2s;
+}
+.list-tab:hover { color: var(--txt); border-color: rgba(168,85,247,.5); }
+.list-tab.on { color: #fff; background: var(--grad); border-color: transparent; }
+.list-n {
+  min-width: 22px; padding: 1px 7px; border-radius: 999px; text-align: center;
+  font-size: .76rem; font-weight: 700; background: var(--bg-3); color: var(--txt-mut);
+}
+.list-tab.on .list-n { background: rgba(255,255,255,.22); color: #fff; }
+.list-deja { margin-top: 10px; color: var(--txt-soft); }
