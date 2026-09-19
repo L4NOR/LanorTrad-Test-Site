@@ -1475,7 +1475,8 @@
      COMMENTAIRES PAR CHAPITRE (Supabase) — conservé de l'ancien lecteur
      ===================================================================== */
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
-  const comBody = s => esc(s).replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<span class="rd-com-mention">@$2</span>').replace(/\n/g, "<br>");
+  // ||spoiler|| : flouté jusqu'au clic (voir js/core.js).
+  const comBody = s => window.LT.spoilers(esc(s).replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<span class="rd-com-mention">@$2</span>').replace(/\n/g, "<br>"));
 
   function sbClient() {
     if (A.sb) return A.sb;
@@ -1553,7 +1554,7 @@
     const wrap = $("rd-com-form");
     if (!wrap) return;
     if (A.me) {
-      wrap.innerHTML = `<form class="rd-com-new"><textarea maxlength="5000" rows="2" placeholder="Votre commentaire sur ce chapitre…" required></textarea><button class="btn btn-primary" type="submit">Commenter</button></form>`;
+      wrap.innerHTML = `<form class="rd-com-new"><textarea maxlength="5000" rows="2" placeholder="Ton commentaire sur ce chapitre…" required></textarea><button class="btn btn-primary" type="submit">Commenter</button>${window.LT.composeTools()}</form>`;
       wrap.querySelector("form").addEventListener("submit", postComment);
     } else {
       wrap.innerHTML = `<div class="rd-com-login">Pour commenter, <a href="forum.html">connecte-toi sur le forum</a> (même compte).</div>`;

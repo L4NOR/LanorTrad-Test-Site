@@ -52,10 +52,12 @@
   // Rendu sûr d'un message : échappe tout, conserve les sauts de ligne,
   // transforme les URLs en liens et surligne les mentions (sur du texte échappé).
   function richBody(s) {
-    return esc(s)
+    const out = esc(s)
       .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener nofollow">$1</a>')
       .replace(/(^|[\s(])@([A-Za-z0-9_]{3,24})/g, '$1<a class="fo-mention" href="#/u/$2">@$2</a>')
       .replace(/\n/g, "<br>");
+    // ||spoiler|| : flouté jusqu'au clic (voir js/core.js).
+    return window.LT && window.LT.spoilers ? window.LT.spoilers(out) : out;
   }
 
   function avatar(p, size = 40) {
@@ -361,6 +363,7 @@
       : me
         ? `<form class="fo-composer" id="fo-reply">
              <textarea name="body" rows="3" maxlength="10000" placeholder="Écrire une réponse…" required></textarea>
+             ${window.LT.composeTools()}
              <button class="btn btn-primary" type="submit">Répondre</button>
            </form>`
         : `<div class="fo-empty">Connecte-toi pour répondre. <button class="fo-link" data-auth="login">Connexion</button></div>`;
@@ -588,6 +591,7 @@
         const textEl = card.querySelector(".fo-post-text");
         const raw = textEl.dataset.raw || textEl.textContent;
         const ed = el(`<form class="fo-composer"><textarea rows="4" maxlength="10000">${esc(raw)}</textarea>
+          ${window.LT.composeTools()}
           <div style="display:flex;gap:8px"><button class="btn btn-primary" type="submit">Enregistrer</button>
           <button class="btn btn-ghost" type="button" data-cancel>Annuler</button></div></form>`);
         textEl.replaceWith(ed);
@@ -821,8 +825,9 @@
       ${crumbs([{ label: "Forum", href: "#/" }, { label: "Nouveau sujet" }])}
       <form class="fo-composer fo-newtopic" id="fo-new">
         <label class="fav-field"><span>Catégorie</span><select name="category">${options}</select></label>
-        <label class="fav-field"><span>Titre</span><input name="title" type="text" minlength="3" maxlength="140" required placeholder="Titre de votre sujet"></label>
-        <label class="fav-field"><span>Message</span><textarea name="body" rows="7" maxlength="10000" required placeholder="Développez votre sujet…"></textarea></label>
+        <label class="fav-field"><span>Titre</span><input name="title" type="text" minlength="3" maxlength="140" required placeholder="Titre de ton sujet"></label>
+        <label class="fav-field"><span>Message</span><textarea name="body" rows="7" maxlength="10000" required placeholder="Développe ton sujet…"></textarea></label>
+        ${window.LT.composeTools()}
         <div class="fo-poll-new">
           <button class="fo-link" type="button" id="fo-poll-toggle">📊 Ajouter un sondage</button>
           <div class="fo-poll-fields" id="fo-poll-fields" hidden>

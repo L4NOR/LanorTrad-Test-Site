@@ -749,8 +749,55 @@
   }
   const nbChapitres = s => chapCount(s).officiels;
 
+  /* ---------- Balises spoiler ----------
+     ||texte|| comme sur Discord : le passage reste flouté jusqu'au clic.
+     S'applique à du HTML DÉJÀ ÉCHAPPÉ (forum, commentaires de chapitre) : la
+     barre verticale n'est pas un caractère que l'échappement touche, et le
+     contenu du spoiler garde ses liens et ses mentions.
+     Le clic qui révèle est intercepté AVANT tout le reste (phase de capture) :
+     un lien caché dans un spoiler ne doit pas s'ouvrir au premier appui,
+     alors qu'on ne voyait même pas où on cliquait. */
+  const SPOIL = /\|\|([\s\S]+?)\|\|/g;
+  function spoilers(html) {
+    return String(html == null ? "" : html).replace(SPOIL, (_, inner) =>
+      `<span class="lt-spoiler" role="button" tabindex="0" aria-label="Spoiler caché : appuie pour l'afficher"><span class="lt-spoiler-in">${inner}</span></span>`);
+  }
+  // Version texte, pour les extraits (aperçus, notifications) : le contenu
+  // n'est pas flouté là-bas, il ne doit donc pas y apparaître du tout.
+  const sansSpoilers = s => String(s == null ? "" : s).replace(SPOIL, "▒▒▒");
+  function revealSpoiler(sp) {
+    sp.classList.add("on");
+    sp.removeAttribute("role"); sp.removeAttribute("tabindex"); sp.removeAttribute("aria-label");
+  }
+  // Petite barre d'outils à glisser sous une zone de saisie (dans le même <form>).
+  const composeTools = () =>
+    `<div class="lt-compose-tools"><button type="button" class="lt-spoiler-btn" data-spoiler title="Cacher le passage sélectionné">▒ Spoiler</button><span>Entoure un passage de <code>||</code> pour le cacher.</span></div>`;
+  function wrapSpoiler(ta) {
+    const a = ta.selectionStart, b = ta.selectionEnd, v = ta.value, sel = v.slice(a, b);
+    ta.value = v.slice(0, a) + "||" + sel + "||" + v.slice(b);
+    ta.focus();
+    // Sélection vide : curseur entre les deux paires, prêt à écrire dedans.
+    ta.setSelectionRange(a + 2, a + 2 + sel.length);
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  function wireSpoilers() {
+    document.addEventListener("click", e => {
+      const sp = e.target.closest && e.target.closest(".lt-spoiler:not(.on)");
+      if (sp) { e.preventDefault(); e.stopPropagation(); revealSpoiler(sp); return; }
+      const btn = e.target.closest && e.target.closest("[data-spoiler]");
+      if (!btn) return;
+      const ta = btn.closest("form") && btn.closest("form").querySelector("textarea");
+      if (ta) { e.preventDefault(); wrapSpoiler(ta); }
+    }, true);
+    document.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const sp = e.target.closest && e.target.closest(".lt-spoiler:not(.on)");
+      if (sp) { e.preventDefault(); revealSpoiler(sp); }
+    });
+  }
+
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, estBonus, chapCount, nbChapitres, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, estBonus, chapCount, nbChapitres, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, spoilers, sansSpoilers, composeTools, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
@@ -950,6 +997,7 @@
       if (e.target.closest("[data-reopen-consent]")) { e.preventDefault(); reopenConsent(); }
     });
     wireFollows();
+    wireSpoilers();
     // Une page qui prevoit un emplacement pour la proposition de notifications
     // (la Bibliotheque) a besoin du fichier tout de suite, sans clic.
     if (document.getElementById("push-mount")) chargerPush();

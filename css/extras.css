@@ -541,3 +541,36 @@ body.push-open { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) { .push-box { animation: none; } }
+
+/* ---------- Balises spoiler (||texte||, voir js/core.js) ----------
+   Caché : un pavé opaque ET un flou, parce qu'un simple fond laisse deviner
+   la forme des mots — et un nom de personnage se devine à sa longueur.
+   Le pavé reste dans le flux du texte (inline), comme sur Discord. */
+.lt-spoiler {
+  border-radius: 5px; padding: 0 3px; cursor: pointer;
+  background: color-mix(in srgb, var(--txt-mut) 55%, var(--bg-3));
+  transition: background .2s var(--ease);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.lt-spoiler:not(.on) .lt-spoiler-in { filter: blur(5px); opacity: .55; user-select: none; pointer-events: none; }
+.lt-spoiler:not(.on):hover { background: color-mix(in srgb, var(--txt-mut) 70%, var(--bg-3)); }
+.lt-spoiler:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.lt-spoiler.on { background: color-mix(in srgb, var(--txt-mut) 16%, transparent); cursor: text; }
+.lt-spoiler-in { transition: filter .25s var(--ease), opacity .25s var(--ease); }
+/* Mode léger : le flou coûte peu ici, mais on garde la règle du site. */
+[data-perf="lite"] .lt-spoiler:not(.on) .lt-spoiler-in { filter: none; opacity: 0; }
+
+/* Barre d'outils sous une zone de saisie : bouton Spoiler + rappel. */
+.lt-compose-tools {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: .8rem; color: var(--txt-mut);
+}
+.lt-compose-tools code { font-size: .78rem; padding: 1px 5px; border-radius: 5px; background: var(--bg-3); color: var(--txt-soft); }
+.lt-spoiler-btn {
+  font: 600 .78rem var(--font-body); color: var(--txt-soft); cursor: pointer;
+  padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--glass);
+}
+.lt-spoiler-btn:hover { color: var(--txt); border-color: var(--violet); }
+.rd-com-new { flex-wrap: wrap; }
+.rd-com-new .lt-compose-tools { flex-basis: 100%; }
+@media (prefers-reduced-motion: reduce) { .lt-spoiler, .lt-spoiler-in { transition: none; } }
