@@ -146,6 +146,11 @@
       pour: "Les statuts « Je lis », « À lire »… de la Bibliothèque, partagés entre appareils.",
       cibles: [{ k: "table", n: "user_library" }],
     },
+    {
+      f: "pronostics.sql", titre: "Pronostics de chapitre",
+      pour: "Les questions de la team sur le prochain chapitre (Classement, fin du dernier chapitre).",
+      cibles: [{ k: "table", n: "predictions" }, { k: "fn", n: "predictions_list", args: { p_manga: "diagnostic" } }],
+    },
   ];
 
   /* ---------------------------------------------------------------- Outils */

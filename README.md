@@ -870,6 +870,15 @@ Supabase → **SQL Editor** → colle et exécute, dans l'ordre :
     `user_library`, une ligne par membre, RLS « sa ligne uniquement ». Les statuts
     Je lis / À lire / En pause / Fini / Abandonné suivent d'un appareil à
     l'autre, règle « le plus récent gagne ». Sans lui, la liste reste locale)
+19. `supabase/pronostics.sql` (les **pronostics de chapitre** — tables
+    `predictions` + `prediction_votes` fermées au navigateur, tout passe par des
+    RPC. La team pose une question sur le prochain chapitre (2 à 4 réponses),
+    les membres votent, et à la sortie chaque bon pronostic rapporte **+30 XP**.
+    Tout se gère depuis la page **Classement**, connecté avec un compte admin ou
+    modo : « Poser un pronostic », « Clore les votes », « Bonne réponse →
+    Valider », « Supprimer ». Côté lecteurs : page Classement, et écran de fin
+    du **dernier** chapitre paru de la série. Pour qui n'est pas à jour, la
+    question reste floutée : elle pourrait spoiler)
 
 **Tu ne sais plus lesquels sont passés ?** Ouvre `/diag.html` sur le site : elle
 te le dit script par script (§ 10).

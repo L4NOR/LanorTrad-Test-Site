@@ -480,6 +480,10 @@
     updateProgress();
     loadComments();
     loadMood();
+    // Pronostics (js/pronos.js) : seulement à la fin du DERNIER chapitre paru.
+    // Plus tôt dans la série, la question elle-même serait un spoiler.
+    if (window.LTpronos && A.chap === A.chapters[0]) window.LTpronos.mount($("rd-pronos"), { manga: A.manga });
+    else if ($("rd-pronos")) $("rd-pronos").innerHTML = "";
   }
 
   /* L'adresse va devenir /manga/<slug>/chapitre-N/. Sans <base href="/">,
@@ -1522,6 +1526,7 @@
         <div class="rd-credits">${creditsFor(A.manga, A.chap.num).map(t => creditCard(t)).join("")}</div>
         ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
         <div class="rd-mood" id="rd-mood"></div>
+        <div class="rd-pronos" id="rd-pronos"></div>
         ${(window.LTnotes && window.LTnotes.html(window.LTnotes.get(A.manga, A.chap.num))) || ""}
         <div class="rd-end-nav">
           <button class="btn btn-ghost" id="rd-end-prev">${ic("left")} Précédent</button>

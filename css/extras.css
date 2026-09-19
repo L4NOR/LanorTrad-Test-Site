@@ -603,3 +603,76 @@ body.push-open { overflow: hidden; }
 .perso-b > .perso-ch { display: block; margin-bottom: 4px; }
 .perso-vide { color: var(--txt-mut); padding: 30px 0; text-align: center; }
 .rd-who .perso-grid { grid-template-columns: 1fr; }
+
+/* ---------- Pronostics de chapitre (js/pronos.js) ----------
+   Page Classement et écran de fin du lecteur. Les barres de résultat ne
+   sont dessinées qu'après le vote : avant, les boutons sont des choix nus. */
+.pr { margin: 26px 0; text-align: left; }
+.pr-title { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.pr-title h2 { font-family: var(--font-display); font-size: 1.25rem; margin: 0; }
+.pr-note { font-size: .8rem; color: var(--txt-mut); }
+.pr-list { display: grid; gap: 12px; }
+.pr-card {
+  position: relative; padding: 16px; border-radius: var(--radius);
+  background: var(--glass); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent, var(--violet));
+}
+.pr-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.pr-serie { font-size: .78rem; font-weight: 700; color: var(--accent, var(--violet)); text-transform: uppercase; letter-spacing: .04em; }
+.pr-etat { font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--bg-3); color: var(--txt-mut); }
+.pr-etat.on { color: #22c55e; background: color-mix(in srgb, #22c55e 14%, transparent); }
+.pr-etat.ok { color: var(--violet); background: color-mix(in srgb, var(--violet) 14%, transparent); }
+.pr-q { font-family: var(--font-display); font-size: 1.05rem; margin: 2px 0 12px; line-height: 1.35; }
+.pr-opts { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.pr-opt {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 11px 14px; border-radius: 12px; text-align: left; cursor: pointer;
+  font: 600 .92rem var(--font-body); color: var(--txt);
+  background: var(--bg-2); border: 1px solid var(--line-strong);
+  transition: border-color .2s, transform .2s var(--ease-back);
+}
+.pr-opt:not(:disabled):hover { border-color: var(--accent, var(--violet)); transform: translateY(-2px); }
+.pr-opt:disabled { cursor: default; }
+.pr-bar {
+  position: absolute; inset: 0 auto 0 0; z-index: -1; border-radius: inherit;
+  background: color-mix(in srgb, var(--accent, var(--violet)) 22%, transparent);
+  transition: width .5s var(--ease);
+}
+.pr-pc { font-size: .8rem; color: var(--txt-soft); font-variant-numeric: tabular-nums; }
+.pr-opt.mine { border-color: var(--accent, var(--violet)); box-shadow: 0 0 0 1px var(--accent, var(--violet)) inset; }
+.pr-opt.mine .pr-txt::after { content: " · ton choix"; font-weight: 500; font-size: .78rem; color: var(--txt-mut); }
+.pr-opt.good { border-color: #22c55e; box-shadow: 0 0 0 1px #22c55e inset; }
+.pr-opt.good .pr-bar { background: color-mix(in srgb, #22c55e 24%, transparent); }
+.pr-opt.bad { border-color: #ef4444; }
+.pr-verdict { margin-top: 10px; font-weight: 700; color: var(--txt-soft); }
+.pr-verdict.ok { color: #22c55e; }
+.pr-foot { margin-top: 10px; font-size: .78rem; color: var(--txt-mut); }
+.pr-vide { color: var(--txt-mut); }
+/* En retard sur la série : la question et les choix restent flous. */
+.pr-card.masque .pr-q, .pr-card.masque .pr-opts { filter: blur(7px); user-select: none; pointer-events: none; }
+.pr-lever {
+  display: block; width: 100%; margin: 4px 0 10px; padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  font: 500 .84rem var(--font-body); color: var(--txt-soft); text-align: left;
+  background: var(--bg-3); border: 1px dashed var(--line-strong);
+}
+.pr-lever u { color: var(--txt); text-underline-offset: 3px; }
+/* Outils de la team (admin / modo) */
+.pr-staff { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: .84rem; }
+.pr-staff label { display: inline-flex; align-items: center; gap: 6px; color: var(--txt-soft); }
+.pr-staff select, .pr-new input, .pr-new select {
+  padding: 8px 10px; border-radius: 10px; background: var(--bg-1); color: var(--txt);
+  border: 1px solid var(--line-strong); font: inherit;
+}
+.pr-link { background: none; border: 0; padding: 0; cursor: pointer; font: 600 .84rem var(--font-body); color: var(--violet); text-decoration: underline; text-underline-offset: 3px; }
+.pr-del { color: #ef4444; margin-left: auto; }
+.pr-new { margin-bottom: 14px; padding: 12px 16px; border-radius: var(--radius); border: 1px dashed var(--line-strong); }
+.pr-new summary { cursor: pointer; font-weight: 700; }
+.pr-new form { display: grid; gap: 10px; margin-top: 12px; }
+.pr-new label { display: grid; gap: 5px; font-size: .84rem; color: var(--txt-soft); }
+.pr-new small { color: var(--txt-mut); }
+.pr-row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.pr-new button[type=submit] { justify-self: start; }
+/* Dans l'écran de fin du lecteur : centré comme le reste de l'écran. */
+.rd-pronos .pr { max-width: 640px; margin-left: auto; margin-right: auto; }
+@media (prefers-reduced-motion: reduce) { .pr-opt, .pr-bar { transition: none; } }

@@ -39,6 +39,7 @@
     mount.innerHTML = `
       <div id="lb-missions"></div>
       <div id="lb-quiz"></div>
+      <div id="lb-pronos"></div>
       <div class="lb-tabs" id="lb-tabs" role="tablist">
         <button class="lb-tab on" data-tab="week" role="tab">Cette semaine</button>
         <button class="lb-tab" data-tab="alltime" role="tab">All-time</button>
@@ -56,6 +57,8 @@
 
     loadMissions();
     loadQuiz();
+    // Pronostics de chapitre (js/pronos.js), avec les outils de la team.
+    if (window.LTpronos) window.LTpronos.mount($("#lb-pronos"), { staffTools: true });
     loadSelf();
     render();
   }
