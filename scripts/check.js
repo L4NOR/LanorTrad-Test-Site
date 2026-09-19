@@ -71,6 +71,7 @@ const DONNEES = [
   ["js/data/covers.js", "COVERS"], ["js/data/notes.js", "NOTES"],
   ["js/data/schedule.js", null], ["js/data/gallery.js", null],
   ["js/data/atelier.js", null], ["js/data/anime.js", null],
+  ["js/data/personnages.js", "PERSONNAGES"],
 ];
 for (const [f, cle] of DONNEES) {
   if (!existe(f)) { warn(`${f} absent`); continue; }
@@ -91,6 +92,33 @@ const CHAPTER_PAGES = fenetre.CHAPTER_PAGES || {};
 if (!SERIES.length) {
   console.log("\njs/data/series.js n'a rien donné : impossible de continuer.");
   process.exit(1);
+}
+
+/* Fiches personnages : fichier tenu à la main, où une faute se paie en
+   spoiler. Un chapitre d'entrée qui n'existe pas (« 4O » pour « 40 ») peut
+   faire apparaître un personnage bien trop tôt — ou jamais. */
+{
+  const P = fenetre.PERSONNAGES || {};
+  let fiches = 0;
+  for (const serie of Object.keys(P)) {
+    const s = SERIES.find(x => x.id === serie);
+    if (!s) { err(`js/data/personnages.js — série inconnue « ${serie} » (l'id doit être celui de series.js)`); continue; }
+    if (!Array.isArray(P[serie])) { err(`js/data/personnages.js — « ${serie} » doit être une liste [ … ]`); continue; }
+    const nums = new Set((CHAPTERS[serie] || []).map(c => String(c.num)));
+    const verifChap = (d, qui) => {
+      if (!String(d || "").trim()) err(`js/data/personnages.js — ${qui} : « depuis » manquant (la fiche serait ignorée)`);
+      else if (nums.size && !nums.has(String(d).trim())) warn(`js/data/personnages.js — ${qui} : aucun chapitre « ${d} » dans ${serie}`);
+    };
+    P[serie].forEach((p, i) => {
+      const qui = `${serie} n°${i + 1}${p && p.nom ? ` (${p.nom})` : ""}`;
+      if (!p || !String(p.nom || "").trim()) { err(`js/data/personnages.js — ${qui} : « nom » manquant`); return; }
+      verifChap(p.depuis, qui);
+      (p.suite || []).forEach((x, k) => verifChap(x && x.depuis, `${qui}, suite n°${k + 1}`));
+      if (p.image && !existe(String(p.image).replace(/^\/+/, ""))) err(`js/data/personnages.js — ${qui} : image introuvable (${p.image})`);
+      fiches++;
+    });
+  }
+  if (fiches) ok(`${fiches} fiche(s) personnage vérifiée(s)`);
 }
 
 /* ------------------------------------------------------------------------

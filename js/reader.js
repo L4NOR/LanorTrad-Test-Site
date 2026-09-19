@@ -221,6 +221,7 @@
         <button class="rd-fab" id="rd-full" title="Plein écran (F)" aria-label="Plein écran">${ic("full")}</button>
         <button class="rd-fab" id="rd-dl" title="Télécharger le chapitre" aria-label="Télécharger">${ic("dl")}</button>
         <button class="rd-fab" id="rd-off" title="Lire hors connexion" aria-label="Lire hors connexion">${ic("off")}</button>
+        ${window.LTperso && window.LTperso.has(A.manga) ? `<button class="rd-fab" id="rd-who-btn" title="Qui est qui ?" aria-label="Qui est qui ?">${ic("users")}</button>` : ""}
         <button class="rd-fab" id="rd-help-btn" title="Aide (?)" aria-label="Aide">${ic("help")}</button>
         <button class="rd-fab rd-fab-top" id="rd-top-btn" title="Haut de page" aria-label="Haut de page">${ic("up")}</button>
       </div>
@@ -240,6 +241,7 @@
       <div class="rd-veil" id="rd-veil"></div>
       ${lensHTML()}
       ${sheetHTML()}
+      ${whoHTML()}
       ${helpHTML()}
       ${sharpenHTML()}
     </div>`;
@@ -350,6 +352,33 @@
         <button class="rd-reset" id="rd-reset">Réinitialiser les préférences</button>
       </div>
     </aside>`;
+  }
+
+  /* « Qui est qui ? » : les fiches personnages déjà croisées (js/personnages.js).
+     Un personnage qui arrive DANS ce chapitre n'apparaît qu'une fois le
+     chapitre terminé : à la page 1, son nom serait déjà un spoiler. */
+  function whoHTML() {
+    if (!window.LTperso || !window.LTperso.has(A.manga)) return "";
+    return `
+    <aside class="rd-sheet rd-who" id="rd-who" role="dialog" aria-label="Qui est qui ?">
+      <div class="rd-sheet-head">
+        <h3>Qui est qui ?</h3>
+        <button class="rd-sheet-close" id="rd-who-close" aria-label="Fermer">${ic("close")}</button>
+      </div>
+      <div class="rd-sheet-body" id="rd-who-body"></div>
+    </aside>`;
+  }
+  function openWho() {
+    const body = $("rd-who-body");
+    if (!body || !A.chap) return;
+    const fini = !!A.readAwarded;
+    const { vus, caches } = window.LTperso.split(A.manga, A.chap.num, !fini);
+    const reste = caches.length ? ` ${caches.length} autre${caches.length > 1 ? "s arrivent" : " arrive"} plus tard.` : "";
+    body.innerHTML = `<p class="sub">${fini ? `Jusqu'à la fin du chapitre ${esc(A.chap.num)}.` : `Ceux que tu connais avant ce chapitre ${esc(A.chap.num)}.`}${reste}</p>`
+      + (vus.length ? window.LTperso.html(vus, A.S.accent, false)
+                    : `<p class="sub">Personne pour l'instant : les fiches se débloquent au fil de ta lecture.</p>`);
+    $("rd-veil").classList.add("open");
+    $("rd-who").classList.add("open");
   }
 
   function helpHTML() {
@@ -805,7 +834,7 @@
         else if (e.key.toLowerCase() === "r") { L.rot = (L.rot + 90) % 360; lensFrame(); }
         return;
       }
-      if ($("rd-sheet").classList.contains("open") || $("rd-help").classList.contains("open")) {
+      if ($("rd-sheet").classList.contains("open") || $("rd-help").classList.contains("open") || $("rd-who")?.classList.contains("open")) {
         if (e.key === "Escape") { closeSheet(); toggleHelp(false); } return;
       }
       if (document.querySelector(".cmdk-overlay.open")) return;
@@ -1249,10 +1278,12 @@
   }
 
   function openSheet() { $("rd-veil").classList.add("open"); $("rd-sheet").classList.add("open"); }
-  function closeSheet() { $("rd-veil").classList.remove("open"); $("rd-sheet").classList.remove("open"); }
+  function closeSheet() { $("rd-veil").classList.remove("open"); $("rd-sheet").classList.remove("open"); $("rd-who")?.classList.remove("open"); }
 
   function wirePrefs() {
     $("rd-sheet-close").addEventListener("click", closeSheet);
+    $("rd-who-close")?.addEventListener("click", closeSheet);
+    $("rd-who-btn")?.addEventListener("click", openWho);
     $("rd-veil").addEventListener("click", closeSheet);
 
     bindSeg("seg-mode", v => {
@@ -1703,6 +1734,7 @@
       case "plus":  return svg(`<path d="M12 6v12M6 12h12"/>`);
       case "minus": return svg(`<path d="M6 12h12"/>`);
       case "rot":   return svg(`<path d="M4 9h11a4.5 4.5 0 0 1 0 9h-3"/><path d="M7 6 4 9l3 3"/>`);
+      case "users": return svg(`<circle cx="9" cy="8" r="3.2"/><path d="M3.4 19a5.6 5.6 0 0 1 11.2 0"/><path d="M16.2 5.3a3.2 3.2 0 0 1 0 5.4"/><path d="M17.8 13.4a5.6 5.6 0 0 1 2.8 4.9"/>`);
       case "help":  return svg(`<circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.5-2.8 2.5"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>`);
       case "gear":  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.6 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4 13.6H3.9a2 2 0 1 1 0-4H4a1.6 1.6 0 0 0 1.5-2.6l-.1-.1A2 2 0 1 1 8.1 4l.1.1A1.6 1.6 0 0 0 10 4.4V4a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1A2 2 0 1 1 19.7 8l-.1.1a1.6 1.6 0 0 0-.2 1.7"/></svg>`;
       default: return "";

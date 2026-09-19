@@ -495,6 +495,42 @@ window.NOTES = {
 - Après édition, relance `node scripts/build-seo.js` pour que les robots les
   voient (le site, lui, les affiche immédiatement).
 
+### E bis. Fiches personnages sans spoil → `js/data/personnages.js`
+
+Un « qui est qui » par série : onglet **Personnages** sur la fiche, bouton
+**Qui est qui ?** dans le lecteur. Chaque fiche porte le chapitre où le
+personnage entre en scène (`depuis`) : un lecteur n'y voit que ceux qu'il a
+déjà croisés, d'après sa progression. Ce qu'on apprend plus tard va dans
+`suite`, avec son propre chapitre. Dans le lecteur, un personnage qui arrive
+**dans** le chapitre en cours n'apparaît qu'une fois ce chapitre terminé.
+
+```javascript
+window.PERSONNAGES = {
+  "Tougen Anki": [
+    {
+      nom: "Shiki Ichinose",
+      depuis: "1",
+      role: "Héros",                       // facultatif
+      texte: "Ce qu'on sait de lui au chapitre 1, pas plus.",
+      image: "images/personnages/tougen-anki/shiki.webp",   // facultatif
+      suite: [
+        { depuis: "40", texte: "Ce qu'on apprend au chapitre 40." }
+      ]
+    }
+  ]
+};
+```
+
+- **Aucune fiche n'est livrée** : le fichier ne contient que le bloc d'exemple,
+  commenté. Tant qu'une série n'a pas de fiche, ni l'onglet ni le bouton
+  n'apparaissent. C'est à la team d'écrire, le site ne devine rien.
+- Sans `image`, une pastille aux initiales, dans la couleur de la série, prend
+  la place.
+- La fiche série propose aussi « Tout afficher (spoilers) », derrière une
+  confirmation.
+- `node scripts/check.js` vérifie le fichier : série connue, `nom` et `depuis`
+  présents, chapitre existant, image présente.
+
 ### F. IndexNow (facultatif) → prévenir Bing dès la sortie
 
 Un sitemap dit « voici mes URLs » ; il ne dit pas « celle-ci vient de sortir ».

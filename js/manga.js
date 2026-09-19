@@ -38,6 +38,8 @@
     const hasGallery = !!(gallery && ((gallery.tomes && gallery.tomes.length) || (gallery.colors && gallery.colors.length)));
     const anime = (window.ANIME || {})[s.id] || null;
     const hasAnime = !!(anime && anime.seasons && anime.seasons.length);
+    // Fiches personnages (js/data/personnages.js) : onglet absent sans fiches.
+    const hasPerso = !!(window.LTperso && window.LTperso.has(s.id));
     let activeBlock = null;
 
     // En-tête
@@ -81,6 +83,7 @@
             <button class="tab on" data-tab="chapitres">Chapitres</button>
             ${hasAnime ? `<button class="tab" data-tab="anime">Anime</button>` : ""}
             ${hasGallery ? `<button class="tab" data-tab="galerie">Galerie</button>` : ""}
+            ${hasPerso ? `<button class="tab" data-tab="personnages">Personnages</button>` : ""}
           </div>
 
           <div class="tab-panel" id="panel-chapitres">
@@ -99,6 +102,7 @@
 
           <div class="tab-panel" id="panel-anime" hidden></div>
           <div class="tab-panel" id="panel-galerie" hidden></div>
+          <div class="tab-panel" id="panel-personnages" hidden></div>
         </div>
       </section>
 
@@ -202,9 +206,10 @@
     // Onglets Chapitres / Anime / Galerie
     if (hasGallery) renderGallery(gallery, s.id);
     if (hasAnime) renderAnime(anime, s);
+    if (hasPerso) renderPerso(s, progress);
     const tabs = [...document.querySelectorAll("#series-tabs .tab")];
     if (tabs.length > 1) {
-      const panels = { chapitres: "panel-chapitres", anime: "panel-anime", galerie: "panel-galerie" };
+      const panels = { chapitres: "panel-chapitres", anime: "panel-anime", galerie: "panel-galerie", personnages: "panel-personnages" };
       tabs.forEach(t => t.addEventListener("click", () => {
         tabs.forEach(x => x.classList.toggle("on", x === t));
         for (const tab in panels) {
@@ -330,6 +335,44 @@
 
     document.dispatchEvent(new Event("lt:cards"));
     window.LT._scanReveals && window.LT._scanReveals();
+  }
+
+  /* ---------- Onglet Personnages (sans spoil, voir js/personnages.js) ----------
+     Par défaut : les personnages déjà croisés, d'après la progression locale.
+     « Tout afficher » existe pour qui s'en moque, derrière une confirmation. */
+  function renderPerso(s, progress) {
+    const panel = document.getElementById("panel-personnages");
+    const P = window.LTperso;
+    if (!panel || !P) return;
+    const jusqua = progress ? String(progress.chapter) : null;
+    const txt = x => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let tout = false;
+    const draw = () => {
+      if (tout) {
+        panel.innerHTML = `<div class="perso-head"><p>Toutes les fiches, <b>spoilers compris</b>.</p>
+          <button class="btn btn-ghost btn-sm" type="button" data-perso="moi">Revenir à mon avancement</button></div>`
+          + P.html(P.list(s.id), s.accent, true);
+        return;
+      }
+      const { vus, caches } = P.split(s.id, jusqua);
+      const ou = jusqua ? `Les personnages que tu as déjà croisés, jusqu'au chapitre ${txt(jusqua)}.`
+                        : "Ceux que tu rencontres dès le premier chapitre.";
+      const reste = caches.length
+        ? ` ${caches.length} autre${caches.length > 1 ? "s t'attendent" : " t'attend"} plus loin.` : "";
+      panel.innerHTML = `<div class="perso-head"><p>${ou}${reste}</p>
+          ${caches.length ? `<button class="btn btn-ghost btn-sm" type="button" data-perso="tout">Tout afficher (spoilers)</button>` : ""}</div>`
+        + (vus.length ? P.html(vus, s.accent, false)
+                      : `<div class="perso-vide">Les fiches se débloquent au fil de ta lecture : commence le premier chapitre.</div>`);
+    };
+    panel.addEventListener("click", e => {
+      const b = e.target.closest("[data-perso]");
+      if (!b) return;
+      if (b.dataset.perso === "tout" &&
+          !confirm("Afficher toutes les fiches ? Tu risques d'apprendre ce que tu n'as pas encore lu.")) return;
+      tout = b.dataset.perso === "tout";
+      draw();
+    });
+    draw();
   }
 
   function enc(x) { return encodeURIComponent(x); }
