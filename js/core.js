@@ -138,6 +138,26 @@
     });
   }
 
+  /* ---------- Bilan de l'année (js/bilan.js, à la demande) ----------
+     Il n'a de sens qu'en décembre et en janvier : le reste de l'année, aucun
+     visiteur ne télécharge le fichier. En janvier, c'est l'année écoulée.
+     ?bilan dans l'adresse l'ouvre à tout moment (aperçu, tests). */
+  function bilanAnnee() {
+    const d = new Date(), m = d.getMonth();
+    if (m === 11) return d.getFullYear();
+    if (m === 0) return d.getFullYear() - 1;
+    if (/[?&]bilan\b/.test(location.search)) return d.getFullYear();
+    return null;
+  }
+  function chargerBilan() {
+    const an = bilanAnnee();
+    if (!an || (page !== "index.html" && page !== "bibliotheque.html")) return;
+    window.LT_BILAN = an;
+    const sc = document.createElement("script");
+    sc.src = "/js/bilan.js";
+    document.head.appendChild(sc);
+  }
+
   /* ---------- Shell : fond + navbar + drawer + footer ---------- */
   const minimal = document.body.dataset.shell === "minimal";
 
@@ -1015,6 +1035,7 @@
     });
     window.__ltReady = true;
     document.dispatchEvent(new Event("lt:ready"));
+    chargerBilan();
   }
   /* Les scripts du site sont chargés en `defer` : quand celui-ci s'exécute, le
      document est déjà parsé et readyState vaut "interactive" — pas "loading".

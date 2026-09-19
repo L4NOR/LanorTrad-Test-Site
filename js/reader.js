@@ -503,6 +503,8 @@
   async function awardRead() {
     if (A.readAwarded || !A.chap) return;
     A.readAwarded = true;
+    // Journal de l'année (bilan de décembre) : pour tout le monde, compte ou pas.
+    window.LTstore && window.LTstore.logRead && window.LTstore.logRead(A.manga, A.chap.num);
     if (!window.LTxp) return;
     await window.LTxp.award("read", A.manga + ":" + A.chap.num);
     checkReadingMilestones();
@@ -568,6 +570,7 @@
       if (idle > 600000) { sec = 0; return; }                 // >10 min inactif → série cassée
       if (document.visibilityState !== "visible" || idle > 90000) return;
       sec += 30;
+      window.LTstore && window.LTstore.logTime && window.LTstore.logTime(30);   // temps de lecture de l'année
       if (sec >= 7200 && !done) { done = true; window.LTxp && window.LTxp.grantClient("marathon_2h"); }
     }, 30000);
   }

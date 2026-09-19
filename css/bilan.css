@@ -1,0 +1,80 @@
+/* =========================================================================
+   LanorTrad — « Ton année sur LanorTrad » (js/bilan.js).
+   Chargée par le module lui-même, seulement quand le bilan existe
+   (décembre, janvier, ou ?bilan).
+   ========================================================================= */
+
+/* ---------- Bandeau d'accueil et de Bibliothèque ---------- */
+.bl-bandeau-wrap { padding-top: 14px; padding-bottom: 30px; }
+.bl-bandeau {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  border-radius: var(--radius); border: 1px solid color-mix(in srgb, var(--violet) 45%, transparent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--violet) 22%, var(--bg-2)), var(--bg-2));
+}
+.bl-bandeau-ic { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.bl-bandeau-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.bl-bandeau-txt strong { font-size: .98rem; }
+.bl-bandeau-txt span { font-size: .84rem; color: var(--txt-soft); line-height: 1.45; }
+.bl-bandeau-x {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center;
+  color: var(--txt-mut); background: none; border: none; cursor: pointer;
+}
+.bl-bandeau-x:hover { color: var(--txt); background: var(--bg-3); }
+@media (max-width: 560px) {
+  .bl-bandeau { flex-wrap: wrap; }
+  .bl-bandeau-txt { flex-basis: calc(100% - 90px); }
+  .bl-bandeau .btn { flex: 1; justify-content: center; }
+}
+
+/* ---------- Le diaporama plein écran ---------- */
+html.bl-open, html.bl-open body { overflow: hidden; }
+.bl {
+  --bl-accent: #a855f7;
+  position: fixed; inset: 0; z-index: 400; display: grid; place-items: center;
+  background: #07070d; color: #fff; overscroll-behavior: contain;
+}
+.bl::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 80% at 20% 0%, color-mix(in srgb, var(--bl-accent) 55%, transparent), transparent 60%),
+              radial-gradient(90% 60% at 100% 100%, color-mix(in srgb, var(--bl-accent) 25%, transparent), transparent 70%);
+  transition: background .6s var(--ease);
+}
+.bl-barres {
+  position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); left: 16px; right: 16px;
+  display: flex; gap: 5px; z-index: 2;
+}
+.bl-barres i { flex: 1; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .25); transition: background .3s; }
+.bl-barres i.on { background: #fff; }
+.bl-x {
+  position: absolute; top: calc(24px + env(safe-area-inset-top, 0px)); right: 14px; z-index: 3;
+  width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer;
+  font-size: 1.1rem; color: #fff; background: rgba(255, 255, 255, .12);
+}
+.bl-x:hover { background: rgba(255, 255, 255, .22); }
+.bl-scene { position: relative; z-index: 1; width: min(560px, 100%); padding: 70px 24px 40px; max-height: 100dvh; overflow: auto; }
+.bl-slide { text-align: center; animation: blIn .45s var(--ease) both; }
+@keyframes blIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.bl-slide h2 { font-family: var(--font-display); font-size: clamp(1.7rem, 6vw, 2.4rem); line-height: 1.15; margin: 8px 0 14px; }
+.bl-slide p { color: rgba(255, 255, 255, .82); line-height: 1.6; margin: 0 auto 10px; max-width: 42ch; }
+.bl-slide b { color: #fff; }
+.bl-sur { font-size: .82rem !important; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--bl-accent) 55%, #fff) !important; }
+.bl-geant { font-size: clamp(4.5rem, 22vw, 8rem) !important; line-height: 1 !important; margin: 6px 0 !important; }
+.bl-sous { font: 700 1.3rem var(--font-display); color: #fff !important; margin-top: -4px !important; }
+.bl-note { font-size: .82rem; color: rgba(255, 255, 255, .6) !important; }
+.bl-aide { font-size: .82rem; color: rgba(255, 255, 255, .55) !important; margin-top: 26px !important; }
+.bl-cover { width: 150px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 16px; margin: 10px auto 4px; display: block; box-shadow: 0 24px 60px -20px color-mix(in srgb, var(--bl-accent) 80%, #000); }
+.bl-liste { list-style: none; padding: 0; margin: 0 auto; max-width: 420px; display: grid; gap: 10px; text-align: left; }
+.bl-liste li { padding: 11px 14px; border-radius: 14px; background: rgba(255, 255, 255, .08); line-height: 1.45; }
+.bl-emo { font-size: 1.3rem; vertical-align: -2px; }
+.bl-carte { margin: 12px auto 16px; max-width: 300px; }
+.bl-carte canvas { width: 100%; height: auto; border-radius: 18px; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .9); display: block; background: #140c24; aspect-ratio: 1080 / 1350; }
+.bl-acts { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+/* Zones d'appui : moitié gauche = retour, moitié droite = suivant, comme
+   dans une story. Sous la scène pour ne pas avaler les boutons de la carte. */
+.bl-nav { position: absolute; top: 0; bottom: 0; width: 50%; background: none; border: 0; cursor: pointer; z-index: 0; }
+.bl-nav.prev { left: 0; }
+.bl-nav.next { right: 0; }
+.bl-nav:focus-visible { outline: 2px solid rgba(255, 255, 255, .5); outline-offset: -6px; }
+.bl-scene { pointer-events: none; }
+.bl-scene .bl-acts, .bl-scene button, .bl-scene a { pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .bl-slide { animation: none; } .bl::before { transition: none; } }

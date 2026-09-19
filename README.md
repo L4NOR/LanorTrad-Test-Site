@@ -1464,6 +1464,27 @@ vérifiée.
 - **« X lecteurs en ce moment »** sur la fiche série et dans le lecteur
   (`js/presence.js`, `supabase/presence.sql`). Anonyme, oublié au bout de deux
   minutes, jamais affiché en dessous de 2 — le premier lecteur, c'est toi.
+- **Balises spoiler** : `||texte||` dans le forum et les commentaires de chapitre,
+  flouté jusqu'au clic (bouton « Spoiler » sous chaque zone de saisie).
+  Logique partagée dans `js/core.js` (`LT.spoilers`).
+- **Ma liste** : Je lis / À lire / En pause / Fini / Abandonné, bouton sur la
+  fiche série, onglets dans la Bibliothèque, synchro via `supabase/library.sql`.
+- **Annonce Discord** de chaque sortie (§ 7 ter, `DISCORD_WEBHOOK`).
+- **« Tu t'étais arrêté là »** : au retour sur une série après 6 jours ou plus,
+  le lecteur remontre les 3 dernières pages lues. Jamais la fin d'un chapitre
+  qu'on n'a pas ouvert.
+- **Fiches personnages sans spoil** (§ 4.E bis) : à écrire par la team.
+- **Pronostics de chapitre** et **Devine la case** sur la page Classement
+  (§ 6.1, n° 19 et 20).
+- **Bilan de fin d'année** (`js/bilan.js`, `css/bilan.css`) : en décembre et en
+  janvier, un bandeau sur l'accueil et la Bibliothèque ouvre « Ton année sur
+  LanorTrad » : chapitres lus, série de l'année, heure et jour préférés, temps
+  de lecture, et pour les membres connectés XP, rang, commentaires, pronostics,
+  succès. Se termine par une carte image à partager. Les chiffres viennent du
+  journal local (`lt-journal`, écrit par le lecteur à chaque chapitre terminé,
+  compte ou pas) et, pour un membre, de son propre `xp_events`. Le reste de
+  l'année, le fichier n'est même pas téléchargé. Aperçu à tout moment :
+  `/bibliotheque.html?bilan`.
 - **Vérifications automatiques** au déploiement et à chaque push (§ 8 bis).
 - **Vignettes de partage partout** : une carte 1200 × 630 par série, par page
   et par genre (§ 4.D et 4.D bis) — plus aucune page ne partage l'image

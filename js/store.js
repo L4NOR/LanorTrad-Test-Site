@@ -98,6 +98,40 @@
     return status(id);
   }
 
+  /* — Journal de l'année, pour le bilan de décembre (js/bilan.js) —
+       La progression ne garde que le DERNIER chapitre ouvert par série :
+       impossible d'en déduire combien on en a lu. Ce journal note chaque
+       chapitre terminé (une fois), l'heure et le jour où on le finit, et le
+       temps de lecture active. Il reste sur l'appareil, comme le reste du
+       stockage local, et seules les deux dernières années sont gardées. */
+  const JOURNAL = "lt-journal";
+  function journal() { const j = read(JOURNAL, {}); return j && typeof j === "object" ? j : {}; }
+  function annee(j) {
+    const y = String(new Date().getFullYear());
+    if (!j[y]) {
+      j[y] = { debut: new Date().toISOString().slice(0, 10), lus: {}, heures: Array(24).fill(0), jours: Array(7).fill(0), sec: 0 };
+      Object.keys(j).sort().slice(0, -2).forEach(k => { delete j[k]; });
+    }
+    return j[y];
+  }
+  // Pas d'événement lt:store : rien à redessiner, et la page de lecture
+  // n'a pas à se recalculer à chaque chapitre fini.
+  const garder = j => { try { localStorage.setItem(JOURNAL, JSON.stringify(j)); } catch {} };
+  function logRead(manga, num) {
+    const j = journal(), a = annee(j), L = a.lus[manga] || (a.lus[manga] = []);
+    if (L.includes(String(num))) return;
+    L.push(String(num));
+    const d = new Date();
+    a.heures[d.getHours()]++;
+    a.jours[d.getDay()]++;
+    garder(j);
+  }
+  function logTime(sec) {
+    const j = journal();
+    annee(j).sec += sec;
+    garder(j);
+  }
+
   /* — Recherches récentes — */
   function recents() { return read(RECENTS, []); }
   function addRecent(term) {
@@ -113,6 +147,7 @@
     follows, isFollowing, toggleFollow,
     isNew, markSeen, markAllSeen, newCount, followedNewCount,
     progress, setProgress, history, recents, addRecent, clearRecents,
-    STATUTS, statuses, status, setStatus
+    STATUTS, statuses, status, setStatus,
+    journal, logRead, logTime
   };
 })();
