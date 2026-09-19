@@ -584,3 +584,41 @@ body.reader-body {
    donc invisible — quand il n'y a personne d'autre. */
 .rd-presence { margin-left: 6px; opacity: .85; }
 .rd-presence[hidden] { display: none; }
+
+/* ---------- « Tu t'étais arrêté là » (retour après une pause) ----------
+   Au-dessus de toute l'interface du lecteur (barre, rail, dock : 110-130),
+   au niveau de l'aide : c'est une fenêtre, pas un élément de la page.
+   Une carte au-dessus du lecteur, une bande de trois pages qui défile à
+   l'horizontale. Les pages gardent leurs proportions : on les montre en
+   hauteur réduite plutôt que de les recadrer. */
+.rd-recap {
+  position: fixed; inset: 0; z-index: 220; display: grid; place-items: center; padding: 16px;
+  background: rgba(5, 5, 12, .78); overscroll-behavior: contain;
+  opacity: 0; transition: opacity .25s var(--ease);
+}
+.rd-recap.in { opacity: 1; }
+html.rd-recap-open, html.rd-recap-open body { overflow: hidden; }
+.rd-recap-card {
+  width: min(760px, 100%); max-height: calc(100dvh - 32px); overflow: auto;
+  padding: 22px 22px 18px; border-radius: var(--radius);
+  background: var(--bg-2); border: 1px solid var(--line-strong);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .9);
+}
+.rd-recap-card h2 { font-family: var(--font-display); font-size: 1.35rem; margin: 0 0 6px; }
+.rd-recap-card p { color: var(--txt-soft); line-height: 1.55; margin: 0 0 14px; font-size: .95rem; }
+.rd-recap-strip {
+  display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory;
+  padding-bottom: 8px; border-radius: 10px;
+}
+.rd-recap-strip:focus-visible { outline: 2px solid var(--rd-accent, var(--violet)); outline-offset: 3px; }
+.rd-recap-strip img {
+  flex: 0 0 auto; height: min(56dvh, 520px); width: auto; max-width: 82vw; object-fit: contain;
+  border-radius: 8px; background: var(--bg-1); scroll-snap-align: end;
+}
+.rd-recap-acts { display: flex; justify-content: flex-end; margin-top: 14px; }
+@media (max-width: 560px) {
+  .rd-recap-card { padding: 18px 16px 14px; }
+  .rd-recap-strip img { height: min(52dvh, 460px); }
+  .rd-recap-acts .btn { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .rd-recap { transition: none; } }

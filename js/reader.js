@@ -121,6 +121,9 @@
     // Chapitre demandé : URL > reprise > plus ancien dispo (chapitre 1)
     let wantNum = p.chapter;
     const saved = loadProgress();
+    // Photo de la DERNIÈRE visite, prise avant que ce chargement ne la
+    // réécrive : c'est elle qui dit s'il faut un rappel (voir showRecap).
+    A.before = saved;
     if (!wantNum && saved && A.chapters.some(c => c.num === saved.chapter)) { wantNum = saved.chapter; A.resumePage = saved.page || 0; }
     if (!wantNum && A.chapters.length) wantNum = A.chapters[A.chapters.length - 1].num;
     A.chap = A.chapters.find(c => c.num === wantNum);
@@ -374,6 +377,7 @@
     A.idx = 0; A.total = A.chap.pages; A.prefetched = null; A.readAwarded = false;
     $("rd-chap-label").textContent = `Chapitre ${A.chap.num} · ${A.chap.pages} pages`;
     $("rd-chap-select").value = A.chap.num;
+    ancrerBase();
     history.replaceState(null, "", window.LT.urlChapter(A.S, A.chap.num));
     setCanonical();
 
@@ -435,11 +439,31 @@
       if (prefs.mode !== "webtoon") showPage(0);
     }
 
+    // Retour après une pause : rappel des dernières pages lues (une fois).
+    if (!A.recapChecked) {
+      A.recapChecked = true;
+      const r = recapPages(resumeAt);
+      if (r) showRecap(r, resumeAt);
+    }
+
     saveProgress();
     updateScrub();
     updateProgress();
     loadComments();
     loadMood();
+  }
+
+  /* L'adresse va devenir /manga/<slug>/chapitre-N/. Sans <base href="/">,
+     toutes les adresses relatives — les pages du chapitre en tête —
+     partiraient dans ce dossier-là et tomberaient en 404. Or la balise est
+     retirée au chargement quand le lecteur est ouvert à l'ancienne
+     (reader.html?manga=…, vieux favoris et vieux liens) : on la remet avant
+     de réécrire l'adresse. À la racine, elle ne change rien d'autre. */
+  function ancrerBase() {
+    if (!/^https?:/.test(location.protocol) || document.querySelector("base")) return;
+    const b = document.createElement("base");
+    b.href = "/";
+    document.head.prepend(b);
   }
 
   /* -------- Gain d'XP : chapitre terminé (une seule fois par chapitre) -------- */
@@ -768,6 +792,8 @@
 
     // Clavier
     addEventListener("keydown", e => {
+      // Le rappel « Tu t'étais arrêté là » est ouvert : rien ne bouge derrière.
+      if ($("rd-recap")) { if (e.key === "Escape") { e.preventDefault(); closeRecap(); } return; }
       // La loupe passe avant tout le reste : tant qu'elle est ouverte, les
       // flèches feuillettent DANS la loupe et rien ne bouge derrière.
       if (lensOpen()) {
@@ -1383,6 +1409,75 @@
     } else {
       window.LT.toast("Téléchargement incomplet, réessaie.");
     }
+  }
+
+  /* ========================================================================
+     « TU T'ÉTAIS ARRÊTÉ LÀ » — rappel au retour après une pause.
+     Quand la dernière visite de la série remonte à plus de RECAP_JOURS, on
+     remontre les trois dernières pages lues avant de repartir : de quoi se
+     remettre l'action en tête sans relire tout un chapitre.
+     Jamais la fin d'un chapitre qu'on n'a pas ouvert : ce serait un spoiler.
+     Rien n'est demandé au serveur, tout vient de la progression locale.
+     ===================================================================== */
+  const RECAP_JOURS = 6;
+  const plage = (a, b) => Array.from({ length: Math.max(0, b - a) }, (_, k) => a + k);
+
+  function recapPages(resumeAt) {
+    const b = A.before;
+    if (!b || !b.t || Date.now() - b.t < RECAP_JOURS * 864e5) return null;
+    // Reprise au milieu d'un chapitre : les pages juste avant la reprise.
+    if (b.chapter === A.chap.num && resumeAt > 0) {
+      const f = filesOf(A.chap);
+      return f.length ? { chap: A.chap, pages: plage(Math.max(0, resumeAt - 3), resumeAt), files: f } : null;
+    }
+    // Début de chapitre : la fin du précédent, à condition que ce soit bien
+    // celui qu'on lisait (ou que ce chapitre-ci soit celui qu'on avait ouvert).
+    const prev = A.chapters[A.chapters.indexOf(A.chap) + 1];
+    if (!prev || (b.chapter !== prev.num && b.chapter !== A.chap.num)) return null;
+    const f = filesOf(prev);
+    return f.length ? { chap: prev, pages: plage(Math.max(0, f.length - 3), f.length), files: f } : null;
+  }
+
+  function showRecap(r, resumeAt) {
+    const jours = Math.floor((Date.now() - A.before.t) / 864e5);
+    const quand = jours < 14 ? `${jours} jours` : jours < 60 ? `${Math.round(jours / 7)} semaines` : `${Math.round(jours / 30)} mois`;
+    const meme = r.chap === A.chap;
+    const base = `Manga/${A.manga}/${r.chap.folder}/`;
+    const box = window.LT.el(`
+      <div class="rd-recap" id="rd-recap" role="dialog" aria-modal="true" aria-labelledby="rd-recap-t">
+        <div class="rd-recap-card">
+          <h2 id="rd-recap-t">Tu t'étais arrêté là</h2>
+          <p>Ta dernière lecture de ${esc(A.S.title)} remonte à ${quand}.
+             ${meme ? "Voilà les pages juste avant ta reprise" : `Voilà la fin du chapitre ${esc(r.chap.num)}`}, pour te remettre dans le bain.</p>
+          <div class="rd-recap-strip" tabindex="0" aria-label="Dernières pages lues">
+            ${r.pages.map(k => `<img src="${encodeURI(base + r.files[k])}" alt="Chapitre ${esc(r.chap.num)}, page ${k + 1}" decoding="async">`).join("")}
+          </div>
+          <div class="rd-recap-acts">
+            <button class="btn btn-primary" type="button" id="rd-recap-go">${meme ? `Reprendre page ${resumeAt + 1}` : `Lire le chapitre ${esc(A.chap.num)}`} ${ic("right")}</button>
+          </div>
+        </div>
+      </div>`);
+    $("rd").appendChild(box);
+    box.addEventListener("click", e => { if (e.target === box || e.target.closest("#rd-recap-go")) closeRecap(); });
+    // La page la plus récente est la dernière de la bande : on part d'elle,
+    // on remonte vers la gauche si on veut plus de contexte.
+    // (Une page déjà en cache est « complete » avant qu'on écoute son load.)
+    const strip = box.querySelector(".rd-recap-strip");
+    const auBout = () => { strip.scrollLeft = strip.scrollWidth; };
+    strip.querySelectorAll("img").forEach(im => {
+      if (im.complete) requestAnimationFrame(auBout);
+      else im.addEventListener("load", auBout, { once: true });
+    });
+    document.documentElement.classList.add("rd-recap-open");
+    requestAnimationFrame(() => box.classList.add("in"));
+    $("rd-recap-go").focus({ preventScroll: true });
+  }
+
+  function closeRecap() {
+    const box = $("rd-recap");
+    if (!box) return;
+    document.documentElement.classList.remove("rd-recap-open");
+    box.remove();
   }
 
   /* ========================================================================
