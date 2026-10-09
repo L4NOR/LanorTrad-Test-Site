@@ -7,12 +7,19 @@
     <atom:link href="https://lanortrad.com/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Les dernières sorties de l'équipe de scantrad LanorTrad.</description>
     <language>fr</language>
-    <lastBuildDate>Sun, 13 Sep 2026 08:57:23 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 09 Oct 2026 17:57:32 GMT</lastBuildDate>
     <item>
-      <title>Tougen Anki — chapitre 250</title>
+      <title>Ao No Exorcist — chapitre 170</title>
+      <link>https://lanortrad.com/manga/ao-no-exorcist/</link>
+      <guid isPermaLink="false">Ao No Exorcist#170</guid>
+      <pubDate>Fri, 09 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Nouveau chapitre de Ao No Exorcist disponible sur LanorTrad.</description>
+    </item>
+    <item>
+      <title>Tougen Anki — chapitre 253</title>
       <link>https://lanortrad.com/manga/tougen-anki/</link>
-      <guid isPermaLink="false">Tougen Anki#249</guid>
-      <pubDate>Sun, 13 Sep 2026 12:00:00 GMT</pubDate>
+      <guid isPermaLink="false">Tougen Anki#253</guid>
+      <pubDate>Sun, 04 Oct 2026 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Tougen Anki disponible sur LanorTrad.</description>
     </item>
     <item>
@@ -21,13 +28,6 @@
       <guid isPermaLink="false">Tokyo Underworld#44</guid>
       <pubDate>Sun, 13 Sep 2026 12:00:00 GMT</pubDate>
       <description>Nouveau chapitre de Tokyo Underworld disponible sur LanorTrad.</description>
-    </item>
-    <item>
-      <title>Ao No Exorcist — chapitre 169</title>
-      <link>https://lanortrad.com/manga/ao-no-exorcist/</link>
-      <guid isPermaLink="false">Ao No Exorcist#171</guid>
-      <pubDate>Mon, 07 Sep 2026 12:00:00 GMT</pubDate>
-      <description>Nouveau chapitre de Ao No Exorcist disponible sur LanorTrad.</description>
     </item>
     <item>
       <title>Catenaccio — chapitre 56</title>

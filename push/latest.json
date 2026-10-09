@@ -1,13 +1,25 @@
 {
- "t": "2026-09-13T08:57:23.484Z",
+ "t": "2026-10-09T17:57:32.091Z",
  "sorties": [
+  {
+   "id": "Ao No Exorcist",
+   "titre": "Ao No Exorcist",
+   "num": "170",
+   "sig": "Ao No Exorcist#170",
+   "date": "2026-10-09",
+   "url": "/manga/ao-no-exorcist/chapitre-170/",
+   "image": "images/og/series/ao-no-exorcist.jpg",
+   "accent": "#1b75bc"
+  },
   {
    "id": "Tougen Anki",
    "titre": "Tougen Anki",
-   "num": "250",
-   "sig": "Tougen Anki#250",
-   "date": "2026-09-12",
-   "url": "/manga/tougen-anki/chapitre-250/"
+   "num": "253",
+   "sig": "Tougen Anki#253",
+   "date": "2026-10-05",
+   "url": "/manga/tougen-anki/chapitre-253/",
+   "image": "images/og/series/tougen-anki.jpg",
+   "accent": "#e0245e"
   },
   {
    "id": "Tokyo Underworld",
@@ -15,15 +27,9 @@
    "num": "46",
    "sig": "Tokyo Underworld#46",
    "date": "2026-09-12",
-   "url": "/manga/tokyo-underworld/chapitre-46/"
-  },
-  {
-   "id": "Ao No Exorcist",
-   "titre": "Ao No Exorcist",
-   "num": "169",
-   "sig": "Ao No Exorcist#169",
-   "date": "2026-09-06",
-   "url": "/manga/ao-no-exorcist/chapitre-169/"
+   "url": "/manga/tokyo-underworld/chapitre-46/",
+   "image": "images/og/series/tokyo-underworld.jpg",
+   "accent": "#9333ea"
   },
   {
    "id": "Catenaccio",
@@ -31,7 +37,9 @@
    "num": "56",
    "sig": "Catenaccio#56",
    "date": "2026-03-28",
-   "url": "/manga/catenaccio/chapitre-56/"
+   "url": "/manga/catenaccio/chapitre-56/",
+   "image": "images/og/series/catenaccio.jpg",
+   "accent": "#16a34a"
   },
   {
    "id": "Satsudou",
@@ -39,7 +47,9 @@
    "num": "18",
    "sig": "Satsudou#18",
    "date": "2026-02-23",
-   "url": "/manga/satsudou/chapitre-18/"
+   "url": "/manga/satsudou/chapitre-18/",
+   "image": "images/og/series/satsudou.jpg",
+   "accent": "#f59e0b"
   },
   {
    "id": "Countdown",
@@ -47,7 +57,9 @@
    "num": "1",
    "sig": "Countdown#1",
    "date": "2025-12-25",
-   "url": "/manga/countdown/chapitre-1/"
+   "url": "/manga/countdown/chapitre-1/",
+   "image": "images/og/series/countdown.jpg",
+   "accent": "#64748b"
   },
   {
    "id": "Gestation of Kalavinka",
@@ -55,7 +67,9 @@
    "num": "1",
    "sig": "Gestation of Kalavinka#1",
    "date": "2025-12-25",
-   "url": "/manga/gestation-of-kalavinka/chapitre-1/"
+   "url": "/manga/gestation-of-kalavinka/chapitre-1/",
+   "image": "images/og/series/gestation-of-kalavinka.jpg",
+   "accent": "#0ea5e9"
   },
   {
    "id": "In the White",
@@ -63,7 +77,9 @@
    "num": "1",
    "sig": "In the White#1",
    "date": "2025-12-25",
-   "url": "/manga/in-the-white/chapitre-1/"
+   "url": "/manga/in-the-white/chapitre-1/",
+   "image": "images/og/series/in-the-white.jpg",
+   "accent": "#e2e8f0"
   },
   {
    "id": "Sake to Sakana",
@@ -71,7 +87,9 @@
    "num": "1",
    "sig": "Sake to Sakana#1",
    "date": "2025-12-25",
-   "url": "/manga/sake-to-sakana/chapitre-1/"
+   "url": "/manga/sake-to-sakana/chapitre-1/",
+   "image": "images/og/series/sake-to-sakana.jpg",
+   "accent": "#06b6d4"
   },
   {
    "id": "Second Coming",
@@ -79,7 +97,9 @@
    "num": "1",
    "sig": "Second Coming#1",
    "date": "",
-   "url": "/manga/second-coming/chapitre-1/"
+   "url": "/manga/second-coming/chapitre-1/",
+   "image": "images/og/series/second-coming.jpg",
+   "accent": "#dc2626"
   }
  ]
 }

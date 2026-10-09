@@ -21,11 +21,11 @@
 // (le temps que tout le monde voie que c'est publie), inutile de la supprimer
 // a la main. Une serie sans entree ici n'affiche simplement rien.
 window.ATELIER = {
-  "Tougen Anki":      { chapter: "248-249-250", step: "qcheck", updated: "2026-08-03", eta: "2026-09-13" },
-  "Ao No Exorcist":   { chapter: "169",         step: "sortie", updated: "2026-09-06", eta: "2026-09-07" },
-  "Catenaccio":       { chapter: "57-66",       step: "edit",   updated: "2026-09-04",
+  "Tougen Anki":      { chapter: "254-255-256", step: "edit",   updated: "2026-10-09", eta: "2026-10-18" },
+  "Ao No Exorcist":   { chapter: "170",         step: "sortie", updated: "2026-09-06", eta: "2026-10-09" },
+  "Catenaccio":       { chapter: "57-93",       step: "edit",   updated: "2026-09-04",
                         note: "Pas de date, nous travaillons sur tous les chapitres. Nous essayerons de les sortir au plus vite !" },
-  "Tokyo Underworld": { chapter: "45-45.5-46",  step: "edit",   updated: "2026-08-03", eta: "2026-09-13" },
-  "Satsudou":         { chapter: "19",          step: "trad",   updated: "2026-08-03",
+  "Tokyo Underworld": { chapter: "47-48-49-50", step: "edit",   updated: "2026-10-09" },
+  "Satsudou":         { chapter: "19-39",       step: "trad",   updated: "2026-08-03",
                         note: "Pas de date, nous travaillons sur tous les chapitres. Nous essayerons de les sortir au plus vite !" }
 };

@@ -22,6 +22,14 @@
 // lui, n'ecrit jamais de champ vide : il le retire.
 // Un nom identique en clean et en edit s'affiche sur une seule ligne
 // "Clean & Edit", comme avant.
+// Le MEME nom sur les quatre postes s'affiche sur UNE seule carte
+// "Realise par" : c'est le cas des chapitres repris de l'edition officielle,
+// ou repeter le nom quatre fois n'apprend rien a personne.
+//
+// liens : l'adresse d'une equipe creditee. Le nom devient cliquable sur
+// l'ecran de fin. Ca se remplit A LA MAIN ici -- l'outil ne l'edite pas, il
+// se contente de ne pas le perdre. Seul http(s) est accepte : ce qui sort
+// d'ici finit dans un href.
 window.CREDITS = {
   defaut: { trad: "Taichoskii", clean: "Lanor", edit: "Lanor", qc: "Zerox" },
   series: {
@@ -126,7 +134,10 @@ window.CREDITS = {
         "97":  { trad: "Lanor", clean: "Lanor", edit: "Lanor", qc: "Lanor" },
         "98":  { trad: "Lanor", clean: "Lanor", edit: "Lanor", qc: "Lanor" },
         "99":  { trad: "Lanor", clean: "Lanor", edit: "Lanor", qc: "Lanor" },
-        "100": { trad: "Lanor", clean: "Lanor", edit: "Lanor", qc: "Lanor" }
+        "100": { trad: "Lanor", clean: "Lanor", edit: "Lanor", qc: "Lanor" },
+        "251": { qc: "Lanor" },
+        "252": { qc: "Lanor" },
+        "253": { qc: "Lanor" }
       }
     },
     "Ao No Exorcist": {
