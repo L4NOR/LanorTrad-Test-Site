@@ -1,6 +1,16 @@
 {
- "t": "2026-10-10T19:54:42.299Z",
+ "t": "2026-10-17T17:04:48.580Z",
  "sorties": [
+  {
+   "id": "Tougen Anki",
+   "titre": "Tougen Anki",
+   "num": "256",
+   "sig": "Tougen Anki#256",
+   "date": "2026-10-17",
+   "url": "/manga/tougen-anki/chapitre-256/",
+   "image": "images/og/series/tougen-anki.jpg",
+   "accent": "#e0245e"
+  },
   {
    "id": "Ao No Exorcist",
    "titre": "Ao No Exorcist",
@@ -10,16 +20,6 @@
    "url": "/manga/ao-no-exorcist/chapitre-170/",
    "image": "images/og/series/ao-no-exorcist.jpg",
    "accent": "#1b75bc"
-  },
-  {
-   "id": "Tougen Anki",
-   "titre": "Tougen Anki",
-   "num": "253",
-   "sig": "Tougen Anki#253",
-   "date": "2026-10-05",
-   "url": "/manga/tougen-anki/chapitre-253/",
-   "image": "images/og/series/tougen-anki.jpg",
-   "accent": "#e0245e"
   },
   {
    "id": "Tokyo Underworld",
