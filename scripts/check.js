@@ -71,6 +71,7 @@ const DONNEES = [
   ["js/data/covers.js", "COVERS"], ["js/data/notes.js", "NOTES"],
   ["js/data/schedule.js", null], ["js/data/gallery.js", null],
   ["js/data/atelier.js", null], ["js/data/anime.js", null],
+  ["js/data/anime-episodes.js", null],
   ["js/data/personnages.js", "PERSONNAGES"],
 ];
 for (const [f, cle] of DONNEES) {
@@ -284,6 +285,73 @@ if (!casses) ok(`${HTML.length} pages — tous les fichiers référencés existe
    deploiement ne doit pas etre refuse parce qu'un calendrier est vide. Mais il
    doit le DIRE, a chaque fois, plutot que de laisser la decouverte au lecteur.
    ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------
+   Animes : les liens vers Aniverse tiennent-ils encore ?
+
+   L'onglet « Anime » n'est pas alimente a la main : les saisons sont declarees
+   dans js/data/anime.js (avec, pour celle en cours, la date du 1er episode et
+   le rythme hebdomadaire), et les titres/miniatures sont recoltes chez
+   Aniverse par tools/build-anime.js. Les liens d'une saison en cours marchent
+   donc tout seuls le vendredi soir — mais les titres, eux, demandent une
+   recolte. Sans ce controle, personne ne le remarque : la page affiche des
+   cases numerotees, ce qui ressemble a un choix de design.
+   ------------------------------------------------------------------------ */
+titre("Animes (liens Aniverse)");
+{
+  const ANIME = fenetre.ANIME || {};
+  const EPISODES = fenetre.ANIME_EPISODES || {};
+  const idsSeries = new Set(SERIES.map(s => s.id));
+  let saisons = 0, aRecolter = 0;
+
+  for (const [serie, a] of Object.entries(ANIME)) {
+    if (!idsSeries.has(serie)) { err(`js/data/anime.js — serie inconnue « ${serie} » (l'id doit etre celui de series.js)`); continue; }
+    for (const se of a.seasons || []) {
+      const quoi = `${serie} ${se.kind ? se.kind : "S" + se.n}`;
+      if (se.upcoming) continue;
+      saisons++;
+      // La frise se classe sur `date` (sinon `year`) : sans l'un des deux,
+      // l'entree part au hasard entre deux saisons.
+      if (!se.date && !se.year) warn(`${quoi} : ni « date » ni « year » — place indecise dans la frise`);
+      if (!se.avSlug) { warn(`${quoi} : pas de avSlug — l'entree s'affiche sans aucun lien`); continue; }
+      if (!se.episodes) { warn(`${quoi} : nombre d'episodes manquant — la liste sera vide`); continue; }
+
+      // Combien d'episodes sont censes etre sortis aujourd'hui ?
+      let sortis = se.episodes;
+      if (se.airing && se.airing.start) {
+        const depart = Date.parse(se.airing.start + "T12:00:00Z");
+        if (isNaN(depart)) { err(`${quoi} : airing.start illisible (${se.airing.start}) — attendu AAAA-MM-JJ`); continue; }
+        sortis = Math.max(0, Math.min(se.episodes, Math.floor((Date.now() - depart) / 604800000) + 1));
+        if (sortis >= se.episodes)
+          warn(`${quoi} : la diffusion est finie (${se.episodes} episodes) — retire « airing » et passe status a « Terminee »`);
+      }
+
+      // Un film ou un OAV n'a qu'une carte, qui porte le titre de l'entree :
+      // rien a recolter, donc rien a signaler.
+      if (se.kind && se.episodes === 1) continue;
+
+      const fiche = EPISODES[se.avSlug];
+      // Les episodes ecrits a la main dans anime.js comptent autant que les
+      // recoltes : c'est ce que le visiteur voit.
+      const connus = Object.assign({}, (fiche && fiche.eps) || {}, se.eps || {});
+      if (!fiche && !Object.keys(connus).length) {
+        warn(`${quoi} : rien dans js/data/anime-episodes.js pour « ${se.avSlug} » — lance « node tools/build-anime.js » (sans ca, des cases numerotees)`);
+        aRecolter += sortis;
+        continue;
+      }
+      const nus = [];
+      for (let n = 1; n <= sortis; n++) {
+        const e = connus[String(n)];
+        if (!e || (!e.t && !e.img)) nus.push(n);
+      }
+      if (nus.length) {
+        aRecolter += nus.length;
+        warn(`${quoi} : ${nus.length} episode(s) sortis sans titre ni miniature (ep. ${nus.slice(0, 4).join(", ")}${nus.length > 4 ? "…" : ""}) — relance « node tools/build-anime.js »`);
+      }
+    }
+  }
+  if (saisons && !aRecolter) ok(`${saisons} saison(s) d'anime, titres et miniatures au complet`);
+}
+
 titre("Fraicheur du contenu");
 {
   const JOUR = 86400000;

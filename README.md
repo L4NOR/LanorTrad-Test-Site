@@ -20,6 +20,7 @@ quel sur Netlify ou GitHub Pages.
 4. [Ajouter / modifier une série (fiches)](#4-ajouter--modifier-une-série-fiches)
    · [4 bis. L'atelier — avancement du prochain chapitre](#4-bis-latelier--avancement-du-prochain-chapitre)
    · [4 ter. Les crédits — qui a fait quoi](#4-ter-les-crédits--qui-a-fait-quoi-chapitre-par-chapitre)
+   · [4 quater. L'onglet Anime (saisons, épisodes, Aniverse)](#4-quater-longlet-anime--saisons-épisodes-liens-aniverse)
 5. [Forum — configuration (Supabase)](#5-forum--configuration-supabase)
 6. [Gamification (XP / niveaux)](#6-gamification-xp--niveaux)
 7. [Visite guidée (tutoriel première visite)](#7-visite-guidée-tutoriels-première-visite)
@@ -59,6 +60,8 @@ js/data/covers.js     ← variantes responsives des couvertures (GÉNÉRÉ)
 js/data/schedule.js   ← dates des prochaines sorties (à la main)
 js/data/atelier.js    ← avancement du chapitre en fabrication (à la main, § 4 bis)
 js/data/credits.js    ← qui a fait quoi, par chapitre (à la main OU via Modifier-Credits.bat)
+js/data/anime.js      ← saisons des animés + liens Aniverse (à la main, § 4 quater)
+js/data/anime-episodes.js ← titres, dates et miniatures des épisodes (GÉNÉRÉ)
 images/ couvertures, logos, icônes
 Manga/  <Série>/Chapitres/Chapitre NN/001.webp …
 Manga/preview/  <Série>/<Chapitre NN>/001.webp ← vignettes d'aperçu (GÉNÉRÉES)
@@ -72,6 +75,8 @@ tools/Ajouter-Chapitre.bat  ← interface web locale pour ajouter un chapitre
 tools/Modifier-Series.bat   ← interface web locale pour éditer les fiches séries
 tools/Modifier-Atelier.bat  ← interface web locale pour l'avancement des chapitres
 tools/Modifier-Credits.bat  ← interface web locale pour les crédits des chapitres
+tools/build-anime.js        ← récolte titres/dates/miniatures des épisodes chez Aniverse
+tools/Mettre-A-Jour-Anime.bat ← le même, en double-clic (§ 4 quater)
 tools/jpg-to-webp.py        ← conversion des planches JPG → WebP (qualité 90 à l'ajout)
 tools/webp-alleger.py       ← réencode tout le catalogue en WebP qualité 90
 tools/deployer.py           ← déploiement depuis cette machine (§ 8)
@@ -737,6 +742,140 @@ L'id de série s'écrit exactement comme dans `series.js`, le numéro de chapitr
 comme dans `chapters.js`. Le fichier est servi réseau d'abord : une correction
 est visible au rechargement suivant, sans rien toucher au service worker.
 
+## 4 quater. L'onglet Anime — saisons, épisodes, liens Aniverse
+
+L'onglet **Anime** d'une fiche série déroule une **frise** : saisons, films,
+OAV et bonus dans l'ordre où ils sont sortis. Chaque entrée liste ses épisodes
+— miniature, titre français, date — et chacun renvoie directement à sa page sur
+**aniverse.fr** (l'ancien catalogueur, anime-sama, n'est plus utilisé).
+
+Deux fichiers, et un seul se modifie à la main :
+
+| Fichier | Qui l'écrit | Contient |
+|---|---|---|
+| `js/data/anime.js` | **toi** | la frise : titre, date, nombre d'épisodes, slug Aniverse, calendrier de diffusion |
+| `js/data/anime-episodes.js` | `tools/build-anime.js` | pour chaque épisode : titre, date, miniature |
+
+### Déclarer une saison
+
+```js
+window.ANIME = {
+  "Tougen Anki": {                       // l'id exact de series.js
+    studio: "Studio Hibari",
+    note: "LanorTrad ne diffuse pas d'animé : …",
+    seasons: [
+      {
+        n: 2,
+        title: "Nikkô Kegon Falls Arc",
+        year: 2026,
+        date: "2026-10-02",              // sert à classer la frise
+        episodes: 12,                    // total de la saison, pas le nombre de sortis
+        status: "En cours",
+        avSlug: "tougen-anki-nikko-kegon-falls-arc",
+        platforms: ["Crunchyroll"],
+        airing: { start: "2026-10-02", jour: "vendredi", heure: "18:00" },
+        synopsis: "…"
+      }
+    ]
+  }
+};
+```
+
+`avSlug` est l'identifiant de **l'entrée** chez Aniverse — ce qu'il y a entre
+`/watch/` et `?ep=` dans l'adresse. Contrairement à l'ancien catalogueur,
+chaque saison a le sien (il n'y a pas de `/saison2/`) et chaque épisode a son
+lien direct : `https://aniverse.fr/watch/<avSlug>?ep=<n>`.
+
+### Films, OAV et bonus : la même liste, classée par date
+
+Un film n'est pas une rubrique à part : c'est une entrée de `seasons` avec un
+`kind`, posée dans la frise à sa date de sortie. Le site retrie tout seul sur
+`date`, donc l'ordre du fichier n'a pas d'importance.
+
+```js
+{ kind: "film",  title: "Blue Exorcist — Le Film", year: 2012,
+  date: "2012-12-28", episodes: 1, avSlug: "blue-exorcist-the-movie" }
+```
+
+`kind` vaut `"film"`, `"oav"` ou `"bonus"` — la pastille affiche FILM / OAV /
+BONUS au lieu d'un numéro de saison. Une entrée à **un seul** épisode n'affiche
+pas « Épisode 1 » : la carte porte son titre et son pictogramme.
+
+### Une saison en cours de diffusion : rien à faire le vendredi soir
+
+`airing` donne la date du **premier** épisode et le rythme (un par semaine, à
+telle heure de Paris). Le site en déduit tout seul, à chaque visite, combien
+d'épisodes sont sortis, lesquels sont cliquables, et quand tombe le prochain
+(« Prochain épisode : épisode 4 · vendredi 23 octobre, vers 18h »).
+
+Donc : **les liens marchent sans que personne touche à un fichier.** Quand la
+saison est finie, retire `airing` et passe `status` à `"Terminée"` —
+`node scripts/check.js` te le rappelle de lui-même.
+
+### Récolter les titres et les miniatures
+
+```bash
+node tools/build-anime.js
+```
+
+ou, sans ligne de commande, **`tools/Mettre-A-Jour-Anime.bat`**.
+
+Le script écrit titres, dates et images dans `js/data/anime-episodes.js`. Le
+site ne contacte donc jamais Aniverse au chargement — il lit un fichier local.
+Seules les **images** restent chez eux : on pointe la source qu'on met en avant
+au lieu de recopier ses visuels.
+
+Il lit deux sources, dans cet ordre :
+
+1. **la page de la série**, `/anime/<slug>` : sa charge utile embarque la liste
+   des épisodes (titre français, image, date). Une seule requête — et c'est la
+   seule source qui donne le visuel d'un film, dont la page de lecture n'a pas
+   de fiche d'épisode. Elle s'arrête en revanche à une quinzaine d'épisodes :
+   la suite se charge au défilement, donc elle n'est pas dans la page ;
+2. **les pages d'épisode**, `/watch/<slug>?ep=<n>`, pour tout ce qui manque
+   encore : leur bloc JSON-LD `schema.org/TVEpisode` dit la même chose, une
+   page à la fois. C'est aussi le filet de sécurité si la première source
+   devient illisible.
+
+Le fichier est un cumul : un épisode déjà complet n'est pas redemandé, et une
+mauvaise réponse n'efface rien. Options utiles :
+
+| Commande | Effet |
+|---|---|
+| `node tools/build-anime.js` | ne va chercher que ce qui manque |
+| `node tools/build-anime.js --force` | tout refaire (titres corrigés chez eux, par exemple) |
+| `node tools/build-anime.js --saison <avSlug>` | une seule saison |
+
+L'outil retient aussi l'**affiche** de chaque entrée (`affiche`), redimensionnée
+par le CDN d'Aniverse : c'est l'image que portent les cartes sans visuel propre
+— les bonus et les OAV n'en ont pas. C'est bien l'affiche qui est reprise, pas
+l'image large de la fiche : celle-ci est parfois une photo d'archive sans
+rapport (vu sur la fiche du film Blue Exorcist). Un `affiche: "https://…"`
+écrit à la main dans `js/data/anime.js` passe devant.
+
+**Rien de tout ça n'est obligatoire.** Sans `anime-episodes.js`, ou pour un
+épisode qu'Aniverse n'a ni titré ni illustré, la carte retombe sur son numéro
+et le lien marche quand même. `scripts/check.js` prévient quand des épisodes
+sortis n'ont ni titre ni miniature — c'est le signal qu'il faut relancer
+le script.
+
+### Quand Aniverse n'a ni titre ni image : les écrire à la main
+
+Pour une saison toute fraîche, Aniverse se contente parfois d'« Épisode 1 » et
+de l'affiche de la série. Dans ce cas, l'entrée accepte un bloc `eps` écrit à
+la main dans `js/data/anime.js` — par exemple repris de la fiche Crunchyroll
+de la série :
+
+```js
+eps: {
+  "1": { t: "Début d'entraînement", d: "2026-10-02", img: "https://…" }
+}
+```
+
+Ces épisodes-là passent **devant** le fichier généré : relancer
+`tools/build-anime.js` ne les écrase jamais. Le jour où Aniverse publie ses
+propres titres, efface le bloc et l'outil reprend la main.
+
 ## 5. Forum — configuration (Supabase)
 
 Le forum utilise **Supabase** : comptes **email / mot de passe**, catégories →
@@ -1343,6 +1482,9 @@ Ce qu'il regarde :
 - la règle de slug est-elle la même dans le site et dans le sitemap ;
 - les adresses absolues des pages (`canonical`, `og:url`, `og:image`) visent-elles
   bien le domaine servi — voir l'encadré ci-dessous ;
+- les saisons d'animé pointent-elles une série connue, et les épisodes déjà
+  diffusés ont-ils leur titre et leur miniature (sinon : relance
+  `tools/build-anime.js`) ;
 - ce que le site **raconte** est-il encore vrai : calendrier des sorties, atelier,
   dates de mise à jour (en alertes, jamais bloquant).
 

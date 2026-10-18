@@ -378,30 +378,123 @@
   function enc(x) { return encodeURIComponent(x); }
   function handshake() { return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="m11 17 2 2a1 1 0 0 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 0 0 3-3l-3.9-3.9a2 2 0 0 0-2.8 0l-1.6 1.6a2 2 0 0 1-2.8 0l-2-2a1 1 0 0 1 0-1.4l3.4-3.4a4 4 0 0 1 5.6 0l5.6 5.6"/><path d="m2 13 2.5 2.5a1 1 0 0 0 3-3L4 8"/></svg>`; }
 
-  /* ---------- Anime (saisons + épisodes) ---------- */
+  /* ---------- Anime (frise : saisons, films, OAV, bonus) ----------
+     Les liens vont sur aniverse.fr, qui donne UN LIEN PAR ÉPISODE
+     (…/watch/<avSlug>?ep=<n>) : on affiche donc une vraie liste d'épisodes —
+     titre, date, miniature — plutôt que des cases numérotées. Les titres et
+     les images viennent de js/data/anime-episodes.js ; sans ce fichier, ou
+     pour un épisode qu'il ne connaît pas encore, la carte retombe sur son
+     numéro et le lien marche quand même.
+
+     Saison en cours de diffusion : rien n'est figé dans les données. Les
+     épisodes déjà sortis et la date du prochain se calculent ici, à chaque
+     affichage, à partir de `season.airing` (1er épisode + un par semaine).
+     Personne n'a donc à toucher un fichier le vendredi soir. */
+  const AV_WATCH = "https://aniverse.fr/watch/";
+
+  function escH(t) {
+    return String(t == null ? "" : t)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* Décalage de Paris (en minutes) à un instant donné. Le calendrier de
+     diffusion est annoncé en heure française : sans ça, un visiteur au Québec
+     verrait « vendredi 18h » un jeudi. */
+  function decalageParis(ts) {
+    const p = {};
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Paris", hour12: false, year: "numeric", month: "2-digit",
+      day: "2-digit", hour: "2-digit", minute: "2-digit"
+    }).formatToParts(new Date(ts)).forEach(x => { p[x.type] = x.value; });
+    return (Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute) - ts) / 60000;
+  }
+  /* L'instant réel d'une heure de Paris (ex. « 18:00 »), décalée de N semaines. */
+  function instantParis(jour, heure, semaines) {
+    const [y, m, d] = String(jour).split("-").map(Number);
+    const [hh, mm] = String(heure || "00:00").split(":").map(Number);
+    const brut = Date.UTC(y, m - 1, d + 7 * (semaines || 0), hh, mm);
+    return brut - decalageParis(brut) * 60000;
+  }
+
+  const fmtJourLong = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Paris" });
+  const fmtJourCourt = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Paris" });
+  const fmtDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Paris" });
+  const fmtHeure = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", hour12: false, hour: "2-digit", minute: "2-digit" });
+  /* « vers 18h ». Aniverse annonce ses mises en ligne a la minute pres
+     (18h11) : une precision que personne n'attend d'une sortie hebdomadaire et
+     qui a l'air fausse des qu'elle derape d'une minute. On arrondit. */
+  function heureFr(ts) {
+    const p = {};
+    fmtHeure.formatToParts(new Date(ts)).forEach(x => { p[x.type] = x.value; });
+    let h = +p.hour % 24, m = Math.round(+p.minute / 30) * 30;
+    if (m === 60) { m = 0; h = (h + 1) % 24; }
+    return m ? `${h}h30` : `${h}h`;
+  }
+  function dansCombien(ms) {
+    const j = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), m = Math.floor(ms % 3600000 / 60000);
+    if (j >= 1) return `dans ${j} j ${h} h`;
+    if (h >= 1) return `dans ${h} h ${m} min`;
+    return `dans ${Math.max(1, m)} min`;
+  }
+
   function renderAnime(a, s) {
     const panel = document.getElementById("panel-anime");
     if (!panel) return;
     panel.style.setProperty("--accent", s.accent);
-    const seasons = a.seasons || [];
-    const movies = a.movies || [];
-    const totalEp = seasons.reduce((n, se) => n + (se.episodes || 0), 0);
+    /* La frise est classée par DATE DE SORTIE : saisons, films, OAV et bonus
+       se suivent dans l'ordre où le public les a vus, quel que soit l'ordre du
+       fichier de données. */
+    const seasons = (a.seasons || []).slice().sort((x, y) =>
+      String(x.date || x.year || "").localeCompare(String(y.date || y.year || "")));
+    const saisons = seasons.filter(se => !se.kind);
+    const bonus = seasons.filter(se => se.kind);
+    const totalEp = saisons.reduce((n, se) => n + (se.episodes || 0), 0);
+    const EPS = window.ANIME_EPISODES || {};
+    const KINDS = {
+      film:  { court: "FILM",  long: "Film",  ico: "🎬" },
+      oav:   { court: "OAV",   long: "OAV",   ico: "✨" },
+      bonus: { court: "BONUS", long: "Bonus", ico: "🎁" }
+    };
+    const kindDe = se => KINDS[se.kind] || null;
+
+    // Date de sortie d'un épisode d'une saison en cours (null sinon).
+    const sortieDe = (se, n) => (se.airing && se.airing.start)
+      ? instantParis(se.airing.start, se.airing.heure, n - 1) : null;
+    // Combien d'épisodes sont déjà disponibles, maintenant.
+    const nbSortis = se => {
+      const tot = se.episodes || 0;
+      if (!se.airing || !se.airing.start) return tot;
+      let n = 0;
+      while (n < tot && sortieDe(se, n + 1) <= Date.now()) n++;
+      return n;
+    };
 
     const stat = (val, lbl, wide) =>
       `<div class="anime-stat${wide ? " wide" : ""}"><b>${val}</b><span>${lbl}</span></div>`;
     const overview = `<div class="anime-overview">
-      ${stat(seasons.length, "Saison" + (seasons.length > 1 ? "s" : ""))}
+      ${stat(saisons.length, "Saison" + (saisons.length > 1 ? "s" : ""))}
       ${stat(totalEp, "Épisodes")}
-      ${movies.length ? stat(movies.length, "Film" + (movies.length > 1 ? "s" : "")) : ""}
+      ${bonus.length ? stat(bonus.length, bonus.length > 1 ? "Films & bonus" : kindDe(bonus[0]).long) : ""}
       ${a.studio ? stat(a.studio, "Studio", true) : ""}
     </div>`;
 
+    // On ouvre sur la saison en cours de diffusion s'il y en a une : c'est
+    // celle qu'on vient voir. Sinon, la première.
+    const enCours = seasons.findIndex(se => se.airing && nbSortis(se) < (se.episodes || 0));
+    const depart = enCours >= 0 ? enCours : 0;
+
     const chips = `<div class="anime-seasons">${seasons.map((se, i) => {
+      const dispo = nbSortis(se);
+      const k = kindDe(se);
       const sub = se.upcoming
         ? `À venir${se.year ? " · " + se.year : ""}`
-        : `${se.year || ""} · ${se.episodes || 0} ép.`;
-      return `<button class="season-chip ${i === 0 ? "on" : ""}${se.upcoming ? " upcoming" : ""}" data-i="${i}">
-        <span class="sc-n">S${se.n || i + 1}</span>
+        : k
+          ? `${se.year || ""}${se.episodes > 1 ? ` · ${se.episodes} ép.` : ""}`
+          : `${se.year || ""} · ${se.airing && dispo < (se.episodes || 0)
+            ? `${dispo}/${se.episodes} ép.` : `${se.episodes || 0} ép.`}`;
+      return `<button class="season-chip ${i === depart ? "on" : ""}${se.upcoming ? " upcoming" : ""}" data-i="${i}">
+        <span class="sc-n${k ? " sc-kind" : ""}">${k ? k.court : "S" + (se.n || i + 1)}</span>
         <span class="sc-meta"><b>${se.title || "Saison " + (i + 1)}</b><i>${sub}</i></span>
       </button>`;
     }).join("")}</div>`;
@@ -412,15 +505,8 @@
       <button class="sync-go" id="anime-sync-go">Lire la suite →</button>
     </div>` : "";
 
-    const movieBlock = movies.length ? `<div class="anime-movies">
-      <h4>🎬 Films</h4>
-      <div class="movie-row">${movies.map(m =>
-        `<div class="movie-card"><span class="movie-ico">🎬</span>
-          <span class="movie-info"><b>${m.title}</b><span>${[m.year, m.studio].filter(Boolean).join(" · ")}</span></span></div>`).join("")}</div>
-    </div>` : "";
-
     panel.innerHTML = overview + syncBlock + chips +
-      `<div class="anime-detail" id="anime-detail"></div>` + movieBlock +
+      `<div class="anime-detail" id="anime-detail"></div>` +
       (a.note ? `<p class="anime-note">${a.note}</p>` : "");
 
     const syncGo = panel.querySelector("#anime-sync-go");
@@ -432,10 +518,7 @@
     });
 
     const detail = panel.querySelector("#anime-detail");
-    const LANG_LBL = { vostfr: "VOSTFR", vf: "VF" };
-    const watchUrl = (se, lang) =>
-      `https://anime-sama.to/catalogue/${a.asSlug}/saison${se.asSeason || se.n}/${lang}/`;
-    let lang = "vostfr"; // préférence mémorisée d'une saison à l'autre
+    const playSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 
     function renderSeason(i) {
       const se = seasons[i];
@@ -454,40 +537,101 @@
             </div>
             <p class="season-syn">${se.releaseNote || "Date de diffusion à préciser."}</p>
             <div class="soon-strip">${Array.from({ length: 8 }, () => `<span class="ep-tile ghost"></span>`).join("")}</div>
-            <p class="soon-hint">Suivez la série pour être prévenu·e dès la sortie des épisodes.</p>
+            <p class="soon-hint">Suis la série pour être prévenu·e dès la sortie des épisodes.</p>
           </div>`;
         window.LT._scanReveals && window.LT._scanReveals();
         return;
       }
 
-      const eps = Array.from({ length: se.episodes || 0 }, (_, k) => k + 1);
-      const langs = (a.asSlug && se.langs && se.langs.length) ? se.langs : [];
-      const cur = langs.includes(lang) ? lang : (langs[0] || null);
-      const url = cur ? watchUrl(se, cur) : null;
+      const slug = se.avSlug || null;
+      const k = kindDe(se);
+      const fiche = (slug && EPS[slug]) || null;
+      /* Les épisodes écrits à la main dans js/data/anime.js passent DEVANT le
+         fichier généré : relancer tools/build-anime.js ne les perd jamais. */
+      const infos = Object.assign({}, (fiche && fiche.eps) || {}, se.eps || {});
+      /* Image de repli : les bonus, OAV et films n'ont pas de visuel par
+         épisode chez Aniverse. Plutôt qu'une case vide, la carte reprend
+         l'affiche de l'entrée — c'est ce que fait Aniverse sur ses propres
+         pages. */
+      const affiche = se.affiche || (fiche && fiche.affiche) || null;
+      const total = se.episodes || 0;
+      const dispo = nbSortis(se);
+      const lien = n => `${AV_WATCH}${slug}?ep=${n}`;
 
-      const langToggle = langs.length > 1 ? `<div class="lang-toggle" role="group" aria-label="Langue">
-        ${langs.map(l => `<button class="lang-btn ${l === cur ? "on" : ""}" data-lang="${l}">${LANG_LBL[l] || l.toUpperCase()}</button>`).join("")}
-      </div>` : (langs.length === 1 ? `<span class="lang-solo">${LANG_LBL[cur] || cur.toUpperCase()}</span>` : "");
+      // Langues : ce qu'Aniverse proposait vraiment à la dernière récolte.
+      const langs = [];
+      if (fiche && fiche.langs) {
+        if (fiche.langs.vostfr) langs.push("VOSTFR");
+        if (fiche.langs.vf) langs.push("VF");
+      }
+      const langBadges = langs.length
+        ? `<span class="lang-badges">${langs.map(l => `<span class="lang-badge">${l}</span>`).join("")}</span>` : "";
 
-      const playSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-      const watchBtn = url ? `<a class="btn btn-primary as-watch" href="${url}" target="_blank" rel="noopener nofollow">
-        ${playSvg} Regarder en ${LANG_LBL[cur]} <span class="ext">↗</span></a>` : "";
+      const watchBtn = (slug && dispo) ? `<a class="btn btn-primary as-watch" href="${lien(1)}" target="_blank" rel="noopener nofollow">
+        ${playSvg} Regarder sur Aniverse <span class="ext">↗</span></a>` : "";
 
-      const epHtml = eps.map(n => {
-        const inner = `<i class="ep-play">▶</i><b>${n}</b>`;
-        return url
-          ? `<a class="ep-tile" href="${url}" target="_blank" rel="noopener nofollow" title="Épisode ${n} · ${LANG_LBL[cur]} — sélectionnez l'épisode sur anime-sama">${inner}</a>`
-          : `<span class="ep-tile" title="Épisode ${n}">${inner}</span>`;
-      }).join("");
+      /* Prochain épisode. On estime la date avec le calendrier hebdomadaire,
+         mais si Aniverse a annoncé une heure précise encore devant nous, c'est
+         la sienne qui gagne : elle vient de la source. */
+      let prochain = null;
+      if (dispo < total) {
+        const n = dispo + 1;
+        let quand = sortieDe(se, n);
+        const annonce = fiche && fiche.suivant;
+        if (annonce && annonce.n === n && Date.parse(annonce.le) > Date.now()) quand = Date.parse(annonce.le);
+        prochain = { n, quand };
+      }
+      const bandeau = prochain ? `<div class="ep-next">
+        <span class="next-ico">🗓️</span>
+        <span class="next-txt">Prochain épisode : <b>épisode ${prochain.n}</b>${prochain.quand
+          ? ` · ${fmtJourLong.format(prochain.quand)}, vers ${heureFr(prochain.quand)}` : ""}</span>
+        ${prochain.quand ? `<span class="next-in">${dansCombien(prochain.quand - Date.now())}</span>` : ""}
+      </div>` : "";
+
+      const carte = n => {
+        const e = infos[String(n)] || null;
+        const sorti = n <= dispo;
+        // Un film ou un OAV : une seule carte, qui porte son titre et son
+        // pictogramme plutot qu'un « Épisode 1 » qui ne veut rien dire.
+        const seul = total === 1 && !!k;
+        const titre = (e && e.t) ? e.t
+          : seul ? (se.title || k.long)
+          : sorti ? `Épisode ${n}` : "À venir";
+        const propre = (e && e.img) || null;          // le visuel de CET épisode
+        const src = propre || (sorti ? affiche : null);
+        const img = src
+          ? `<img src="${escH(src)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
+        let quand = "";
+        if (sorti) {
+          // Pour un film ou un OAV, la date de l'entete fait foi : Aniverse
+          // garde la sienne en UTC et affiche donc parfois la veille.
+          const d = seul ? (se.date || (e && e.d)) : (e && e.d);
+          if (d) quand = fmtDate.format(Date.parse(d + "T12:00:00Z"));
+        } else {
+          const q = sortieDe(se, n);
+          quand = q ? `${fmtJourCourt.format(q)} · vers ${heureFr(q)}` : "Date à préciser";
+        }
+        const corps = `<span class="ep-vue${img ? (propre ? "" : " affiche") : " sans-image"}">${img}
+            <span class="ep-num${seul ? " ep-ico" : ""}">${seul ? k.ico : n}</span>
+            <span class="ep-go">${sorti ? playSvg : "🔒"}</span></span>
+          <span class="ep-txt"><b>${escH(titre)}</b>${quand ? `<i>${quand}</i>` : ""}</span>`;
+        return (sorti && slug)
+          ? `<a class="ep-card" href="${lien(n)}" target="_blank" rel="noopener nofollow" title="${escH(seul ? titre : "Épisode " + n)} sur Aniverse">${corps}</a>`
+          : `<div class="ep-card soon">${corps}</div>`;
+      };
+
+      const eps = Array.from({ length: total }, (_, k) => carte(k + 1)).join("");
 
       detail.innerHTML = `
         <div class="season-card">
           <div class="season-head">
             <div class="season-id">
-              <span class="season-eyebrow">Saison ${se.n || i + 1}${se.year ? " · " + se.year : ""}${se.status ? " · " + se.status : ""}</span>
+              <span class="season-eyebrow">${k ? k.long : "Saison " + (se.n || i + 1)}${se.year ? " · " + se.year : ""}${se.status ? " · " + se.status : ""}</span>
               <h3>${se.title || "Saison " + (i + 1)}</h3>
               <div class="season-meta">
-                <span><b>${se.episodes || 0}</b> épisodes</span>
+                ${total === 1 && se.date
+                  ? `<span>Sorti le <b>${fmtDate.format(Date.parse(se.date + "T12:00:00Z"))}</b></span>`
+                  : `<span><b>${se.airing && dispo < total ? `${dispo}/${total}` : total}</b> épisodes</span>`}
                 ${se.studio ? `<span class="dot"></span><span>${se.studio}</span>` : ""}
               </div>
             </div>
@@ -496,17 +640,27 @@
             `<span class="plat-badge">${p}</span>`).join("")}</div>` : ""}
           </div>
           ${se.synopsis ? `<p class="season-syn">${se.synopsis}</p>` : ""}
-          ${langs.length ? `<div class="season-watch">${watchBtn}${langToggle}<span class="as-credit">via anime-sama</span></div>` : ""}
-          <div class="ep-grid">${epHtml}</div>
+          ${slug ? `<div class="season-watch">${watchBtn}${langBadges}
+            <a class="as-credit" href="https://aniverse.fr" target="_blank" rel="noopener nofollow">via Aniverse ↗</a></div>` : ""}
+          ${bandeau}
+          <div class="ep-list">${eps}</div>
         </div>`;
 
-      detail.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => {
-        lang = b.dataset.lang;
-        renderSeason(i);
-      }));
+      /* Les miniatures sont chez Aniverse : si l'une ne répond pas (lien
+         changé, bloqueur, hors ligne), la carte redevient une case numérotée
+         au lieu d'afficher un cadre vide. */
+      detail.querySelectorAll(".ep-vue img").forEach(img => {
+        img.addEventListener("error", () => {
+          const vue = img.closest(".ep-vue");
+          img.remove();
+          if (vue) vue.classList.add("sans-image");
+        }, { once: true });
+        img.addEventListener("load", () => img.classList.add("ok"), { once: true });
+      });
+
       window.LT._scanReveals && window.LT._scanReveals();
     }
-    renderSeason(0);
+    renderSeason(depart);
     panel.querySelectorAll(".season-chip").forEach(ch => ch.addEventListener("click", () => {
       panel.querySelectorAll(".season-chip").forEach(x => x.classList.toggle("on", x === ch));
       renderSeason(+ch.dataset.i);
