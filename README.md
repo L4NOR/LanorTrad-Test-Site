@@ -565,6 +565,40 @@ signale les nouveautés. Sans la variable, l'étape est simplement sautée.
 > qualité 90, sans aucun redimensionnement ni retouche : seule la compression
 > change, les dimensions sont conservées au pixel près.
 
+### G. Galerie — tomes et colors de l'atelier
+
+Deux dossiers par série, tous deux facultatifs :
+
+```
+images/Galerie/<Série>/Tomes/Tome 01.jpg
+images/Galerie/<Série>/Colors/Chapitre 47.png
+```
+
+Pose les fichiers, relance `py tools/build-data.py` : l'onglet **Galerie** de la
+fiche apparaît tout seul.
+
+**Le nom du fichier d'une color n'est pas décoratif** — c'est lui qui relie
+l'illustration à son chapitre, et le site s'en sert à trois endroits :
+
+| Où | Ce qui s'affiche |
+|----|------------------|
+| Liste des chapitres | une pastille 🎨 sur la case du chapitre |
+| Pendant la lecture | un bandeau « Une color pour ce chapitre », qui se retire seul au bout de 11 s |
+| Écran de fin | les colors en grand, chacune cliquable |
+
+Tous ces liens mènent à `/manga/<série>/#color-<numéro>`, qui ouvre la galerie
+avec l'illustration déjà agrandie.
+
+Donc : **`Chapitre 47.png`**, pas `color finale (2).png`. Plusieurs colors pour
+un même chapitre ? On suffixe comme pour les tomes : `Chapitre 47.png`,
+`Chapitre 47.1.png`, `Chapitre 47.2.png`… Un numéro qui est lui-même un vrai
+chapitre reste à lui (`Chapitre 48.5.png` est la color du bonus 48.5, pas du 48).
+
+`build-data.py` fabrique au passage une vignette WebP de ~65 Ko dans
+`images/Galerie/preview/<Série>/` : c'est elle que la grille et le lecteur
+affichent. Le PNG d'origine — 2 à 3 Mo — n'est chargé qu'à l'ouverture en grand.
+Sans cette étape, ouvrir la galerie de Tokyo Underworld coûtait 11 Mo.
+
 ---
 
 ## 4 bis. L'atelier — avancement du prochain chapitre

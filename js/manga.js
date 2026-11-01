@@ -147,6 +147,9 @@
     // pas ce qu'il te reste à lire (ça, c'est le liseré « lu » et la reprise).
     const NOUVEAU_JOURS = 7;
     const estNouveau = c => !!c.d && Date.now() - new Date(c.d + "T00:00:00").getTime() < NOUVEAU_JOURS * 864e5;
+    // Chapitres dont une planche a été colorisée (voir js/core.js) : la liste
+    // le dit d'un coup d'oeil, le lecteur le redit une fois dans le chapitre.
+    const avecColor = window.LT.chaptersWithColor(s.id);
 
     if (!chapters.length) {
       notice.innerHTML = `<div class="notice">⏳ On prépare les <b>${nbCh.officiels}</b> chapitres de cette série. Le Discord te préviendra dès qu'ils tombent.</div>`;
@@ -181,8 +184,13 @@
         const isCur = progress && c.num === progress.chapter;
         const href = window.LT.urlChapter(s, c.num);
         const neuf = estNouveau(c);
-        const item = `<a class="chap-item ${isRead ? "read" : ""} ${neuf ? "new" : ""}" href="${href}"${neuf ? ` title="Sorti ${window.LT.timeAgo(c.d)}"` : ""}>
+        const color = avecColor.has(c.num);
+        // Une seule infobulle pour les deux étiquettes : « Sorti aujourd'hui ·
+        // Color dispo dans la galerie ». Vide, l'attribut n'est pas écrit.
+        const titre = [neuf ? `Sorti ${window.LT.timeAgo(c.d)}` : "", color ? "Color dispo dans la galerie" : ""].filter(Boolean).join(" · ");
+        const item = `<a class="chap-item ${isRead ? "read" : ""} ${neuf ? "new" : ""}" href="${href}"${titre ? ` title="${titre}"` : ""}>
             ${neuf ? `<span class="chap-new">Nouveau</span>` : ""}
+            ${color ? `<span class="chap-color" aria-hidden="true">🎨</span>` : ""}
             <span class="n">Ch. ${c.num}</span>
             ${isCur ? `<span class="resume-dot" title="Reprise"></span>` : `<span class="pages">${c.pages} p.</span>`}
           </a>`;
@@ -218,6 +226,7 @@
         }
         window.LT._scanReveals && window.LT._scanReveals();
       }));
+      if (hasGallery) openFromHash(s, tabs);
     }
 
     // Bouton « Suivre » (repérer les nouveaux chapitres → Bibliothèque)
@@ -671,11 +680,53 @@
   function renderGallery(g, sid) {
     const panel = document.getElementById("panel-galerie");
     panel.innerHTML = galSection("Tomes", g.tomes, "tomes", sid) + galSection("Colors Lanor", g.colors, "colors", sid);
+    legenderColors(panel, sid);
     const items = [...panel.querySelectorAll(".gal-item")];
     const srcs = items.map(b => b.dataset.src);
     items.forEach((b, i) => b.addEventListener("click", () => openLightbox(srcs, i)));
     document.dispatchEvent(new Event("lt:cards"));
   }
+  /* Chaque color porte dans son nom de fichier le numéro du chapitre qu'elle
+     illustre : on l'écrit sous la vignette, pour que la galerie réponde à
+     « c'est quel chapitre, ça ? » sans ouvrir l'image. */
+  function legenderColors(panel, sid) {
+    panel.querySelectorAll(".gal-grid.colors .gal-item").forEach(b => {
+      const num = chapDeColor(b.dataset.src, sid);
+      if (!num) return;
+      b.dataset.chap = num;
+      b.insertAdjacentHTML("beforeend", `<span class="gal-tag">Ch. ${num}</span>`);
+    });
+  }
+  // Numéro du chapitre visé par une color, « 47.1 » replié sur « 47 ».
+  function chapDeColor(src, sid) {
+    const nums = new Set(((window.CHAPTERS || {})[sid] || []).map(c => String(c.num)));
+    const m = /chapitre[\s_-]*(\d+(?:\.\d+)*)/i.exec(String(src).split("/").pop().replace(/\.[a-z0-9]+$/i, ""));
+    if (!m) return null;
+    if (nums.has(m[1])) return m[1];
+    const base = m[1].slice(0, m[1].lastIndexOf("."));
+    return base && nums.has(base) ? base : m[1];
+  }
+
+  /* Lien venu du lecteur : /manga/<slug>/#color-47 ouvre la galerie sur la
+     color du chapitre 47. Un fragment plutôt qu'une requête : l'adresse propre
+     est une réécriture Netlify, le fragment est le seul morceau que le
+     navigateur garde à coup sûr, et il ne touche ni au canonical ni au
+     pré-rendu des robots. */
+  function openFromHash(s, tabs) {
+    const h = decodeURIComponent(location.hash || "");
+    const m = /^#color-(.+)$/.exec(h);
+    if (!m && h !== "#galerie") return;
+    const onglet = tabs.find(t => t.dataset.tab === "galerie");
+    if (!onglet) return;
+    onglet.click();
+    const panel = document.getElementById("panel-galerie");
+    (panel.querySelector(".gal-grid.colors") || panel).scrollIntoView({ block: "center" });
+    if (!m) return;
+    const vise = window.LT.colorsFor(s.id, m[1])[0];
+    const cible = [...panel.querySelectorAll(".gal-item")].find(b => b.dataset.src === vise);
+    if (cible) cible.click();
+  }
+
   function galSection(title, imgs, kind, sid) {
     if (kind === "colors" && (!imgs || !imgs.length))
       return `<div class="gal-block"><div class="gal-head"><h3>${title}</h3></div>
@@ -686,7 +737,7 @@
     return `<div class="gal-block">
       <div class="gal-head"><h3>${title}</h3><span class="gal-count">${sub}</span></div>
       <div class="gal-grid ${kind}">${imgs.map((src, i) =>
-        `<button class="gal-item" data-src="${src}"><img src="${encodeURI(src)}" alt="${title} ${i + 1}" loading="lazy"><span class="gal-zoom">⤢</span></button>`).join("")}</div>
+        `<button class="gal-item" data-src="${src}"><img src="${encodeURI(window.LT.colorThumb(sid, src))}" alt="${title} ${i + 1}" loading="lazy"><span class="gal-zoom">⤢</span></button>`).join("")}</div>
     </div>`;
   }
   function openLightbox(srcs, idx) {

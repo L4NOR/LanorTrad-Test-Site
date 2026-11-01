@@ -35,6 +35,10 @@ import os, re, json, sys, datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MANGA_DIR = os.path.join(ROOT, "Manga")
 GAL_DIR = os.path.join(ROOT, "images", "Galerie")
+GAL_PREVIEW_NAME = "preview"                  # images/Galerie/preview/<Serie>/
+GAL_PREVIEW = os.path.join(GAL_DIR, GAL_PREVIEW_NAME)
+COLOR_W = 560        # vignette de color (case affichee ~280 px => net en retina)
+COLOR_Q = 72         # ~70 Ko, contre 2,7 Mo pour le PNG d'origine
 OUT = os.path.join(ROOT, "js", "data", "chapters.js")
 OUT_GAL = os.path.join(ROOT, "js", "data", "gallery.js")
 OUT_PAGES = os.path.join(ROOT, "js", "data", "pages")
@@ -369,14 +373,56 @@ def compact_index(index):
     return out
 
 
+def gal_thumb(src, dst):
+    """Vignette WebP d'une color. Retourne True si le fichier est utilisable.
+
+    Les colors sont des PNG de 2 a 3 Mo. Affichees telles quelles, la galerie
+    d'une serie pesait 11 Mo -- et depuis que le lecteur annonce la color du
+    chapitre en cours, ce poids serait arrive EN PLEINE LECTURE. On ne touche
+    jamais a l'original : il reste ce que la visionneuse ouvre en grand."""
+    try:
+        if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
+            return True
+        from PIL import Image
+        with Image.open(src) as im:
+            if im.mode not in ("RGB", "L"):
+                im = im.convert("RGB")
+            w, h = im.size
+            if w > COLOR_W:
+                im = im.resize((COLOR_W, max(1, round(h * COLOR_W / w))), Image.LANCZOS)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            im.save(dst, "WEBP", quality=COLOR_Q, method=6)
+        return True
+    except Exception as e:                              # noqa: BLE001
+        print("  [galerie] vignette impossible pour %s : %s" % (src, e), file=sys.stderr)
+        return False
+
+
+def prune_gal_thumbs(serie, keep):
+    """Retire les vignettes dont la color n'existe plus."""
+    sdir = os.path.join(GAL_PREVIEW, serie)
+    if not os.path.isdir(sdir):
+        return
+    for f in os.listdir(sdir):
+        if f not in keep:
+            try:
+                os.remove(os.path.join(sdir, f))
+            except OSError:
+                pass
+
+
 def scan_galleries():
-    """Scanne images/Galerie/<Serie>/{Tomes,Colors}/*.jpg -> manifeste galerie."""
+    """Scanne images/Galerie/<Serie>/{Tomes,Colors}/*.jpg -> manifeste galerie.
+
+    Les colors sortent avec une vignette legere en face (champ "colorsThumb",
+    meme ordre que "colors") : c'est elle que la grille et le lecteur
+    affichent, l'original n'etant charge qu'a l'ouverture en grand."""
     data = {}
     if not os.path.isdir(GAL_DIR):
         return data
     for serie in sorted(os.listdir(GAL_DIR)):
         spath = os.path.join(GAL_DIR, serie)
-        if not os.path.isdir(spath):
+        if not os.path.isdir(spath) or serie == GAL_PREVIEW_NAME:
             continue
         entry = {}
         for kind, key in (("Tomes", "tomes"), ("Colors", "colors")):
@@ -385,6 +431,18 @@ def scan_galleries():
                 imgs = images_in(kdir)
                 if imgs:
                     entry[key] = ["images/Galerie/%s/%s/%s" % (serie, kind, f) for f in imgs]
+        if entry.get("colors"):
+            thumbs, keep = [], set()
+            for f in images_in(os.path.join(spath, "Colors")):
+                nom = os.path.splitext(f)[0] + ".webp"
+                ok = gal_thumb(os.path.join(spath, "Colors", f),
+                               os.path.join(GAL_PREVIEW, serie, nom))
+                thumbs.append("images/Galerie/%s/%s/%s" % (GAL_PREVIEW_NAME, serie, nom) if ok else None)
+                if ok:
+                    keep.add(nom)
+            prune_gal_thumbs(serie, keep)
+            if any(thumbs):
+                entry["colorsThumb"] = thumbs
         if entry:
             data[serie] = entry
     return data

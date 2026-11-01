@@ -82,6 +82,7 @@
     preloadIO: null, trackIO: null, scrollPending: false,
     prefetched: null, sb: null, me: null, resumePage: 0,
     tapT: 0, tapX: 0, tapY: 0,
+    colorT: 0,
   };
   let prefs = loadPrefs();
 
@@ -209,6 +210,11 @@
         <div class="rd-select"><select id="rd-chap-select" aria-label="Choisir un chapitre"></select></div>
         <button class="rd-icon-btn" id="rd-open-prefs" title="Préférences" aria-label="Préférences">${ic("gear")}</button>
       </header>
+
+      <!-- Rempli par annonceColor() quand une planche du chapitre a été
+           colorisée : sans ça, la galerie reste un onglet que personne
+           n'ouvre. -->
+      <div class="rd-color" id="rd-color" hidden></div>
 
       <main class="rd-viewer" id="rd-viewer"><div class="rd-track" id="rd-track"></div></main>
 
@@ -455,6 +461,7 @@
 
     updateChapBtns();
     updateOffBtn();
+    annonceColor();
     applyMode();
 
     // Reprise de lecture (uniquement au premier chargement de la session)
@@ -1519,6 +1526,71 @@
   }
 
   /* ========================================================================
+     COLORS DE L'ATELIER
+     Une planche de CE chapitre a été colorisée : on le dit dans le chapitre,
+     pas seulement dans l'onglet Galerie de la fiche — personne n'y va d'office.
+     Deux endroits, deux usages : un bandeau qui passe à l'ouverture (il se
+     retire tout seul, et la lecture ne doit jamais être prise en otage) et une
+     carte sur l'écran de fin, elle permanente.
+     Le rattachement color -> chapitre vit dans js/core.js (colorsFor).
+     ===================================================================== */
+  const COLOR_VISIBLE = 11000;
+
+  function annonceColor() {
+    const box = $("rd-color");
+    if (!box) return;
+    clearTimeout(A.colorT);
+    const colors = (window.LT.colorsFor && window.LT.colorsFor(A.manga, A.chap.num)) || [];
+    if (!colors.length) { box.hidden = true; box.classList.remove("in"); box.innerHTML = ""; return; }
+    const n = colors.length;
+    box.hidden = false;
+    box.innerHTML = `
+      <a class="rd-color-go" href="${window.LT.urlColor(A.S, A.chap.num)}">
+        <!-- Pas de loading="lazy" : la vignette est a l'ecran des son insertion,
+             et 67 Ko differes pour rien, c'est une pastille qui reste vide. -->
+        <img src="${encodeURI(window.LT.colorThumb(A.manga, colors[0]))}" alt="" decoding="async">
+        <span class="rd-color-txt">
+          <b>🎨 ${n > 1 ? n + " colors" : "Une color"} pour ce chapitre</b>
+          <span>Dans la galerie de la série →</span>
+        </span>
+      </a>
+      <button class="rd-color-x" type="button" aria-label="Fermer l'annonce">${ic("close")}</button>`;
+    box.querySelector(".rd-color-x").addEventListener("click", fermeColor);
+    // Reflow forcé plutôt qu'un requestAnimationFrame : l'onglet peut être en
+    // arrière-plan au moment où le chapitre finit de se charger, et là rAF ne
+    // tourne pas — le bandeau resterait invisible jusqu'au retour du lecteur,
+    // c'est-à-dire pour rien.
+    void box.offsetWidth;
+    box.classList.add("in");
+    A.colorT = setTimeout(fermeColor, COLOR_VISIBLE);
+  }
+
+  function fermeColor() {
+    clearTimeout(A.colorT);
+    const box = $("rd-color");
+    if (!box) return;
+    box.classList.remove("in");
+    setTimeout(() => { if (!box.classList.contains("in")) box.hidden = true; }, 400);
+  }
+
+  /* Carte de l'écran de fin : chaque vignette ouvre SA color dans la galerie
+     (« 47 », « 47.1 »…), pas seulement la première du chapitre. */
+  function colorEndHTML() {
+    const colors = (window.LT.colorsFor && window.LT.colorsFor(A.manga, A.chap.num)) || [];
+    if (!colors.length) return "";
+    const n = colors.length;
+    const lien = src => window.LT.urlColor(A.S, window.LT.colorNum(src) || A.chap.num);
+    return `<div class="rd-color-end">
+      <div class="rd-color-end-h">🎨 ${n > 1 ? n + " colors" : "Une color"} de ce chapitre ${n > 1 ? "t'attendent" : "t'attend"} dans la galerie</div>
+      <div class="rd-color-end-row">${colors.map((src, i) =>
+        `<a class="rd-color-th" href="${lien(src)}" title="Voir en grand">
+          <img src="${encodeURI(window.LT.colorThumb(A.manga, src))}" alt="Color du chapitre ${A.chap.num}${n > 1 ? " (" + (i + 1) + ")" : ""}" loading="lazy">
+        </a>`).join("")}</div>
+      <a class="btn btn-ghost rd-color-end-cta" href="${window.LT.urlColor(A.S, A.chap.num)}">Ouvrir la galerie</a>
+    </div>`;
+  }
+
+  /* ========================================================================
      ÉCRAN DE FIN + indispo
      ===================================================================== */
   function endScreen() {
@@ -1528,6 +1600,7 @@
         <div class="title">${esc(A.S.title)}</div>
         <div class="rd-credits">${creditsFor(A.manga, A.chap.num).map(t => creditCard(t)).join("")}</div>
         ${A.S.partners && A.S.partners.length ? `<div class="rd-collab">Traduit main dans la main avec ${A.S.partners.map(p => `<a href="${p.url}" target="_blank" rel="noopener">${esc(p.name)}</a>`).join(" & ")}</div>` : ""}
+        ${colorEndHTML()}
         <div class="rd-mood" id="rd-mood"></div>
         <div class="rd-pronos" id="rd-pronos"></div>
         ${(window.LTnotes && window.LTnotes.html(window.LTnotes.get(A.manga, A.chap.num))) || ""}

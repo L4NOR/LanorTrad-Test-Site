@@ -41,6 +41,9 @@ window.GALLERY = {
   ],
   "colors": [
    "images/Galerie/Ao No Exorcist/Colors/Chapitre 167.png"
+  ],
+  "colorsThumb": [
+   "images/Galerie/preview/Ao No Exorcist/Chapitre 167.webp"
   ]
  },
  "Catenaccio": {
@@ -82,7 +85,15 @@ window.GALLERY = {
   ],
   "colors": [
    "images/Galerie/Tokyo Underworld/Colors/Chapitre 43.png",
-   "images/Galerie/Tokyo Underworld/Colors/Chapitre 44.png"
+   "images/Galerie/Tokyo Underworld/Colors/Chapitre 44.png",
+   "images/Galerie/Tokyo Underworld/Colors/Chapitre 47.1.png",
+   "images/Galerie/Tokyo Underworld/Colors/Chapitre 47.png"
+  ],
+  "colorsThumb": [
+   "images/Galerie/preview/Tokyo Underworld/Chapitre 43.webp",
+   "images/Galerie/preview/Tokyo Underworld/Chapitre 44.webp",
+   "images/Galerie/preview/Tokyo Underworld/Chapitre 47.1.webp",
+   "images/Galerie/preview/Tokyo Underworld/Chapitre 47.webp"
   ]
  },
  "Tougen Anki": {
@@ -123,6 +134,12 @@ window.GALLERY = {
    "images/Galerie/Tougen Anki/Colors/Chapitre 250.1.png",
    "images/Galerie/Tougen Anki/Colors/Chapitre 250.2.png",
    "images/Galerie/Tougen Anki/Colors/Chapitre 250.3.png"
+  ],
+  "colorsThumb": [
+   "images/Galerie/preview/Tougen Anki/Chapitre 228.webp",
+   "images/Galerie/preview/Tougen Anki/Chapitre 250.1.webp",
+   "images/Galerie/preview/Tougen Anki/Chapitre 250.2.webp",
+   "images/Galerie/preview/Tougen Anki/Chapitre 250.3.webp"
   ]
  }
 };

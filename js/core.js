@@ -769,6 +769,73 @@
   }
   const nbChapitres = s => chapCount(s).officiels;
 
+  /* ---------- Colors de l'atelier rattachées à un chapitre ----------
+     Les colors vivent dans images/Galerie/<Série>/Colors/ et portent le nom du
+     chapitre qu'elles illustrent : « Chapitre 47.png ». Une même planche peut
+     en avoir plusieurs — la suivante s'appelle « Chapitre 47.1.png », sur le
+     modèle des tomes (« Tome 08.1.jpg »).
+
+     D'où la règle de rattachement : le numéro exact, plus les numéros qui en
+     sont un prolongement (47.1 pour le 47) — SAUF si ce prolongement est
+     lui-même un chapitre existant. Sans cette exception, la color du 48.5 de
+     Tokyo Underworld (un vrai chapitre bonus) serait annoncée dans le 48.
+
+     Rien à tenir à la main : poser le fichier dans Colors/ et relancer
+     tools/build-data.py suffit pour que le chapitre l'annonce. */
+  const COLOR_NUM = /chapitre[\s_-]*(\d+(?:\.\d+)*)/i;
+  function colorNum(src) {
+    const nom = String(src == null ? "" : src).split("/").pop().replace(/\.[a-z0-9]+$/i, "");
+    const m = COLOR_NUM.exec(nom);
+    return m ? m[1] : null;
+  }
+  function colorsFor(serie, num) {
+    const id = (serie && serie.id) || serie;
+    const g = (window.GALLERY || {})[id];
+    if (!g || !g.colors || !g.colors.length || num == null || num === "") return [];
+    const n = String(num);
+    const chapitres = new Set(((window.CHAPTERS || {})[id] || []).map(c => String(c.num)));
+    return g.colors.filter(src => {
+      const cn = colorNum(src);
+      return !!cn && (cn === n || (cn.indexOf(n + ".") === 0 && !chapitres.has(cn)));
+    // La planche du chapitre d'abord, ses variantes ensuite (47 puis 47.1) :
+    // l'ordre alphabetique des fichiers mettrait « 47.1 » en premier.
+    }).sort((a, b) => parseFloat(colorNum(a)) - parseFloat(colorNum(b)));
+  }
+  // Les chapitres de la série qui ont au moins une color (pour le pastillage
+  // de la liste : une seule passe, au lieu d'un filtre par ligne).
+  function chaptersWithColor(serie) {
+    const id = (serie && serie.id) || serie;
+    const g = (window.GALLERY || {})[id];
+    const out = new Set();
+    if (!g || !g.colors) return out;
+    const chapitres = ((window.CHAPTERS || {})[id] || []).map(c => String(c.num));
+    const connus = new Set(chapitres);
+    for (const src of g.colors) {
+      const cn = colorNum(src);
+      if (!cn) continue;
+      if (connus.has(cn)) { out.add(cn); continue; }
+      // « 47.1 » : on remonte au chapitre dont il prolonge le numéro.
+      const base = cn.slice(0, cn.lastIndexOf("."));
+      if (base && connus.has(base)) out.add(base);
+    }
+    return out;
+  }
+  /* Vignette legere d'une color (images/Galerie/preview/, ~65 Ko) : c'est elle
+     qu'on affiche partout. L'original est un PNG de 2 a 3 Mo, reserve a
+     l'ouverture en grand — le charger pour une case de 280 px, ou pire pour la
+     pastille du lecteur, coutait 11 Mo par galerie. Repli sur l'original tant
+     que tools/build-data.py n'a pas tourne. */
+  function colorThumb(serie, src) {
+    const id = (serie && serie.id) || serie;
+    const g = (window.GALLERY || {})[id];
+    if (!g || !g.colors || !g.colorsThumb) return src;
+    const i = g.colors.indexOf(src);
+    return (i >= 0 && g.colorsThumb[i]) || src;
+  }
+  // Adresse qui ouvre la fiche série sur la galerie, color agrandie.
+  const urlColor = (s, num) => urlSeries(s) + "#color-" + encodeURIComponent(num);
+
+
   /* ---------- Balises spoiler ----------
      ||texte|| comme sur Discord : le passage reste flouté jusqu'au clic.
      S'applique à du HTML DÉJÀ ÉCHAPPÉ (forum, commentaires de chapitre) : la
@@ -817,7 +884,7 @@
   }
 
   const playable = s => !!(((window.CHAPTERS || {})[s.id] || []).length);
-  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, estBonus, chapCount, nbChapitres, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, spoilers, sansSpoilers, composeTools, openPalette: () => openPalette() };
+  window.LT = { $, $$, el, icon, go, toast, timeAgo, stars, seriesById, page, route, slugify, urlSeries, urlChapter, urlGenre, playable, estBonus, chapCount, nbChapitres, colorsFor, chaptersWithColor, colorNum, colorThumb, urlColor, cover, coverAttrs, applyCover, ogCard, whenActive, isGenre, publicGenres, norm, matches, spoilers, sansSpoilers, composeTools, openPalette: () => openPalette() };
 
   /* ---------- PWA + analytics ---------- */
   // « Local » = localhost / IP de boucle, OU IP privée de réseau (test depuis un
