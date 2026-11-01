@@ -193,8 +193,8 @@ window.ANIME_EPISODES = {
   "tougen-anki-nikko-kegon-falls-arc": {
     maj: "2026-10-18",
     affiche: "https://cdn.onefy.me/t/w_500,c_limit/artwork/anime/9fbe54e0-75f1-4732-844b-ca2e84f5ac38/poster-3572b0e4.png",
-    langs: {"vostfr":3,"vf":0},
-    suivant: {"n":4,"le":"2026-10-23T16:11:33.000Z"},
+    langs: {"vostfr":5,"vf":0},
+    suivant: {"n":6,"le":"2026-11-06T16:06:00.000Z"},
     eps: {}
   }
 };
