@@ -1,6 +1,16 @@
 {
- "t": "2026-11-01T16:34:36.940Z",
+ "t": "2026-11-08T16:06:59.182Z",
  "sorties": [
+  {
+   "id": "Ao No Exorcist",
+   "titre": "Ao No Exorcist",
+   "num": "171",
+   "sig": "Ao No Exorcist#171",
+   "date": "2026-11-08",
+   "url": "/manga/ao-no-exorcist/chapitre-171/",
+   "image": "images/og/series/ao-no-exorcist.jpg",
+   "accent": "#1b75bc"
+  },
   {
    "id": "Tokyo Underworld",
    "titre": "Tokyo Underworld",
@@ -20,16 +30,6 @@
    "url": "/manga/tougen-anki/chapitre-256/",
    "image": "images/og/series/tougen-anki.jpg",
    "accent": "#e0245e"
-  },
-  {
-   "id": "Ao No Exorcist",
-   "titre": "Ao No Exorcist",
-   "num": "170",
-   "sig": "Ao No Exorcist#170",
-   "date": "2026-10-09",
-   "url": "/manga/ao-no-exorcist/chapitre-170/",
-   "image": "images/og/series/ao-no-exorcist.jpg",
-   "accent": "#1b75bc"
   },
   {
    "id": "Catenaccio",
